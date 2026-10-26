@@ -78,7 +78,7 @@ export function monteCarlo(city: City, triggers: string[], runs = 200, seed = 42
   const rng = mulberry32(seed);
   const sims: SimResult[] = [];
   for (let i = 0; i < runs; i++) sims.push(runSim(jitterCity(city, rng), triggers));
-  const order = sims.map((s, i) => i).sort((a, b) => analyzeHarm(sims[a]) - analyzeHarm(b, ));
+  const order = sims.map((s, i) => i).sort((a, b) => analyzeHarm(sims[a]) - analyzeHarm(sims[b]));
 
   const bands = [];
   for (let h = 0; h <= 24; h++) {
