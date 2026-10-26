@@ -111,7 +111,7 @@ export function runSim(
       hour: 0,
       severity: "critical",
       nodeId: id,
-      message: `Hour 0 — ${byId.get(id)!.name} went down. Cascade risk across dependent systems.`,
+      message: `Hour 0 — ${byId.get(id)?.name ?? id} went down. Cascade risk across dependent systems.`,
     });
   }
 
@@ -165,8 +165,9 @@ export function runSim(
 
       if (underStress) {
         if (stressStart[n.id] === undefined) stressStart[n.id] = h;
-        stress[n.id] += 1;
-        if (stress[n.id] > b) {
+        const curStress = (stress[n.id] ?? 0) + 1;
+        stress[n.id] = curStress;
+        if (curStress > b) {
           if (prevStatus !== "failed") {
             const failedDep = deps
               .filter((d) => status[d.id] === "failed")
@@ -174,11 +175,11 @@ export function runSim(
             if (failedDep) {
               causes[n.id] = {
                 depId: failedDep.id,
-                depName: byId.get(failedDep.id)!.name,
+                depName: byId.get(failedDep.id)?.name ?? failedDep.id,
                 depFailHour: failHours[failedDep.id] ?? 0,
                 lostFraction: l,
                 threshold: n.failureThreshold,
-                stressStart: stressStart[n.id],
+                stressStart: stressStart[n.id] ?? h,
                 backupHours: b,
               };
             }
@@ -192,14 +193,15 @@ export function runSim(
         }
       } else {
         // supplies restored — stress decays and the node recovers
-        stress[n.id] = Math.max(0, stress[n.id] - 0.5);
-        if (prevStatus === "failed" && stress[n.id] <= b) {
-          status[n.id] = stress[n.id] > 0 ? "recovering" : "ok";
+        const curStress = Math.max(0, (stress[n.id] ?? 0) - 0.5);
+        stress[n.id] = curStress;
+        if (prevStatus === "failed" && curStress <= b) {
+          status[n.id] = curStress > 0 ? "recovering" : "ok";
           events.push({ hour: h, severity: "info", nodeId: n.id, message: `Hour ${h} — ${n.name} recovering — supplies restored.` });
         } else if (prevStatus !== "failed") {
-          status[n.id] = stress[n.id] > 0 ? "recovering" : "ok";
+          status[n.id] = curStress > 0 ? "recovering" : "ok";
         }
-        if (stress[n.id] === 0) delete stressStart[n.id];
+        if (curStress === 0) delete stressStart[n.id];
       }
     }
     pushHour(h);

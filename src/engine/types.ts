@@ -14,6 +14,8 @@ export type NodeKind =
   | "underpass"
   | "tower";
 
+export type NodeStatus = "ok" | "stressed" | "failed" | "recovering";
+
 export type SystemLayer = "power" | "water" | "transport" | "telecom";
 
 export interface Dep {

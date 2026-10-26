@@ -71,34 +71,47 @@ function jitterCity(city: City, rng: () => number): City {
 function percentile(sorted: number[], p: number): number {
   if (!sorted.length) return 0;
   const idx = Math.min(sorted.length - 1, Math.floor(p * sorted.length));
-  return sorted[idx];
+  return sorted[idx] ?? 0;
 }
 
 export function monteCarlo(city: City, triggers: string[], runs = 200, seed = 42): MonteCarloResult {
   const rng = mulberry32(seed);
   const sims: SimResult[] = [];
   for (let i = 0; i < runs; i++) sims.push(runSim(jitterCity(city, rng), triggers));
-  const order = sims.map((s, i) => i).sort((a, b) => analyzeHarm(sims[a]) - analyzeHarm(sims[b]));
+  const order = sims.map((_, i) => i).sort((a, b) => {
+    const simA = sims[a];
+    const simB = sims[b];
+    if (!simA || !simB) return 0;
+    return analyzeHarm(simA) - analyzeHarm(simB);
+  });
 
-  const bands = [];
+  const bands: { hour: number; min: number; p25: number; med: number; p75: number; max: number }[] = [];
   for (let h = 0; h <= 24; h++) {
-    const vals = sims.map((s) => s.hours[h].affectedPopulation).sort((a, b) => a - b);
+    const vals = sims.map((s) => s.hours[h]?.affectedPopulation ?? 0).sort((a, b) => a - b);
     bands.push({
       hour: h,
-      min: vals[0],
+      min: vals[0] ?? 0,
       p25: percentile(vals, 0.25),
       med: percentile(vals, 0.5),
       p75: percentile(vals, 0.75),
-      max: vals[vals.length - 1],
+      max: vals[vals.length - 1] ?? 0,
     });
   }
-  const cascadeProbability = sims.filter((s) => s.systemsFailed >= 3).length / sims.length;
+  const cascadeProbability = sims.filter((s) => s.systemsFailed >= 3).length / (sims.length || 1);
+  const fallbackSim = sims[0] ?? runSim(city, triggers);
+  const worstIdx = order[order.length - 1];
+  const medIdx = order[Math.floor(order.length / 2)];
+  const bestIdx = order[0];
+  const worst = (worstIdx !== undefined ? sims[worstIdx] : undefined) ?? fallbackSim;
+  const median = (medIdx !== undefined ? sims[medIdx] : undefined) ?? fallbackSim;
+  const best = (bestIdx !== undefined ? sims[bestIdx] : undefined) ?? fallbackSim;
+
   return {
     runs,
     bands,
-    worst: sims[order[order.length - 1]],
-    median: sims[order[Math.floor(order.length / 2)]],
-    best: sims[order[0]],
+    worst,
+    median,
+    best,
     cascadeProbability,
   };
 }
@@ -131,9 +144,10 @@ export function applyMods(city: City, mods: CityMod[]): City {
       if (!n) continue;
       const powerDeps = n.deps.filter((d) => d.layer === "power");
       const alt = nearestAlternateSubstation(out, n);
-      if (powerDeps.length === 1 && alt) {
-        powerDeps[0].weight /= 2;
-        n.deps.push({ id: alt, weight: powerDeps[0].weight, layer: "power" });
+      const firstPowerDep = powerDeps[0];
+      if (powerDeps.length === 1 && alt && firstPowerDep) {
+        firstPowerDep.weight /= 2;
+        n.deps.push({ id: alt, weight: firstPowerDep.weight, layer: "power" });
       }
     } else if (m.type === "secondWaterLine") {
       const pipe = out.nodes.find((n) => n.kind === "pipeline");
@@ -188,8 +202,11 @@ export function optimizeBudget(city: City, triggers: string[], budget: number): 
     let cost = 0;
     for (let i = 0; i < n; i++) {
       if (mask & (1 << i)) {
-        chosen.push(UPGRADES[i]);
-        cost += UPGRADES[i].cost;
+        const upgrade = UPGRADES[i];
+        if (upgrade) {
+          chosen.push(upgrade);
+          cost += upgrade.cost;
+        }
       }
     }
     if (cost > budget) continue;

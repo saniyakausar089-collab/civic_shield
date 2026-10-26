@@ -9,16 +9,16 @@ export function explainFailure(result: SimResult, city: City, nodeId: string, de
   const cause = result.causes[nodeId];
 
   if (!cause) {
-    if (result.failHours[nodeId] !== undefined) {
-      return `${node.name} went down at hour ${result.failHours[nodeId]} as part of the initial event and was repaired after ${node.repairHours}h.`;
+    const fh = result.failHours[nodeId];
+    if (fh !== undefined) {
+      return `${node.name} went down at hour ${fh} as part of the initial event and was repaired after ${node.repairHours}h.`;
     }
     return `${node.name} never failed in this scenario.`;
   }
 
-  const dep = nodeById(city, cause.depId);
   const bufferWord =
     node.kind === "pump" ? `${cause.backupHours}-hour tank ran dry` : `${cause.backupHours}-hour backup was exhausted`;
-  const base = `${node.name} failed at hour ${result.failHours[nodeId]} because ${cause.depName} failed at hour ${cause.depFailHour} and ${node.name}'s ${bufferWord}.`;
+  const base = `${node.name} failed at hour ${result.failHours[nodeId] ?? "?"} because ${cause.depName} failed at hour ${cause.depFailHour} and ${node.name}'s ${bufferWord}.`;
   if (depth < 2 && result.causes[cause.depId]) {
     return `${base} ${explainFailure(result, city, cause.depId, depth + 1)}`;
   }
@@ -34,7 +34,8 @@ export function situationSummary(
   hour: number,
   planName: string,
 ): string {
-  const snap = result.hours[Math.min(hour, result.hours.length - 1)];
+  const snap = result.hours[Math.min(Math.max(0, hour), result.hours.length - 1)];
+  if (!snap) return "";
   const failedNames = Object.entries(snap.status)
     .filter(([, s]) => s === "failed")
     .map(([id]) => nodeById(city, id)?.name ?? id);
