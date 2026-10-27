@@ -10,11 +10,12 @@ import { UndergroundNetwork } from "./UndergroundNetwork";
 import { SubstationPumpStation } from "./SubstationPumpStation";
 import { HospitalCutaway } from "./HospitalCutaway";
 import { CivicLifelines } from "./CivicLifelines";
+import { CascadeFailure } from "./CascadeFailure";
 import { CameraController } from "./CameraController";
 import { GlassPanel } from "./GlassPanel";
 import { StageIndicator } from "./StageIndicator";
 import { BASE_CITY } from "@/engine/city";
-import { weakestLinks, analyzeHarm } from "@/engine/analysis";
+import { weakestLinks, analyzeHarm, resilienceScore } from "@/engine/analysis";
 import { runSim } from "@/engine/sim";
 import { PLANS } from "@/engine/plans";
 import { Shield, ArrowRight, Eye, RefreshCw } from "lucide-react";
@@ -112,6 +113,9 @@ export const CinematicLanding: React.FC = () => {
       };
     }).sort((a, b) => a.harm - b.harm);
 
+    // 5. Resilience rating across all disaster presets
+    const score = resilienceScore(BASE_CITY);
+
     return {
       topWeak,
       hospitalBackupHours,
@@ -121,6 +125,7 @@ export const CinematicLanding: React.FC = () => {
         systemsFailed: snap.systemsFailed,
       },
       planComparison,
+      resilienceScoreValue: score,
     };
   }, [scrollProgress]);
 
@@ -252,6 +257,7 @@ export const CinematicLanding: React.FC = () => {
             <SubstationPumpStation scrollProgress={scrollProgress} />
             <HospitalCutaway scrollProgress={scrollProgress} />
             <CivicLifelines scrollProgress={scrollProgress} />
+            <CascadeFailure scrollProgress={scrollProgress} />
             <NetworkOverlay scrollProgress={scrollProgress} />
             <AtmosphericClouds />
           </Suspense>
@@ -267,6 +273,7 @@ export const CinematicLanding: React.FC = () => {
         hospitalBackupHours={engineData.hospitalBackupHours}
         failureStats={engineData.failureStats}
         planComparison={engineData.planComparison}
+        resilienceScoreValue={engineData.resilienceScoreValue}
       />
 
       {/* 4. Side Stage Dot Indicator */}

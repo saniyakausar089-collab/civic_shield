@@ -11,6 +11,7 @@ interface GlassPanelProps {
   hospitalBackupHours?: number;
   failureStats?: { hour: number; affectedPop: number; systemsFailed: number };
   planComparison?: { id: string; name: string; harm: number; isBest: boolean }[];
+  resilienceScoreValue?: number;
 }
 
 export const GlassPanel: React.FC<GlassPanelProps> = ({
@@ -21,6 +22,7 @@ export const GlassPanel: React.FC<GlassPanelProps> = ({
   hospitalBackupHours = 8,
   failureStats,
   planComparison,
+  resilienceScoreValue = 92,
 }) => {
   const stage = SCROLL_STAGES[currentStage] || SCROLL_STAGES[0]!;
 
@@ -90,45 +92,55 @@ export const GlassPanel: React.FC<GlassPanelProps> = ({
             </button>
           </div>
 
-          {/* Feature capability tiles */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <div className="flex items-center gap-2 text-cyan-400">
+          {/* Feature capability tiles - 5 key platform capabilities */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-cyan-400">
                 <Activity className="w-4 h-4" />
-                <span className="text-xs font-mono uppercase font-semibold">Monte Carlo</span>
+                <span className="text-[11px] font-mono uppercase font-semibold">Monte Carlo</span>
               </div>
-              <p className="text-xs text-slate-300">
-                200 stochastic perturbations across capacity and repair times.
+              <p className="text-[11px] text-slate-300 leading-tight">
+                200 stochastic runs with P25–P75 confidence envelopes.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <div className="flex items-center gap-2 text-amber-400">
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-amber-400">
                 <Zap className="w-4 h-4" />
-                <span className="text-xs font-mono uppercase font-semibold">Weak Links</span>
+                <span className="text-[11px] font-mono uppercase font-semibold">Weak Links</span>
               </div>
-              <p className="text-xs text-slate-300">
+              <p className="text-[11px] text-slate-300 leading-tight">
                 Heuristic ranking of single-point cascading bottlenecks.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <div className="flex items-center gap-2 text-sky-400">
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-sky-400">
                 <ShieldCheck className="w-4 h-4" />
-                <span className="text-xs font-mono uppercase font-semibold">4-Plan Triage</span>
+                <span className="text-[11px] font-mono uppercase font-semibold">Command Panel</span>
               </div>
-              <p className="text-xs text-slate-300">
-                Compare emergency rerouting, hospital generators, and crew triage.
+              <p className="text-[11px] text-slate-300 leading-tight">
+                Emergency interventions: tankers, generators, and road closures.
               </p>
             </div>
 
-            <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <div className="flex items-center gap-2 text-emerald-400">
-                <Radio className="w-4 h-4" />
-                <span className="text-xs font-mono uppercase font-semibold">Voice Brief</span>
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-rose-400">
+                <span className="text-xs font-mono font-bold">{resilienceScoreValue}/100</span>
+                <span className="text-[11px] font-mono uppercase font-semibold">Resilience</span>
               </div>
-              <p className="text-xs text-slate-300">
-                Audio synthesized situation debrief and forensic timeline analysis.
+              <p className="text-[11px] text-slate-300 leading-tight">
+                Composite stress score benchmarked against all presets.
+              </p>
+            </div>
+
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5 col-span-2 sm:col-span-1">
+              <div className="flex items-center gap-1.5 text-emerald-400">
+                <Radio className="w-4 h-4" />
+                <span className="text-[11px] font-mono uppercase font-semibold">Voice Brief</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-tight">
+                Speech-synthesized incident debrief and timeline audio.
               </p>
             </div>
           </div>
