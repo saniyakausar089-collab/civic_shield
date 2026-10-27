@@ -6,6 +6,8 @@ import { DuskSky } from "./DuskSky";
 import { ProceduralCity } from "./ProceduralCity";
 import { NetworkOverlay } from "./NetworkOverlay";
 import { AtmosphericClouds } from "./AtmosphericClouds";
+import { UndergroundNetwork } from "./UndergroundNetwork";
+import { SubstationPumpStation } from "./SubstationPumpStation";
 import { CameraController } from "./CameraController";
 import { GlassPanel } from "./GlassPanel";
 import { StageIndicator } from "./StageIndicator";
@@ -244,6 +246,8 @@ export const CinematicLanding: React.FC = () => {
               scrollProgress={scrollProgress}
               failureProgress={failureProgress}
             />
+            <UndergroundNetwork scrollProgress={scrollProgress} />
+            <SubstationPumpStation scrollProgress={scrollProgress} />
             <NetworkOverlay scrollProgress={scrollProgress} />
             <AtmosphericClouds />
           </Suspense>
