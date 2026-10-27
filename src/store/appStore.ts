@@ -29,6 +29,8 @@ export interface AppStore {
   layers: Layers;
   dayNight: "day" | "night";
   selectedNodeId: string | null;
+  viewportMode: "cesium" | "three";
+  cesiumBuildingStyle: "year" | "height" | "tall" | "none";
   activeTab: "simulate" | "plans" | "weaklinks" | "command" | "report";
   set: (partial: Partial<AppStore>) => void;
   setPreset: (id: string, triggers: string[]) => void;
@@ -84,6 +86,8 @@ export const useAppStore = create<AppStore>((set) => ({
   layers: { power: true, water: true, roads: true, telecom: true, hospitals: true },
   dayNight: "night",
   selectedNodeId: null,
+  viewportMode: "cesium",
+  cesiumBuildingStyle: "year",
   activeTab: "simulate",
   set: (partial) => set(partial),
   setPreset: (id, triggers) =>

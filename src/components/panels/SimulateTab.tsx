@@ -47,23 +47,23 @@ export const SimulateTab: React.FC = () => {
               <button
                 key={p.id}
                 onClick={() => setPreset(p.id, p.triggers)}
-                className={`flex flex-col text-left p-3 rounded-xl border transition-all ${
+                className={`flex flex-col text-left p-3 rounded border transition-all ${
                   isActive
-                    ? "bg-cyan-950/30 border-cyan-500/60 shadow-md shadow-cyan-950/20"
-                    : "bg-card hover:bg-muted/50 border-border"
+                    ? "bg-[#252e35] border-[#9BAA76] shadow-sm"
+                    : "bg-[#191F24] hover:bg-[#222a31] border-[#303941]"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-2">
                     {getPresetIcon(p.id)}
-                    <span className="font-semibold text-sm text-foreground">{p.label}</span>
+                    <span className="font-semibold text-sm text-[#e5e9ec]">{p.label}</span>
                   </div>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#242c33] text-[#8a96a1]">
                     {p.triggers.length} {p.triggers.length === 1 ? "trigger" : "triggers"}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground line-clamp-2">{p.blurb}</p>
-                <div className="mt-2 text-[10px] font-mono text-cyan-400/80 truncate">
+                <p className="text-xs text-[#8a96a1] line-clamp-2">{p.blurb}</p>
+                <div className="mt-2 text-[10px] font-mono text-[#9BAA76] truncate">
                   Nodes: {p.triggers.join(", ")}
                 </div>
               </button>

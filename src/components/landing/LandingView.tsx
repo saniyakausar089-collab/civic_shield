@@ -10,49 +10,49 @@ export const LandingView: React.FC = () => {
   const getPresetIcon = (id: string) => {
     switch (id) {
       case "pipeline":
-        return <Droplets className="w-5 h-5 text-cyan-400" />;
+        return <Droplets className="w-5 h-5 text-[#5c8ca3]" />;
       case "monsoon":
-        return <Globe className="w-5 h-5 text-blue-400" />;
+        return <Globe className="w-5 h-5 text-[#6c8ca3]" />;
       case "heatwave":
-        return <Flame className="w-5 h-5 text-orange-400" />;
+        return <Flame className="w-5 h-5 text-[#d4a359]" />;
       case "cyber":
-        return <Zap className="w-5 h-5 text-yellow-400" />;
+        return <Zap className="w-5 h-5 text-[#e09f3e]" />;
       case "quake":
-        return <Activity className="w-5 h-5 text-red-400" />;
+        return <Activity className="w-5 h-5 text-[#d9534f]" />;
       default:
-        return <Shield className="w-5 h-5 text-cyan-400" />;
+        return <Shield className="w-5 h-5 text-[#9BAA76]" />;
     }
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#0b0f19] text-foreground flex flex-col justify-between p-6 sm:p-12 overflow-y-auto selection:bg-cyan-500 selection:text-black">
-      {/* Background radial glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-cyan-500/10 blur-[140px] pointer-events-none rounded-full" />
-      <div className="absolute bottom-0 right-0 w-[600px] h-[400px] bg-indigo-500/10 blur-[130px] pointer-events-none rounded-full" />
+    <div className="relative min-h-screen w-full bg-[#101418] text-[#e5e9ec] flex flex-col justify-between p-6 sm:p-12 overflow-y-auto selection:bg-[#9BAA76] selection:text-[#101418]">
+      {/* Background subtle radial gradient */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#9BAA76]/5 blur-[140px] pointer-events-none rounded-full" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[400px] bg-[#5c8ca3]/5 blur-[130px] pointer-events-none rounded-full" />
 
       {/* Top Header */}
       <header className="relative z-10 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-3 h-3 rounded-full bg-cyan-400 animate-pulse shadow-lg shadow-cyan-400/50" />
+          <div className="w-3 h-3 rounded bg-[#9BAA76] shadow-sm" />
           <h1 className="text-lg font-bold tracking-wider font-mono">
-            CIVIC<span className="text-cyan-400">SHIELD</span>
+            CIVIC<span className="text-[#9BAA76]">SHIELD</span>
           </h1>
         </div>
-        <span className="text-xs font-mono text-muted-foreground uppercase px-2.5 py-1 rounded-full border border-border bg-card/60">
-          City Failure Simulator
+        <span className="text-xs font-mono text-[#8a96a1] uppercase px-2.5 py-1 rounded border border-[#303941] bg-[#191F24]">
+          GIS Resilience Simulator
         </span>
       </header>
 
       {/* Center Hero */}
       <main className="relative z-10 my-auto py-12 max-w-4xl mx-auto text-center space-y-6">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-950/60 border border-cyan-800/80 text-cyan-300 text-xs font-mono">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-[#191F24] border border-[#303941] text-[#9BAA76] text-xs font-mono">
           <Shield className="w-3.5 h-3.5" />
           <span>Interdependent Infrastructure Resilience Analysis</span>
         </div>
 
-        <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white font-display leading-[1.08]">
+        <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-[#f1f4f6] font-display leading-[1.08]">
           Break one thing. <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400">
+          <span className="text-[#9BAA76]">
             Watch the city follow.
           </span>
         </h2>
