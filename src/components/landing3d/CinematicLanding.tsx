@@ -8,6 +8,8 @@ import { NetworkOverlay } from "./NetworkOverlay";
 import { AtmosphericClouds } from "./AtmosphericClouds";
 import { UndergroundNetwork } from "./UndergroundNetwork";
 import { SubstationPumpStation } from "./SubstationPumpStation";
+import { HospitalCutaway } from "./HospitalCutaway";
+import { CivicLifelines } from "./CivicLifelines";
 import { CameraController } from "./CameraController";
 import { GlassPanel } from "./GlassPanel";
 import { StageIndicator } from "./StageIndicator";
@@ -248,6 +250,8 @@ export const CinematicLanding: React.FC = () => {
             />
             <UndergroundNetwork scrollProgress={scrollProgress} />
             <SubstationPumpStation scrollProgress={scrollProgress} />
+            <HospitalCutaway scrollProgress={scrollProgress} />
+            <CivicLifelines scrollProgress={scrollProgress} />
             <NetworkOverlay scrollProgress={scrollProgress} />
             <AtmosphericClouds />
           </Suspense>
