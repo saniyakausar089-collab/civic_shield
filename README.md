@@ -87,11 +87,35 @@ CivicShield allows civil engineers, disaster planners, and urban researchers to 
 ## Tech Stack
 
 - **Framework**: React 19, TypeScript (strict mode, zero type errors)
-- **3D Graphics**: Three.js, React Three Fiber (`@react-three/fiber`), Drei (`@react-three/drei`)
+- **3D Graphics & Cinema**: Three.js, React Three Fiber (`@react-three/fiber`), Drei (`@react-three/drei`), `@react-three/postprocessing`
+- **Smooth Scrolling Engine**: Lenis (`lenis`) with 10-stage CatmullRom spline trajectory
 - **State Management**: Zustand
-- **Routing & Server**: TanStack Start, TanStack Router
+- **Routing & Server**: TanStack Start, TanStack Router (Cinematic Landing at `/`, Interactive Simulator at `/simulator`)
 - **Styling**: Tailwind CSS v4, Lucide React icons
 - **Testing**: Vitest
+
+---
+
+## Cinematic 3D Landing Experience (`/`)
+
+The home page features a continuous WebGL scroll-driven documentary flight through the city across 10 distinct narrative stages:
+
+- **Stage 00 // System Initialize**: Loading screen and master title *"CivicShield. Break one thing. Watch the city follow."* set against an authentic dusk sky.
+- **Stage 01 // Orbital Twin**: High orbital vantage at blue hour showing illuminated windows, river canal, and the thin glowing dependency graph overlay across districts.
+- **Stage 02 // Street Descent**: Camera punches through low-hanging atmospheric valley clouds and dives toward street level with handheld camera micro-drift.
+- **Stage 03 // Subterranean Slice**: Geological cutaway trench revealing earth strata (asphalt, gravel, clay, bedrock), steel shoring, high-pressure water mains with animated cyan pulses, 132kV power cables, and telecom conduits.
+- **Stage 04 // Vulnerability Profiling**: Substation transformers with vibration hum and municipal booster pumps with rotating drive shafts, displaying live #1 weak link data from `weakestLinks(BASE_CITY)`.
+- **Stage 05 // Critical Healthcare**: Architectural cutaway of Eastside Medical showing the basement generator room, water cistern, ICU monitor glow, ambulance bay, and rooftop helipad, reflecting the engine's 8.0h autonomy buffer.
+- **Stage 06 // Public Services**: Civic school, emergency evacuation shelter, and a 48m telecom lattice transmission mast with blinking aviation beacons and lifeline labels.
+- **Stage 07 // Systemic Collapse**: Main pipeline rupture with cracked asphalt, high-pressure particle geyser spray, flooded underpass with submerged vehicles, and scroll-scrubbed hour-by-hour cascade blackout spreading across city buildings.
+- **Stage 08 // Mitigation Formulation**: Skyward pullback as city re-lights under the optimal triage plan, featuring a 4-plan harm comparison.
+- **Stage 09 // Executive Command**: Night metropolis panorama with the *"Launch Simulator"* CTA (`/simulator`), 5 core capability cards (Monte Carlo, Weak Links, Command Panel, Resilience Score, Voice Brief), and crisis presets.
+
+### Cinematic Visual Quality & Performance Tuning
+- **PBR Architectural Materials**: Procedural concrete, asphalt, soil cutaway, brushed metal, and emissive window grids generated dynamically in-memory.
+- **Post-Processing**: ACES filmic tone mapping, selective emissive bloom, film grain, light vignette, and subtle chromatic aberration.
+- **Adaptive Performance**: Built-in `PerformanceMonitor` adjusting DPR (1.0 to 1.5) and toggling post-processing on constrained devices.
+- **Accessibility & Motion**: Full `prefers-reduced-motion` compliance, mobile-responsive layouts, and static WebGL fallback.
 
 > **Architectural Note on Engine Integrity**:
 > The core simulation engine in `src/engine/` (`types.ts`, `city.ts`, `sim.ts`, `plans.ts`, `analysis.ts`, `explain.ts`) is written in **pure, framework-agnostic TypeScript with zero React imports**. This design guarantees that the engine can be decoupled or compiled to WebAssembly without touching the UI layer.

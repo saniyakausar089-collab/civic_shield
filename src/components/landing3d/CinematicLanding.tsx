@@ -18,14 +18,23 @@ import { BASE_CITY } from "@/engine/city";
 import { weakestLinks, analyzeHarm, resilienceScore } from "@/engine/analysis";
 import { runSim } from "@/engine/sim";
 import { PLANS } from "@/engine/plans";
-import { Shield, ArrowRight, Eye, RefreshCw } from "lucide-react";
+import { PostProcessingEffects } from "./PostProcessingEffects";
+import { FpsTracker } from "./FpsTracker";
+import { Shield, ArrowRight, Eye, RefreshCw, Gauge } from "lucide-react";
 
 export const CinematicLanding: React.FC = () => {
+  const [mounted, setMounted] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [dpr, setDpr] = useState<number>(1.5);
+  const [fps, setFps] = useState<number>(60);
+  const [lowQuality, setLowQuality] = useState(false);
   const [webglError, setWebglError] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const lenisRef = useRef<Lenis | null>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Initialize Lenis smooth scroll
   useEffect(() => {
@@ -193,6 +202,9 @@ export const CinematicLanding: React.FC = () => {
             <span className="hidden sm:inline-block ml-3 px-2 py-0.5 text-[10px] font-mono uppercase rounded bg-white/5 border border-white/10 text-slate-400">
               3D Infrastructure Twin
             </span>
+            <span className="hidden md:inline-block ml-2 px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
+              {fps} FPS • {lowQuality ? "Eco Mode" : "PBR Ultra"}
+            </span>
           </div>
         </div>
 
@@ -224,44 +236,59 @@ export const CinematicLanding: React.FC = () => {
 
       {/* 2. Full-Screen Fixed Three.js WebGL Canvas */}
       <div className="fixed inset-0 z-10 pointer-events-none">
-        <Canvas
-          dpr={dpr}
-          gl={{
-            antialias: true,
-            alpha: true,
-            powerPreference: "high-performance",
-          }}
-          onCreated={({ gl }) => {
-            gl.toneMappingExposure = 1.1;
-          }}
-          onError={() => setWebglError(true)}
-        >
-          <PerformanceMonitor
-            onDecline={() => setDpr(1.0)}
-            onIncline={() => setDpr(1.5)}
-          />
-
-          <CameraController
-            scrollProgress={scrollProgress}
-            reducedMotion={reducedMotion}
-          />
-
-          <DuskSky />
-
-          <Suspense fallback={null}>
-            <ProceduralCity
-              scrollProgress={scrollProgress}
-              failureProgress={failureProgress}
+        {mounted && (
+          <Canvas
+            dpr={dpr}
+            gl={{
+              antialias: true,
+              alpha: true,
+              powerPreference: "high-performance",
+            }}
+            onCreated={({ gl }) => {
+              gl.toneMappingExposure = 1.1;
+            }}
+            onError={() => setWebglError(true)}
+          >
+            <PerformanceMonitor
+              onDecline={() => {
+                setDpr(1.0);
+                setLowQuality(true);
+              }}
+              onIncline={() => {
+                setDpr(1.5);
+                setLowQuality(false);
+              }}
             />
-            <UndergroundNetwork scrollProgress={scrollProgress} />
-            <SubstationPumpStation scrollProgress={scrollProgress} />
-            <HospitalCutaway scrollProgress={scrollProgress} />
-            <CivicLifelines scrollProgress={scrollProgress} />
-            <CascadeFailure scrollProgress={scrollProgress} />
-            <NetworkOverlay scrollProgress={scrollProgress} />
-            <AtmosphericClouds />
-          </Suspense>
-        </Canvas>
+
+            <FpsTracker onFpsUpdate={setFps} />
+
+            <CameraController
+              scrollProgress={scrollProgress}
+              reducedMotion={reducedMotion}
+            />
+
+            <DuskSky />
+
+            <Suspense fallback={null}>
+              <ProceduralCity
+                scrollProgress={scrollProgress}
+                failureProgress={failureProgress}
+              />
+              <UndergroundNetwork scrollProgress={scrollProgress} />
+              <SubstationPumpStation scrollProgress={scrollProgress} />
+              <HospitalCutaway scrollProgress={scrollProgress} />
+              <CivicLifelines scrollProgress={scrollProgress} />
+              <CascadeFailure scrollProgress={scrollProgress} />
+              <NetworkOverlay scrollProgress={scrollProgress} />
+              <AtmosphericClouds />
+            </Suspense>
+
+            <PostProcessingEffects
+              enabled={!reducedMotion}
+              lowQuality={lowQuality}
+            />
+          </Canvas>
+        )}
       </div>
 
       {/* 3. Interactive Floating Glass HUD Panels */}
