@@ -8,7 +8,8 @@
       "lon": 78.4867,
       "lat": 17.385
     },
-    "weight_semantics": "edge.weight = fraction of the target node's function lost when the source fails completely. delay_h = hours before the loss reaches the target. type 'hazard' = physical spillover (e.g. burst pipe flooding an underpass)."
+    "weight_semantics": "edge.weight = fraction of the target node's function lost when the source fails completely. delay_h = hours before the loss reaches the target. type 'hazard' = physical spillover (e.g. burst pipe flooding an underpass).",
+    "grid_note": "PP1 supplies roughly half of city load; the rest is imported from the regional grid, so losing PP1 degrades substations but does not black out the city by itself. Substation-to-substation links have a 1h delay (protection trips / overload spread)."
   },
   "engine_defaults": {
     "time_step_h": 1,
@@ -397,7 +398,8 @@
       "age_years": 58,
       "criticality": 5,
       "status": "normal",
-      "backup_power_hours": 8
+      "backup_power_hours": 8,
+      "backup_water_hours": 12
     },
     {
       "id": "H2",
@@ -413,7 +415,8 @@
       "age_years": 25,
       "criticality": 5,
       "status": "normal",
-      "backup_power_hours": 6
+      "backup_power_hours": 6,
+      "backup_water_hours": 10
     }
   ],
   "edges": [
@@ -542,7 +545,7 @@
       "source": "PP1",
       "target": "SUB2",
       "type": "power",
-      "weight": 1.0,
+      "weight": 0.6,
       "delay_h": 0
     },
     {
@@ -550,7 +553,7 @@
       "source": "PP1",
       "target": "SUB3",
       "type": "power",
-      "weight": 0.6,
+      "weight": 0.5,
       "delay_h": 0
     },
     {
@@ -558,8 +561,8 @@
       "source": "SUB2",
       "target": "SUB3",
       "type": "power",
-      "weight": 0.4,
-      "delay_h": 0
+      "weight": 0.3,
+      "delay_h": 1
     },
     {
       "id": "E19",
@@ -574,40 +577,40 @@
       "source": "SUB2",
       "target": "SUB4",
       "type": "power",
-      "weight": 0.5,
-      "delay_h": 0
+      "weight": 0.3,
+      "delay_h": 1
     },
     {
       "id": "E21",
       "source": "SUB2",
       "target": "SUB1",
       "type": "power",
-      "weight": 0.6,
-      "delay_h": 0
+      "weight": 0.5,
+      "delay_h": 1
     },
     {
       "id": "E22",
       "source": "SUB4",
       "target": "SUB1",
       "type": "power",
-      "weight": 0.4,
-      "delay_h": 0
+      "weight": 0.3,
+      "delay_h": 1
     },
     {
       "id": "E23",
       "source": "SUB2",
       "target": "SUB5",
       "type": "power",
-      "weight": 0.5,
-      "delay_h": 0
+      "weight": 0.4,
+      "delay_h": 1
     },
     {
       "id": "E24",
       "source": "SUB1",
       "target": "SUB5",
       "type": "power",
-      "weight": 0.5,
-      "delay_h": 0
+      "weight": 0.3,
+      "delay_h": 1
     },
     {
       "id": "E25",
