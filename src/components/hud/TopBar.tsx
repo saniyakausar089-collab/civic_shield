@@ -2,6 +2,7 @@ import React from "react";
 import { Users, Building2, AlertTriangle, Sun, Moon, RotateCcw } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { PRESETS } from "@/engine/plans";
+import { LiveEnvironmentClock } from "./LiveEnvironmentClock";
 
 interface TopBarProps {
   onToggleLeftPanel?: () => void;
@@ -16,6 +17,8 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
   const presetId = useAppStore((s) => s.presetId);
   const scenariosData = useAppStore((s) => s.scenariosData);
   const dayNight = useAppStore((s) => s.dayNight);
+  const activeEngine = useAppStore((s) => s.activeEngine);
+  const engineDurationMs = useAppStore((s) => s.engineDurationMs);
   const set = useAppStore((s) => s.set);
   const resetSim = useAppStore((s) => s.resetSim);
 
@@ -42,7 +45,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
     "Custom Outage";
 
   return (
-    <header className="h-12 w-full bg-[#191F24] border-b border-[#303941] px-3 flex items-center justify-between text-xs text-[#e5e9ec] select-none shrink-0 z-30">
+    <header className="h-12 w-full bg-[#191F24] border-b border-[#303941] px-3 flex items-center justify-between text-xs text-[#e5e9ec] select-none shrink-0 z-40">
       {/* Brand & Scenario info */}
       <div className="flex items-center gap-3">
         <button
@@ -58,7 +61,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
               CIVIC<span className="text-[#9BAA76]">SHIELD</span>
             </span>
             <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#242c33] text-[#8a96a1] border border-[#303941]">
-              GIS OPS
+              SYNTHETIC TWIN
             </span>
           </div>
         </button>
@@ -80,6 +83,29 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
             <span className="font-semibold text-[#38bdf8] truncate max-w-[160px]">
               {appliedPlan.name}
             </span>
+          </div>
+        )}
+
+        {/* Active Engine Badge (Phase 4C) */}
+        {activeEngine === "cpp" && (
+          <div
+            className="hidden sm:flex items-center gap-1.5 bg-[#0f2316] border border-[#22c55e]/60 px-2 py-1 rounded text-[10px] font-mono shadow-sm animate-in fade-in text-[#4ade80]"
+            title={`Native C++ Cascade Engine Execution (${engineDurationMs != null ? `${engineDurationMs.toFixed(1)}ms` : "sub-millisecond"})`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+            <span className="font-bold tracking-tight">ENGINE: C++ NATIVE</span>
+            {engineDurationMs != null && (
+              <span className="text-[#86efac]/80 font-semibold">{engineDurationMs.toFixed(1)}ms</span>
+            )}
+          </div>
+        )}
+        {activeEngine === "ts" && (
+          <div
+            className="hidden sm:flex items-center gap-1.5 bg-[#1e252d] border border-[#9BAA76]/60 px-2 py-1 rounded text-[10px] font-mono shadow-sm animate-in fade-in text-[#9BAA76]"
+            title="TypeScript Fallback Cascade Engine"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#9BAA76]" />
+            <span className="font-bold tracking-tight">ENGINE: TS</span>
           </div>
         )}
 
@@ -139,7 +165,12 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
+        {/* Real-time Clock & Hyderabad Environmental Factors */}
+        <LiveEnvironmentClock />
+
+        <div className="h-4 w-px bg-[#303941] hidden sm:block" />
+
         {/* Day/Night Basemap Mode */}
         <button
           onClick={() => set({ dayNight: dayNight === "day" ? "night" : "day" })}

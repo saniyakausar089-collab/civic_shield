@@ -43,6 +43,8 @@ export interface AppStore {
   networkData: NetworkData | null;
   neighborhoodsData: NeighborhoodsData | null;
   engineError: string | null;
+  activeEngine: "cpp" | "ts" | null;
+  engineDurationMs: number | null;
 
   layers: Layers;
   dayNight: "day" | "night";
@@ -112,6 +114,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
   networkData: null,
   neighborhoodsData: null,
   engineError: null,
+  activeEngine: null,
+  engineDurationMs: null,
 
   layers: { power: true, water: true, roads: true, telecom: true, hospitals: true },
   dayNight: "night",
@@ -176,8 +180,42 @@ export const useAppStore = create<AppStore>((set, get) => ({
         state.civicShieldLayer.clearPreview();
       }
 
-      // Synchronously execute cascade simulation (Requirement 2)
-      const res = simulate(network, hoods, sc);
+      let res: CascadeSimResult | null = null;
+      let activeEngine: "cpp" | "ts" = "ts";
+      let engineDurationMs: number | null = null;
+
+      // Attempt simulation via Native C++ Cascade Engine backend
+      try {
+        const response = await fetch("/api/cascade", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ scenario: sc }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.result) {
+            res = data.result as CascadeSimResult;
+            activeEngine = "cpp";
+            engineDurationMs = typeof data.durationMs === "number" ? data.durationMs : null;
+            console.log(
+              `[CIVICSHIELD] Simulation executed via Native C++ Engine in ${engineDurationMs?.toFixed(1) ?? "?"}ms`
+            );
+          }
+        } else {
+          console.warn(`[CIVICSHIELD] /api/cascade returned HTTP ${response.status}, falling back to TS engine`);
+        }
+      } catch (netErr) {
+        console.warn("[CIVICSHIELD] /api/cascade unreachable, falling back to TS engine:", netErr);
+      }
+
+      // Fallback to TS engine if C++ endpoint failed or returned empty
+      if (!res) {
+        const t0 = performance.now();
+        res = simulate(network, hoods, sc);
+        activeEngine = "ts";
+        engineDurationMs = performance.now() - t0;
+      }
 
       // Apply initial frame 0 (Requirement 4)
       const frame0 = res.frames[0];
@@ -199,6 +237,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
         hour: 0,
         playing: true,
         engineError: null,
+        activeEngine,
+        engineDurationMs,
       });
     } catch (err: any) {
       console.error("[CIVICSHIELD] Simulation engine error:", err);
@@ -274,6 +314,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
       engineError: null,
       selectedNodeId: null,
       selectedGisNode: null,
+      activeEngine: null,
+      engineDurationMs: null,
     });
   },
 
@@ -298,6 +340,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
       engineError: null,
       selectedNodeId: null,
       selectedGisNode: null,
+      activeEngine: null,
+      engineDurationMs: null,
     });
   },
 
@@ -502,4 +546,8 @@ export function currentSnapshot(result: any | null, hour: number): Snapshot {
     lost: {},
     status: {},
   };
+}
+
+if (typeof window !== "undefined") {
+  (window as any).__APP_STORE__ = useAppStore;
 }
