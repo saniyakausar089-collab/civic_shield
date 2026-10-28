@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { PRESETS } from "@/engine/plans";
 import { BASE_CITY } from "@/engine/city";
 import { applyMods } from "@/engine/analysis";
@@ -8,30 +8,66 @@ import { Flame, Droplets, Zap, Shield, Globe, Layers } from "lucide-react";
 export const SimulateTab: React.FC = () => {
   const presetId = useAppStore((s) => s.presetId);
   const triggers = useAppStore((s) => s.triggers);
-  const layers = useAppStore((s) => s.layers);
   const cityMods = useAppStore((s) => s.cityMods);
-  const setPreset = useAppStore((s) => s.setPreset);
+  const scenariosData = useAppStore((s) => s.scenariosData);
+  const setScenariosData = useAppStore((s) => s.setScenariosData);
+  const previewScenario = useAppStore((s) => s.previewScenario);
   const toggleTrigger = useAppStore((s) => s.toggleTrigger);
-  const toggleLayer = useAppStore((s) => s.toggleLayer);
+
+  useEffect(() => {
+    if (scenariosData.length === 0) {
+      fetch("/data/scenarios.json")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data?.scenarios) {
+            setScenariosData(data.scenarios);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [scenariosData.length, setScenariosData]);
 
   const city = applyMods(BASE_CITY, cityMods);
 
   const getPresetIcon = (id: string) => {
     switch (id) {
       case "pipeline":
+      case "pipeline_burst":
         return <Droplets className="w-4 h-4 text-cyan-400" />;
       case "monsoon":
+      case "monsoon_flood":
         return <Globe className="w-4 h-4 text-blue-400" />;
       case "heatwave":
+      case "heatwave_overload":
         return <Flame className="w-4 h-4 text-orange-400" />;
       case "cyber":
+      case "cyberattack":
         return <Zap className="w-4 h-4 text-yellow-400" />;
       case "quake":
+      case "earthquake":
         return <Shield className="w-4 h-4 text-red-400" />;
       default:
         return <Layers className="w-4 h-4 text-cyan-400" />;
     }
   };
+
+  const scenariosList =
+    scenariosData.length > 0
+      ? scenariosData
+      : PRESETS.map((p) => ({
+          id: p.id,
+          name: p.label,
+          summary: p.blurb,
+          triggers: p.triggers.map((node) => ({ node })),
+        }));
+
+  const isScenarioActive = (s: any) =>
+    presetId === s.id ||
+    (presetId === "pipeline" && s.id === "pipeline_burst") ||
+    (presetId === "monsoon" && s.id === "monsoon_flood") ||
+    (presetId === "heatwave" && s.id === "heatwave_overload") ||
+    (presetId === "cyber" && s.id === "cyberattack") ||
+    (presetId === "quake" && s.id === "earthquake");
 
   return (
     <div className="space-y-6">
@@ -41,12 +77,13 @@ export const SimulateTab: React.FC = () => {
           1. Select Disaster Scenario
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
-          {PRESETS.map((p) => {
-            const isActive = presetId === p.id;
+          {scenariosList.map((s) => {
+            const isActive = isScenarioActive(s);
+            const triggerNodes = s.triggers.map((t: any) => t.node || t);
             return (
               <button
-                key={p.id}
-                onClick={() => setPreset(p.id, p.triggers)}
+                key={s.id}
+                onClick={() => previewScenario(s)}
                 className={`flex flex-col text-left p-3 rounded border transition-all ${
                   isActive
                     ? "bg-[#252e35] border-[#9BAA76] shadow-sm"
@@ -55,16 +92,20 @@ export const SimulateTab: React.FC = () => {
               >
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-2">
-                    {getPresetIcon(p.id)}
-                    <span className="font-semibold text-sm text-[#e5e9ec]">{p.label}</span>
+                    {getPresetIcon(s.id)}
+                    <span className="font-semibold text-sm text-[#e5e9ec]">
+                      {s.name || s.label}
+                    </span>
                   </div>
                   <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#242c33] text-[#8a96a1]">
-                    {p.triggers.length} {p.triggers.length === 1 ? "trigger" : "triggers"}
+                    {triggerNodes.length} {triggerNodes.length === 1 ? "trigger" : "triggers"}
                   </span>
                 </div>
-                <p className="text-xs text-[#8a96a1] line-clamp-2">{p.blurb}</p>
+                <p className="text-xs text-[#8a96a1] line-clamp-2">
+                  {s.summary || s.blurb}
+                </p>
                 <div className="mt-2 text-[10px] font-mono text-[#9BAA76] truncate">
-                  Nodes: {p.triggers.join(", ")}
+                  Nodes: {triggerNodes.join(", ")}
                 </div>
               </button>
             );
@@ -96,39 +137,6 @@ export const SimulateTab: React.FC = () => {
               </button>
             );
           })}
-        </div>
-      </div>
-
-      {/* Layer Visibility Toggles */}
-      <div>
-        <h3 className="text-xs uppercase font-mono tracking-wider text-muted-foreground mb-3">
-          3. System Layers
-        </h3>
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-          {(
-            [
-              { key: "power", label: "Power Grid", color: "text-amber-400" },
-              { key: "water", label: "Water Works", color: "text-cyan-400" },
-              { key: "roads", label: "Transportation", color: "text-slate-300" },
-              { key: "telecom", label: "Telecom", color: "text-violet-400" },
-              { key: "hospitals", label: "Hospitals", color: "text-pink-400" },
-            ] as const
-          ).map((item) => (
-            <button
-              key={item.key}
-              onClick={() => toggleLayer(item.key)}
-              className={`p-2.5 rounded-xl border text-xs font-medium flex items-center justify-between transition-colors ${
-                layers[item.key]
-                  ? "bg-card border-border text-foreground"
-                  : "bg-muted/20 border-border/40 text-muted-foreground opacity-60"
-              }`}
-            >
-              <span className={item.color}>{item.label}</span>
-              <span className="text-[10px] font-mono">
-                {layers[item.key] ? "ON" : "OFF"}
-              </span>
-            </button>
-          ))}
         </div>
       </div>
     </div>

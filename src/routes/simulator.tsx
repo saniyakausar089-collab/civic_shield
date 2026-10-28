@@ -16,12 +16,8 @@ import {
   Box,
 } from "lucide-react";
 
-const CityScene = lazy(() =>
-  import("@/components/scene/CityScene").then((m) => ({ default: m.CityScene }))
-);
-const CesiumMap = lazy(() =>
-  import("@/components/scene/CesiumMap").then((m) => ({ default: m.CesiumMap }))
-);
+import { CityScene } from "@/components/scene/CityScene";
+import { CesiumMap } from "@/components/scene/CesiumMap";
 
 export const Route = createFileRoute("/simulator")({
   component: SimulatorPage,
@@ -30,14 +26,13 @@ export const Route = createFileRoute("/simulator")({
 export function SimulatorPage() {
   const selectedNodeId = useAppStore((s) => s.selectedNodeId);
   const viewportMode = useAppStore((s) => s.viewportMode);
+  const resetAllLayers = useAppStore((s) => s.resetAllLayers);
   const setStore = useAppStore((s) => s.set);
 
-  const [mounted, setMounted] = useState(false);
   const [resetSignal, setResetSignal] = useState(0);
   const [showLeftPanel, setShowLeftPanel] = useState(true);
 
   useEffect(() => {
-    setMounted(true);
     setStore({ view: "sim" });
   }, [setStore]);
 
@@ -52,29 +47,24 @@ export function SimulatorPage() {
         {showLeftPanel && <LeftScenarioPanel />}
 
         {/* Central GIS Viewport Container */}
-        <div className="flex-1 relative h-full min-w-0 bg-[#101418]">
-          {/* 3D GIS Canvas (CesiumJS 3D Globe with Asset 4854512 or ThreeJS Synthetic Twin) */}
-          {mounted ? (
-            <Suspense
-              fallback={
-                <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-[#9BAA76] font-mono text-xs">
-                  <div className="w-6 h-6 border-2 border-[#9BAA76] border-t-transparent rounded-full animate-spin" />
-                  <span>Initializing 3D Viewport...</span>
-                </div>
-              }
-            >
-              {viewportMode === "cesium" ? (
-                <CesiumMap resetSignal={resetSignal} />
-              ) : (
-                <CityScene resetSignal={resetSignal} />
-              )}
-            </Suspense>
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-[#9BAA76] font-mono text-xs">
-              <div className="w-6 h-6 border-2 border-[#9BAA76] border-t-transparent rounded-full animate-spin" />
-              <span>Loading Geospatial Infrastructure Scene...</span>
-            </div>
-          )}
+        <div
+          className="flex-1 relative h-full min-w-0 bg-[#101418]"
+          style={{ height: "100%", minHeight: "400px" }}
+        >
+          {/* 3D GIS Canvas (CesiumJS 3D Globe or ThreeJS Synthetic Twin) */}
+          <div
+            className="w-full h-full"
+            style={{ display: viewportMode === "cesium" ? "block" : "none" }}
+          >
+            <CesiumMap resetSignal={resetSignal} />
+          </div>
+
+          <div
+            className="w-full h-full"
+            style={{ display: viewportMode === "three" ? "block" : "none" }}
+          >
+            <CityScene resetSignal={resetSignal} />
+          </div>
 
           {/* Floating Map Utility Controls */}
           <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
@@ -117,9 +107,12 @@ export function SimulatorPage() {
 
             {/* Reset Camera View Button */}
             <button
-              onClick={() => setResetSignal((s) => s + 1)}
+              onClick={() => {
+                resetAllLayers();
+                setResetSignal((s) => s + 1);
+              }}
               className="p-2 rounded bg-[#191F24]/90 backdrop-blur-md border border-[#303941] text-[#e5e9ec] hover:bg-[#242c33] transition-colors shadow flex items-center gap-1.5 text-xs font-mono"
-              title="Reset GIS Camera View"
+              title="Reset GIS Camera View & Clear Scenario Pulses"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Reset View</span>

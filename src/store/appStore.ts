@@ -29,9 +29,13 @@ export interface AppStore {
   layers: Layers;
   dayNight: "day" | "night";
   selectedNodeId: string | null;
+  selectedGisNode: any | null;
   viewportMode: "cesium" | "three";
   cesiumBuildingStyle: "year" | "height" | "tall" | "none";
   activeTab: "simulate" | "plans" | "weaklinks" | "command" | "report";
+  civicShieldLayer: any | null;
+  scenariosData: any[];
+
   set: (partial: Partial<AppStore>) => void;
   setPreset: (id: string, triggers: string[]) => void;
   setTriggers: (triggers: string[]) => void;
@@ -43,6 +47,11 @@ export interface AppStore {
   removeMod: (label: string) => void;
   toggleLayer: (key: keyof Layers) => void;
   select: (id: string | null) => void;
+  setSelectedGisNode: (node: any | null) => void;
+  setCivicShieldLayer: (layer: any | null) => void;
+  setScenariosData: (scenarios: any[]) => void;
+  previewScenario: (scenario: any) => void;
+  resetAllLayers: () => void;
   enterSim: () => void;
   setHour: (h: number) => void;
   togglePlay: () => void;
@@ -64,7 +73,7 @@ export function computeResult(s: {
   return runSim(city, s.triggers, plan, s.actionIds);
 }
 
-export const useAppStore = create<AppStore>((set) => ({
+export const useAppStore = create<AppStore>((set, get) => ({
   view: "landing",
   theme: "dark",
   cityMods: [],
@@ -86,13 +95,30 @@ export const useAppStore = create<AppStore>((set) => ({
   layers: { power: true, water: true, roads: true, telecom: true, hospitals: true },
   dayNight: "night",
   selectedNodeId: null,
+  selectedGisNode: null,
   viewportMode: "cesium",
   cesiumBuildingStyle: "year",
   activeTab: "simulate",
+  civicShieldLayer: null,
+  scenariosData: [],
+
   set: (partial) => set(partial),
   setPreset: (id, triggers) =>
     set((s) => {
-      const next = { ...s, presetId: id, triggers, hour: 0, selectedNodeId: null };
+      const next = { ...s, presetId: id, triggers, hour: 0, selectedNodeId: null, selectedGisNode: null };
+      // Also notify CivicShieldLayer if matching scenario exists
+      const match = s.scenariosData.find(
+        (sc) =>
+          sc.id === id ||
+          (id === "pipeline" && sc.id === "pipeline_burst") ||
+          (id === "monsoon" && sc.id === "monsoon_flood") ||
+          (id === "heatwave" && sc.id === "heatwave_overload") ||
+          (id === "cyber" && sc.id === "cyberattack") ||
+          (id === "quake" && sc.id === "earthquake")
+      );
+      if (match && s.civicShieldLayer && typeof s.civicShieldLayer.previewScenario === "function") {
+        s.civicShieldLayer.previewScenario(match);
+      }
       return { ...next, result: computeResult(next) };
     }),
   setTriggers: (triggers) =>
@@ -135,8 +161,45 @@ export const useAppStore = create<AppStore>((set) => ({
       const next = { ...s, cityMods: s.cityMods.filter((m) => m.label !== label), hour: 0 };
       return { ...next, result: computeResult(next) };
     }),
-  toggleLayer: (key) => set((s) => ({ layers: { ...s.layers, [key]: !s.layers[key] } })),
+  toggleLayer: (key) =>
+    set((s) => {
+      const nextLayers = { ...s.layers, [key]: !s.layers[key] };
+      const layer = s.civicShieldLayer;
+      if (layer && typeof layer.setNetworkVisible === "function") {
+        if (key === "power") layer.setNetworkVisible("power", nextLayers.power);
+        if (key === "water") layer.setNetworkVisible("water", nextLayers.water);
+        if (key === "roads") layer.setNetworkVisible("road", nextLayers.roads);
+        if (key === "telecom") layer.setNetworkVisible("telecom", nextLayers.telecom);
+      }
+      return { layers: nextLayers };
+    }),
   select: (id) => set({ selectedNodeId: id }),
+  setSelectedGisNode: (selectedGisNode) => set({ selectedGisNode }),
+  setCivicShieldLayer: (civicShieldLayer) => set({ civicShieldLayer }),
+  setScenariosData: (scenariosData) => set({ scenariosData }),
+  previewScenario: (scenario) => {
+    const { civicShieldLayer } = get();
+    if (civicShieldLayer && typeof civicShieldLayer.previewScenario === "function") {
+      civicShieldLayer.previewScenario(scenario);
+    }
+    const triggerNodes = scenario.triggers ? scenario.triggers.map((t: any) => t.node || t) : [];
+    set((s) => {
+      const next = {
+        ...s,
+        presetId: scenario.id,
+        triggers: triggerNodes.length > 0 ? triggerNodes : s.triggers,
+        hour: 0,
+      };
+      return { ...next, result: computeResult(next) };
+    });
+  },
+  resetAllLayers: () => {
+    const { civicShieldLayer } = get();
+    if (civicShieldLayer && typeof civicShieldLayer.resetAll === "function") {
+      civicShieldLayer.resetAll();
+    }
+    set({ hour: 0, playing: false, selectedNodeId: null, selectedGisNode: null });
+  },
   enterSim: () => set({ view: "sim" }),
   setHour: (h) => set({ hour: Math.max(0, Math.min(24, h)) }),
   togglePlay: () => set((s) => ({ playing: !s.playing })),

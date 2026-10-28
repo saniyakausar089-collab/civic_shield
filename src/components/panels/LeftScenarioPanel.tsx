@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { PRESETS } from "@/engine/plans";
 import { BASE_CITY } from "@/engine/city";
 import { applyMods } from "@/engine/analysis";
@@ -6,13 +6,9 @@ import { useAppStore } from "@/store/appStore";
 import {
   Play,
   RotateCcw,
-  Zap,
-  Activity,
-  Layers,
+  Sliders,
   CheckSquare,
   Square,
-  Sliders,
-  AlertTriangle,
 } from "lucide-react";
 
 export const LeftScenarioPanel: React.FC = () => {
@@ -20,16 +16,50 @@ export const LeftScenarioPanel: React.FC = () => {
   const triggers = useAppStore((s) => s.triggers);
   const layers = useAppStore((s) => s.layers);
   const cityMods = useAppStore((s) => s.cityMods);
-  const hour = useAppStore((s) => s.hour);
   const playing = useAppStore((s) => s.playing);
-  const setPreset = useAppStore((s) => s.setPreset);
+  const scenariosData = useAppStore((s) => s.scenariosData);
+  const setScenariosData = useAppStore((s) => s.setScenariosData);
+  const previewScenario = useAppStore((s) => s.previewScenario);
+  const resetAllLayers = useAppStore((s) => s.resetAllLayers);
   const toggleTrigger = useAppStore((s) => s.toggleTrigger);
   const toggleLayer = useAppStore((s) => s.toggleLayer);
   const togglePlay = useAppStore((s) => s.togglePlay);
   const setHour = useAppStore((s) => s.setHour);
-  const set = useAppStore((s) => s.set);
+
+  // If scenariosData is not yet loaded, load scenarios.json
+  useEffect(() => {
+    if (scenariosData.length === 0) {
+      fetch("/data/scenarios.json")
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data?.scenarios) {
+            setScenariosData(data.scenarios);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [scenariosData.length, setScenariosData]);
 
   const city = applyMods(BASE_CITY, cityMods);
+
+  // Build scenarios list from scenarios.json if available, or fallback to PRESETS
+  const scenariosList =
+    scenariosData.length > 0
+      ? scenariosData
+      : PRESETS.map((p) => ({
+          id: p.id,
+          name: p.label,
+          summary: p.blurb,
+          triggers: p.triggers.map((node) => ({ node })),
+        }));
+
+  const isScenarioActive = (s: any) =>
+    presetId === s.id ||
+    (presetId === "pipeline" && s.id === "pipeline_burst") ||
+    (presetId === "monsoon" && s.id === "monsoon_flood") ||
+    (presetId === "heatwave" && s.id === "heatwave_overload") ||
+    (presetId === "cyber" && s.id === "cyberattack") ||
+    (presetId === "quake" && s.id === "earthquake");
 
   return (
     <div className="w-80 h-full flex flex-col bg-[#191F24] border-r border-[#303941] text-[#e5e9ec] select-none text-xs">
@@ -67,10 +97,12 @@ export const LeftScenarioPanel: React.FC = () => {
             </button>
             <button
               onClick={() => {
+                resetAllLayers();
                 setHour(0);
                 if (playing) togglePlay();
               }}
               className="flex items-center justify-center gap-1.5 py-2 px-3 rounded bg-[#242c33] border border-[#303941] hover:bg-[#2c363f] text-[#d2d8de] transition-colors"
+              title="Reset simulation and clear active failure pulses"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset T+0</span>
@@ -78,18 +110,18 @@ export const LeftScenarioPanel: React.FC = () => {
           </div>
         </div>
 
-        {/* 2. Failure Scenarios */}
+        {/* 2. Failure Scenarios wired to scenarios.json */}
         <div className="space-y-1.5">
           <div className="text-[10px] uppercase font-mono tracking-wider text-[#8a96a1]">
             Failure Scenario Presets
           </div>
           <div className="space-y-1">
-            {PRESETS.map((p) => {
-              const isActive = presetId === p.id;
+            {scenariosList.map((s) => {
+              const isActive = isScenarioActive(s);
               return (
                 <button
-                  key={p.id}
-                  onClick={() => setPreset(p.id, p.triggers)}
+                  key={s.id}
+                  onClick={() => previewScenario(s)}
                   className={`w-full text-left p-2 rounded border transition-colors flex flex-col gap-0.5 ${
                     isActive
                       ? "bg-[#252e35] border-[#9BAA76] text-[#f1f4f6]"
@@ -97,12 +129,16 @@ export const LeftScenarioPanel: React.FC = () => {
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-xs text-[#e5e9ec]">{p.label}</span>
+                    <span className="font-semibold text-xs text-[#e5e9ec]">
+                      {s.name || s.label}
+                    </span>
                     <span className="text-[9px] font-mono px-1 rounded bg-[#2c363f] text-[#8a96a1]">
-                      {p.triggers.length} {p.triggers.length === 1 ? "node" : "nodes"}
+                      {s.triggers.length} {s.triggers.length === 1 ? "node" : "nodes"}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#8a96a1] line-clamp-1">{p.blurb}</p>
+                  <p className="text-[11px] text-[#8a96a1] line-clamp-1">
+                    {s.summary || s.blurb}
+                  </p>
                 </button>
               );
             })}
@@ -116,7 +152,7 @@ export const LeftScenarioPanel: React.FC = () => {
               Target Failures ({triggers.length})
             </span>
             <button
-              onClick={() => set({ triggers: ["PIPE1"], presetId: "pipeline", hour: 0 })}
+              onClick={() => resetAllLayers()}
               className="text-[10px] text-[#9BAA76] hover:underline"
             >
               Reset default
@@ -158,10 +194,10 @@ export const LeftScenarioPanel: React.FC = () => {
           <div className="grid grid-cols-2 gap-1.5">
             {(
               [
-                { key: "power", label: "Power Network", color: "#d4a359" },
-                { key: "water", label: "Water Distribution", color: "#5c8ca3" },
-                { key: "roads", label: "Roadways & Bridges", color: "#6f7881" },
-                { key: "telecom", label: "Telecom Links", color: "#837d99" },
+                { key: "power", label: "Power Network", color: "#f5b942" },
+                { key: "water", label: "Water Distribution", color: "#4fb3e8" },
+                { key: "roads", label: "Roadways & Bridges", color: "#e5e7eb" },
+                { key: "telecom", label: "Telecom Links", color: "#9aa7b8" },
                 { key: "hospitals", label: "Critical Facilities", color: "#c76a75" },
               ] as const
             ).map((l) => (
@@ -188,9 +224,15 @@ export const LeftScenarioPanel: React.FC = () => {
       </div>
 
       {/* Footer Info */}
-      <div className="p-2.5 border-t border-[#303941] text-[10px] text-[#616e79] flex items-center justify-between">
-        <span>Coordinate System: WGS 84</span>
-        <span className="text-[#9BAA76]">Simulated Twin</span>
+      <div className="p-3 border-t border-[#303941] bg-[#14191d] text-[10px] text-[#8a96a1] space-y-1">
+        <div className="flex justify-between">
+          <span>Active Testbed:</span>
+          <span className="text-[#e5e9ec] font-mono">HYD-METRO-01</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Asset Grid:</span>
+          <span className="text-[#9BAA76] font-mono">26 Critical Nodes</span>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,12 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import cesium from "vite-plugin-cesium";
 
 export default defineConfig({
+  plugins: [
+    cesium({
+      rebuildCesium: true,
+    }),
+  ],
   define: {
     // Tell Cesium where static build assets reside
     CESIUM_BASE_URL: JSON.stringify("/cesium"),

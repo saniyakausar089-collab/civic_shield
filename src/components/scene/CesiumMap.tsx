@@ -1,16 +1,27 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { useAppStore, currentSnapshot } from "@/store/appStore";
-import { BASE_CITY } from "@/engine/city";
-import { applyMods } from "@/engine/analysis";
-import { HYDERABAD_REGION, SF_REGION, type CityRegion } from "@/engine/geoRegions";
+import { useAppStore } from "@/store/appStore";
+import { CivicShieldLayer, loadCivicShieldData, type NodeData } from "@/gis/civicshieldLayer";
 import {
   createYearStyle,
   createHeightStyle,
   createTallStyle,
 } from "./cesiumStyles";
-import { AlertTriangle, RefreshCw, Eye, EyeOff, ShieldAlert, Sparkles, MapPin } from "lucide-react";
+import { AlertTriangle, Sparkles, ShieldAlert, X } from "lucide-react";
+
+// Ensure CESIUM_BASE_URL points to static assets (/cesium)
+if (typeof window !== "undefined" && !(window as any).CESIUM_BASE_URL) {
+  (window as any).CESIUM_BASE_URL = "/cesium";
+}
+
+// Hyderabad fallback coordinates
+const HYDERABAD_COORDS = {
+  lng: 78.4867,
+  lat: 17.3850,
+  altitude: 6000,
+  pitch: -45,
+};
 
 interface CesiumMapProps {
   resetSignal: number;
@@ -19,62 +30,91 @@ interface CesiumMapProps {
 export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
+  const layerRef = useRef<CivicShieldLayer | null>(null);
   const tilesetRef = useRef<Cesium.Cesium3DTileset | null>(null);
-  const pinEntitiesRef = useRef<Map<string, Cesium.Entity>>(new Map());
-  const arcEntitiesRef = useRef<Cesium.Entity[]>([]);
 
   // Zustand Store
-  const hour = useAppStore((s) => s.hour);
-  const result = useAppStore((s) => s.result);
-  const cityMods = useAppStore((s) => s.cityMods);
-  const triggers = useAppStore((s) => s.triggers);
-  const selectedNodeId = useAppStore((s) => s.selectedNodeId);
-  const select = useAppStore((s) => s.select);
   const layers = useAppStore((s) => s.layers);
   const cesiumBuildingStyle = useAppStore((s) => s.cesiumBuildingStyle);
+  const selectedGisNode = useAppStore((s) => s.selectedGisNode);
+  const setSelectedGisNode = useAppStore((s) => s.setSelectedGisNode);
+  const select = useAppStore((s) => s.select);
+  const setCivicShieldLayer = useAppStore((s) => s.setCivicShieldLayer);
+  const setScenariosData = useAppStore((s) => s.setScenariosData);
   const setStore = useAppStore((s) => s.set);
+  const presetId = useAppStore((s) => s.presetId);
+  const viewportMode = useAppStore((s) => s.viewportMode);
 
   // Component State
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [assetStatus, setAssetStatus] = useState<"loading" | "loaded" | "failed" | "token_missing">("loading");
-  const [assetMetadataInfo, setAssetMetadataInfo] = useState<{
-    hasYear: boolean;
-    hasRoof: boolean;
-    name: string;
-  } | null>(null);
 
-  // Active synthetic region: Hyderabad by default
-  const [region] = useState<CityRegion>(HYDERABAD_REGION);
+  // Camera Fly To Hyderabad Helper
+  const flyToHyderabad = useCallback((viewer: Cesium.Viewer) => {
+    if (layerRef.current) {
+      layerRef.current.flyToCity();
+    } else {
+      viewer.camera.flyTo({
+        destination: Cesium.Cartesian3.fromDegrees(
+          HYDERABAD_COORDS.lng,
+          HYDERABAD_COORDS.lat,
+          HYDERABAD_COORDS.altitude
+        ),
+        orientation: {
+          heading: Cesium.Math.toRadians(0),
+          pitch: Cesium.Math.toRadians(HYDERABAD_COORDS.pitch),
+          roll: 0.0,
+        },
+        duration: 1.5,
+      });
+    }
+  }, []);
 
-  const city = React.useMemo(() => applyMods(BASE_CITY, cityMods), [cityMods]);
-  const snapshot = currentSnapshot(result, hour);
-
-  // 1. Initialize Cesium Viewer
+  // 1. Initialize Cesium Viewer & CivicShieldLayer
   useEffect(() => {
     if (!containerRef.current) return;
+    let isMounted = true;
 
     if (typeof window !== "undefined" && !(window as any).CESIUM_BASE_URL) {
       (window as any).CESIUM_BASE_URL = "/cesium";
     }
 
-    // Set Ion Access Token safely from Vite environment
+    // Check Cesium Ion Access Token
     const ionToken = import.meta.env["VITE_CESIUM_ION_TOKEN"] as string | undefined;
-    if (ionToken && ionToken.trim() !== "") {
-      Cesium.Ion.defaultAccessToken = ionToken.trim();
+    const hasValidToken = Boolean(ionToken && ionToken.trim() !== "");
+
+    if (hasValidToken) {
+      Cesium.Ion.defaultAccessToken = ionToken!.trim();
+    } else {
+      console.warn(
+        "[CIVICSHIELD] Cesium Ion access token (VITE_CESIUM_ION_TOKEN) is missing or empty in .env. Falling back to Esri World Imagery."
+      );
     }
 
     let viewer: Cesium.Viewer | null = null;
 
     try {
-      // If Ion token exists, try to use it; otherwise configure safe baseLayer so Viewer doesn't crash on Ion World Imagery
-      const hasValidToken = Boolean(ionToken && ionToken.trim() !== "");
+      // Step 4: Fallback Esri World Imagery via UrlTemplateImageryProvider
+      const esriImageryProvider = new Cesium.UrlTemplateImageryProvider({
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+        maximumLevel: 19,
+        credit: "Esri, Maxar",
+      });
+      const esriImageryLayer = new Cesium.ImageryLayer(esriImageryProvider);
 
+      esriImageryLayer.errorEvent.addEventListener((err: any) => {
+        console.warn("[CIVICSHIELD] Base imagery tile loading error:", err);
+        setLoadError("Notice: Unable to load some base satellite tiles. Please check your network connection.");
+      });
+
+      // Initialize Cesium Viewer
       viewer = new Cesium.Viewer(containerRef.current, {
-        animation: false,
-        timeline: false,
+        baseLayer: esriImageryLayer,
+        terrainProvider: new Cesium.EllipsoidTerrainProvider(),
         baseLayerPicker: false,
         geocoder: false,
+        animation: false,
+        timeline: false,
         homeButton: false,
         sceneModePicker: false,
         navigationHelpButton: false,
@@ -82,136 +122,165 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
         selectionIndicator: false,
         fullscreenButton: false,
         shouldAnimate: true,
-        terrainProvider: new Cesium.EllipsoidTerrainProvider(),
       });
 
-      // Suppress and override default Cesium crash dialog panel
+      // Suppress and handle default Cesium crash dialog panel
       if (viewer.cesiumWidget) {
         viewer.cesiumWidget.showErrorPanel = (_title: string, message: any, error: any) => {
-          console.warn("Cesium render error suppressed:", message, error);
+          console.warn("[CIVICSHIELD] Cesium render error suppressed:", message, error);
+          setLoadError(`Cesium render notice: ${message || "Viewport issue"}`);
         };
       }
 
-      // Suppress default modal alert & capture scene render errors gracefully
       viewer.scene.renderError.addEventListener((_scene: Cesium.Scene, error: any) => {
-        console.warn("Cesium scene render warning caught:", error);
+        console.warn("[CIVICSHIELD] Cesium scene render warning caught:", error);
+        setLoadError(`Cesium scene error: ${error.message || error}`);
       });
 
-      // Natural atmosphere & lighting configuration
       const scene = viewer.scene;
       scene.globe.show = true;
-      scene.globe.baseColor = Cesium.Color.fromCssColorString("#1a232a");
       scene.globe.depthTestAgainstTerrain = false;
 
       viewerRef.current = viewer;
+      if (typeof window !== "undefined") {
+        (window as any).cesiumViewer = viewer;
+      }
 
-      // Handle Canvas Click for Asset Selection
-      const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-      handler.setInputAction((click: { position: Cesium.Cartesian2 }) => {
-        const pickedObject = viewer?.scene.pick(click.position);
-        if (Cesium.defined(pickedObject) && pickedObject.id && pickedObject.id.name) {
-          const nodeId = pickedObject.id.properties?.nodeId?.getValue();
-          if (nodeId) {
-            select(nodeId);
-            return;
-          }
-        }
-        // If clicking empty space, don't necessarily clear unless clicking far away
-      }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+      // Fly camera to Hyderabad initially
+      flyToHyderabad(viewer);
 
-      // Load 3D Tileset (Asset ID 4854512) only if token is present, else skip directly to synthetic overlays
+      // Load CivicShield Phase 1 Geospatial Data
       setLoading(true);
-      setLoadError(null);
+      loadCivicShieldData()
+        .then((data) => {
+          if (!isMounted || !viewer || viewer.isDestroyed()) return;
 
-      if (hasValidToken) {
-        // Direct universal 3D building stream (Cesium OSM Buildings, Asset 96188)
-        let didComplete = false;
+          setScenariosData(data.scenarios);
 
-        const loadTimeout = setTimeout(() => {
-          if (!didComplete) {
-            setLoading(false);
-            if (viewerRef.current) flyToRegion(viewerRef.current, region);
+          // Guard against React StrictMode double-mount: destroy old layer if exists
+          if (layerRef.current) {
+            layerRef.current.destroy();
+            layerRef.current = null;
           }
-        }, 5000);
 
+          // Create CivicShieldLayer
+          const layer = new CivicShieldLayer(viewer, {
+            network: data.network,
+            neighborhoods: data.neighborhoods,
+            onNodeSelect: (node: NodeData) => {
+              setSelectedGisNode(node);
+              select(node?.id ?? null);
+            },
+          });
+
+          layerRef.current = layer;
+          setCivicShieldLayer(layer);
+          if (typeof window !== "undefined") {
+            (window as any).civicShieldLayer = layer;
+            (window as any).__CIVIC_LAYER__ = layer;
+          }
+
+          // Apply initial layer visibilities
+          layer.setNetworkVisible("power", layers.power);
+          layer.setNetworkVisible("water", layers.water);
+          layer.setNetworkVisible("road", layers.roads);
+          layer.setNetworkVisible("telecom", layers.telecom);
+
+          // Fly camera to city bounding sphere
+          layer.flyToCity();
+
+          // Preview initial scenario if one is active
+          const curPreset = useAppStore.getState().presetId;
+          const initialScenario = data.scenarios.find(
+            (s) =>
+              s.id === curPreset ||
+              (curPreset === "pipeline" && s.id === "pipeline_burst") ||
+              (curPreset === "monsoon" && s.id === "monsoon_flood") ||
+              (curPreset === "heatwave" && s.id === "heatwave_overload") ||
+              (curPreset === "cyber" && s.id === "cyberattack") ||
+              (curPreset === "quake" && s.id === "earthquake")
+          );
+          if (initialScenario) {
+            layer.previewScenario(initialScenario);
+          }
+
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error("[CIVICSHIELD] Error loading CivicShield layer data:", err);
+          setLoadError(`Failed to load geospatial network data: ${err.message || err}`);
+          setLoading(false);
+        });
+
+      // Optional: Add OSM Buildings if token is valid
+      if (hasValidToken) {
         Cesium.createOsmBuildingsAsync()
           .then((tileset) => {
-            didComplete = true;
-            clearTimeout(loadTimeout);
-            if (!viewerRef.current) return;
+            if (!isMounted || !viewerRef.current) return;
             viewerRef.current.scene.primitives.add(tileset);
             tilesetRef.current = tileset;
-            setAssetStatus("loaded");
-            setLoading(false);
-            setLoadError(null);
-
-            setAssetMetadataInfo({
-              hasYear: false,
-              hasRoof: true,
-              name: "Cesium OSM Global 3D Buildings (Asset #96188)",
-            });
-
-            // Apply current style (Year, Height, Tall)
             applyCurrentStyle(tileset, cesiumBuildingStyle);
-
-            flyToRegion(viewerRef.current, region);
           })
           .catch((err) => {
-            didComplete = true;
-            clearTimeout(loadTimeout);
-            console.warn("Could not connect to OSM Buildings:", err);
-            setAssetStatus("failed");
-            setLoadError(`3D Buildings stream note: ${err.message || "Network issue"}. Synthetic infrastructure is active.`);
-            setLoading(false);
-            if (viewer) flyToRegion(viewer, region);
+            console.warn("[CIVICSHIELD] OSM Buildings note:", err.message);
           });
-      } else {
-        setAssetStatus("token_missing");
-        setLoadError("Cesium Ion Token not detected. Using synthetic GIS overlays.");
-        setLoading(false);
-        flyToRegion(viewer, region);
       }
     } catch (err: any) {
-      console.error("Cesium Viewer initialization error:", err);
-      setLoadError(`Failed to initialize WebGL Cesium viewport: ${err.message}`);
+      console.error("[CIVICSHIELD] Cesium Viewer initialization error:", err);
+      setLoadError(`Failed to initialize Cesium 3D Viewport: ${err.message || err}`);
       setLoading(false);
     }
 
     return () => {
-      // Clean up viewer on unmount
+      isMounted = false;
+      if (layerRef.current) {
+        layerRef.current.destroy();
+        layerRef.current = null;
+      }
+      setCivicShieldLayer(null);
       if (viewer && !viewer.isDestroyed()) {
         viewer.destroy();
       }
       viewerRef.current = null;
       tilesetRef.current = null;
+      if (typeof window !== "undefined") {
+        delete (window as any).cesiumViewer;
+        delete (window as any).civicShieldLayer;
+        delete (window as any).__CIVIC_LAYER__;
+      }
     };
-  }, []);
+  }, [flyToHyderabad]);
 
-  // 2. Camera Fly To Helper
-  const flyToRegion = (viewer: Cesium.Viewer, targetRegion: CityRegion) => {
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(
-        targetRegion.origin.lng,
-        targetRegion.origin.lat - 0.025,
-        targetRegion.origin.elevation + 2200
-      ),
-      orientation: {
-        heading: Cesium.Math.toRadians(0),
-        pitch: Cesium.Math.toRadians(-35),
-        roll: 0.0,
-      },
-      duration: 1.5,
-    });
-  };
-
-  // 3. React to resetSignal
+  // 2. React to resetSignal
   useEffect(() => {
-    if (viewerRef.current) {
-      flyToRegion(viewerRef.current, region);
+    if (layerRef.current) {
+      layerRef.current.resetAll();
+      layerRef.current.flyToCity();
+    } else if (viewerRef.current) {
+      flyToHyderabad(viewerRef.current);
     }
-  }, [resetSignal, region]);
+    setSelectedGisNode(null);
+    select(null);
+  }, [resetSignal, flyToHyderabad, setSelectedGisNode, select]);
 
-  // 4. Building Styling logic
+  // 3. React to network layer visibility toggles
+  useEffect(() => {
+    if (layerRef.current) {
+      layerRef.current.setNetworkVisible("power", layers.power);
+      layerRef.current.setNetworkVisible("water", layers.water);
+      layerRef.current.setNetworkVisible("road", layers.roads);
+      layerRef.current.setNetworkVisible("telecom", layers.telecom);
+    }
+  }, [layers]);
+
+  // 4. Resize Viewer when viewport mode switches to cesium
+  useEffect(() => {
+    if (viewportMode === "cesium" && viewerRef.current) {
+      viewerRef.current.resize();
+    }
+  }, [viewportMode]);
+
+  // 5. Building Styling logic
   const applyCurrentStyle = useCallback(
     (tileset: Cesium.Cesium3DTileset, mode: "year" | "height" | "tall" | "none") => {
       if (!tileset) return;
@@ -233,7 +302,7 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
             break;
         }
       } catch (e) {
-        console.warn("Could not apply style to 3D tileset:", e);
+        console.warn("[CIVICSHIELD] Could not apply style to 3D tileset:", e);
       }
     },
     []
@@ -245,148 +314,24 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
     }
   }, [cesiumBuildingStyle, applyCurrentStyle]);
 
-  // 5. Render Synthetic Infrastructure Overlays
-  useEffect(() => {
-    const viewer = viewerRef.current;
-    if (!viewer) return;
-
-    // Clear previous entities
-    pinEntitiesRef.current.forEach((entity) => viewer.entities.remove(entity));
-    pinEntitiesRef.current.clear();
-    arcEntitiesRef.current.forEach((entity) => viewer.entities.remove(entity));
-    arcEntitiesRef.current = [];
-
-    // Map status to Cesium Colors
-    const getStatusColor = (status: string) => {
-      switch (status) {
-        case "failed":
-          return Cesium.Color.fromCssColorString("#d9534f");
-        case "stressed":
-          return Cesium.Color.fromCssColorString("#e09f3e");
-        case "recovering":
-          return Cesium.Color.fromCssColorString("#8fae70");
-        default:
-          return Cesium.Color.fromCssColorString("#5c7356");
-      }
-    };
-
-    // Render 26 Infrastructure Assets
-    city.nodes.forEach((node) => {
-      // Filter by layer visibility
-      if ((node.kind === "powerplant" || node.kind === "substation") && !layers.power) return;
-      if (
-        (node.kind === "waterplant" || node.kind === "pipeline" || node.kind === "pump") &&
-        !layers.water
-      )
-        return;
-      if (node.kind === "tower" && !layers.telecom) return;
-      if ((node.kind === "road" || node.kind === "underpass") && !layers.roads) return;
-      if (node.kind === "hospital" && !layers.hospitals) return;
-
-      const geo = region.nodes[node.id];
-      if (!geo) return;
-
-      const nodeStatus = snapshot.status[node.id] ?? "ok";
-      const isSelected = selectedNodeId === node.id;
-      const isTrigger = triggers.includes(node.id);
-      const color = getStatusColor(nodeStatus);
-
-      // Height of extruded marker proportional to population or critical asset
-      const baseHeight = geo.elevation;
-      const markerHeight = Math.max(80, (node.population / 40000) * 350 + 60);
-
-      // Create Cesium Cylinder / Extruded Box for the synthetic asset
-      const entity = viewer.entities.add({
-        name: `[SYNTHETIC] ${node.name}`,
-        properties: {
-          nodeId: node.id,
-          synthetic: true,
-          status: nodeStatus,
-        },
-        position: Cesium.Cartesian3.fromDegrees(geo.lng, geo.lat, baseHeight + markerHeight / 2),
-        cylinder: {
-          length: markerHeight,
-          topRadius: node.kind === "hospital" ? 35 : node.kind === "powerplant" ? 45 : 25,
-          bottomRadius: node.kind === "hospital" ? 35 : node.kind === "powerplant" ? 45 : 25,
-          material: isSelected
-            ? Cesium.Color.fromCssColorString("#38bdf8").withAlpha(0.95)
-            : isTrigger
-            ? Cesium.Color.fromCssColorString("#ff2222").withAlpha(0.9)
-            : color.withAlpha(0.85),
-          outline: true,
-          outlineColor: isSelected
-            ? Cesium.Color.WHITE
-            : isTrigger
-            ? Cesium.Color.YELLOW
-            : color.brighten(0.3, new Cesium.Color()),
-          outlineWidth: isSelected ? 3 : 1.5,
-        },
-        label: {
-          text: `[SYNTHETIC]\n${node.name}\n(${nodeStatus.toUpperCase()})`,
-          font: "11px monospace",
-          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
-          fillColor: Cesium.Color.WHITE,
-          outlineColor: Cesium.Color.BLACK,
-          outlineWidth: 2,
-          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
-          pixelOffset: new Cesium.Cartesian2(0, -markerHeight / 2 - 8),
-          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 15000),
-          showBackground: true,
-          backgroundColor: Cesium.Color.fromCssColorString("#191f24").withAlpha(0.85),
-        },
-      });
-
-      pinEntitiesRef.current.set(node.id, entity);
-    });
-
-    // Render Dependency Arcs
-    city.nodes.forEach((targetNode) => {
-      const targetGeo = region.nodes[targetNode.id];
-      if (!targetGeo) return;
-
-      targetNode.deps.forEach((d) => {
-        const sourceGeo = region.nodes[d.id];
-        if (!sourceGeo) return;
-
-        // Check if source or target failed
-        const sourceFailed = (snapshot.status[d.id] ?? "ok") === "failed";
-        const arcColor = sourceFailed
-          ? Cesium.Color.fromCssColorString("#d9534f").withAlpha(0.9)
-          : Cesium.Color.fromCssColorString("#38bdf8").withAlpha(0.4);
-
-        const arcEntity = viewer.entities.add({
-          polyline: {
-            positions: [
-              Cesium.Cartesian3.fromDegrees(sourceGeo.lng, sourceGeo.lat, sourceGeo.elevation + 40),
-              Cesium.Cartesian3.fromDegrees(
-                (sourceGeo.lng + targetGeo.lng) / 2,
-                (sourceGeo.lat + targetGeo.lat) / 2,
-                Math.max(sourceGeo.elevation, targetGeo.elevation) + 250
-              ),
-              Cesium.Cartesian3.fromDegrees(targetGeo.lng, targetGeo.lat, targetGeo.elevation + 40),
-            ],
-            width: sourceFailed ? 3 : 1.5,
-            material: new Cesium.PolylineDashMaterialProperty({
-              color: arcColor,
-              dashLength: sourceFailed ? 12 : 24,
-            }),
-          },
-        });
-        arcEntitiesRef.current.push(arcEntity);
-      });
-    });
-  }, [city, region, snapshot, selectedNodeId, triggers, layers]);
-
   return (
-    <div className="relative w-full h-full select-none">
-      {/* Cesium WebGL Container */}
-      <div ref={containerRef} className="w-full h-full" />
+    <div
+      className="relative w-full h-full select-none"
+      style={{ width: "100%", height: "100%", minHeight: "100%" }}
+    >
+      {/* Cesium WebGL Container with non-zero explicit dimensions */}
+      <div
+        id="cesiumContainer"
+        ref={containerRef}
+        className="w-full h-full"
+        style={{ width: "100%", height: "100%", minHeight: "100%" }}
+      />
 
       {/* Loading Overlay */}
       {loading && (
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#101418]/85 backdrop-blur-sm gap-3 font-mono text-xs text-[#9BAA76]">
           <div className="w-7 h-7 border-2 border-[#9BAA76] border-t-transparent rounded-full animate-spin" />
-          <span>Connecting to 3D Geospatial Tileset & Urban Infrastructure...</span>
+          <span>Connecting to 3D Geospatial Viewport & Infrastructure...</span>
         </div>
       )}
 
@@ -403,6 +348,83 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
           >
             Dismiss
           </button>
+        </div>
+      )}
+
+      {/* Node Info Panel on select (Step 6) */}
+      {selectedGisNode && (
+        <div className="absolute top-14 right-3 z-20 w-72 bg-[#191F24]/95 backdrop-blur-md border border-[#303941] rounded-lg p-3 text-[#e5e9ec] shadow-2xl animate-in fade-in slide-in-from-right-2 duration-150">
+          <div className="flex items-start justify-between gap-2 border-b border-[#303941] pb-2 mb-2">
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-xs text-[#f1f4f6]">
+                  {selectedGisNode.name}
+                </span>
+                <span className="text-[9px] font-mono px-1 py-0.5 rounded bg-[#242c33] text-[#8a96a1] border border-[#303941]">
+                  {selectedGisNode.id}
+                </span>
+              </div>
+              <div className="text-[10px] text-[#8a96a1] font-mono mt-0.5 uppercase flex items-center gap-1.5">
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{
+                    backgroundColor:
+                      selectedGisNode.network === "water"
+                        ? "#4fb3e8"
+                        : selectedGisNode.network === "power"
+                        ? "#f5b942"
+                        : selectedGisNode.network === "telecom"
+                        ? "#9aa7b8"
+                        : selectedGisNode.network === "road"
+                        ? "#e5e7eb"
+                        : "#ef4444",
+                  }}
+                />
+                <span>{selectedGisNode.network}</span>
+                <span>•</span>
+                <span>{selectedGisNode.type?.replace(/_/g, " ")}</span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setSelectedGisNode(null);
+                select(null);
+              }}
+              className="p-1 rounded text-[#8a96a1] hover:text-[#f1f4f6] hover:bg-[#242c33] transition-colors"
+              title="Close Panel"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
+            <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33]">
+              <div className="text-[9px] text-[#8a96a1] uppercase">Capacity</div>
+              <div className="text-[#e5e9ec] font-semibold mt-0.5">
+                {selectedGisNode.capacity} {selectedGisNode.unit || ""}
+              </div>
+            </div>
+            <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33]">
+              <div className="text-[9px] text-[#8a96a1] uppercase">Current Load</div>
+              <div className="text-[#9BAA76] font-semibold mt-0.5">
+                {selectedGisNode.load} {selectedGisNode.unit || ""}
+              </div>
+            </div>
+            <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33]">
+              <div className="text-[9px] text-[#8a96a1] uppercase">Built Year</div>
+              <div className="text-[#e5e9ec] mt-0.5">
+                {selectedGisNode.built_year}
+              </div>
+            </div>
+            <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33]">
+              <div className="text-[9px] text-[#8a96a1] uppercase">Utilization</div>
+              <div className="text-[#e5e9ec] mt-0.5">
+                {selectedGisNode.capacity > 0
+                  ? `${Math.round((selectedGisNode.load / selectedGisNode.capacity) * 100)}%`
+                  : "N/A"}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -446,7 +468,7 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
       <div className="absolute bottom-3 right-3 z-10 bg-[#191F24]/90 backdrop-blur-md border border-[#303941] px-3 py-1.5 rounded flex items-center gap-2 text-[10px] font-mono text-[#8a96a1] shadow">
         <ShieldAlert className="w-3.5 h-3.5 text-[#e09f3e]" />
         <span>
-          SYNTHETIC TESTBED: <span className="text-[#e5e9ec]">{region.name}</span>
+          SYNTHETIC TESTBED: <span className="text-[#e5e9ec]">Hyderabad Urban Sector</span>
         </span>
       </div>
     </div>

@@ -1,0 +1,375 @@
+{
+  "type": "FeatureCollection",
+  "name": "synthetic_neighborhoods",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "N1",
+        "name": "Kukatpally",
+        "population": 78000,
+        "served_by": {
+          "water": "PUMPB",
+          "power": "SUB5",
+          "telecom": "T3",
+          "road": "RJ2"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.42,
+              17.44
+            ],
+            [
+              78.42,
+              17.3967
+            ],
+            [
+              78.4633,
+              17.3967
+            ],
+            [
+              78.4633,
+              17.44
+            ],
+            [
+              78.42,
+              17.44
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "N2",
+        "name": "Begumpet",
+        "population": 64000,
+        "served_by": {
+          "water": "PUMPB",
+          "power": "SUB1",
+          "telecom": "T1",
+          "road": "RJ2"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.4633,
+              17.44
+            ],
+            [
+              78.4633,
+              17.3967
+            ],
+            [
+              78.5067,
+              17.3967
+            ],
+            [
+              78.5067,
+              17.44
+            ],
+            [
+              78.4633,
+              17.44
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "N3",
+        "name": "Tarnaka",
+        "population": 71000,
+        "served_by": {
+          "water": "RES2",
+          "power": "SUB4",
+          "telecom": "T1",
+          "road": "RJ3"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.5067,
+              17.44
+            ],
+            [
+              78.5067,
+              17.3967
+            ],
+            [
+              78.55,
+              17.3967
+            ],
+            [
+              78.55,
+              17.44
+            ],
+            [
+              78.5067,
+              17.44
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "N4",
+        "name": "Banjara Hills",
+        "population": 52000,
+        "served_by": {
+          "water": "RES1",
+          "power": "SUB5",
+          "telecom": "T3",
+          "road": "UJ2"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.42,
+              17.3967
+            ],
+            [
+              78.42,
+              17.3533
+            ],
+            [
+              78.4633,
+              17.3533
+            ],
+            [
+              78.4633,
+              17.3967
+            ],
+            [
+              78.42,
+              17.3967
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "N5",
+        "name": "Nampally Central",
+        "population": 95000,
+        "served_by": {
+          "water": "PIPE1",
+          "power": "SUB2",
+          "telecom": "TX1",
+          "road": "RJ1"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.4633,
+              17.3967
+            ],
+            [
+              78.4633,
+              17.3533
+            ],
+            [
+              78.5067,
+              17.3533
+            ],
+            [
+              78.5067,
+              17.3967
+            ],
+            [
+              78.4633,
+              17.3967
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "N6",
+        "name": "Malakpet",
+        "population": 83000,
+        "served_by": {
+          "water": "PUMPA",
+          "power": "SUB4",
+          "telecom": "T2",
+          "road": "UJ1"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.5067,
+              17.3967
+            ],
+            [
+              78.5067,
+              17.3533
+            ],
+            [
+              78.55,
+              17.3533
+            ],
+            [
+              78.55,
+              17.3967
+            ],
+            [
+              78.5067,
+              17.3967
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "N7",
+        "name": "Mehdipatnam",
+        "population": 88000,
+        "served_by": {
+          "water": "RES1",
+          "power": "SUB3",
+          "telecom": "T3",
+          "road": "UJ2"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.42,
+              17.3533
+            ],
+            [
+              78.42,
+              17.31
+            ],
+            [
+              78.4633,
+              17.31
+            ],
+            [
+              78.4633,
+              17.3533
+            ],
+            [
+              78.42,
+              17.3533
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "N8",
+        "name": "Charminar Old City",
+        "population": 110000,
+        "served_by": {
+          "water": "PIPE1",
+          "power": "SUB3",
+          "telecom": "T2",
+          "road": "RJ1"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.4633,
+              17.3533
+            ],
+            [
+              78.4633,
+              17.31
+            ],
+            [
+              78.5067,
+              17.31
+            ],
+            [
+              78.5067,
+              17.3533
+            ],
+            [
+              78.4633,
+              17.3533
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "N9",
+        "name": "Chandrayangutta",
+        "population": 69000,
+        "served_by": {
+          "water": "PUMPA",
+          "power": "SUB3",
+          "telecom": "T4",
+          "road": "UJ1"
+        }
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              78.5067,
+              17.3533
+            ],
+            [
+              78.5067,
+              17.31
+            ],
+            [
+              78.55,
+              17.31
+            ],
+            [
+              78.55,
+              17.3533
+            ],
+            [
+              78.5067,
+              17.3533
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

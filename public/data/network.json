@@ -1,0 +1,909 @@
+{
+  "meta": {
+    "name": "CIVICSHIELD Hyderabad Urban Sector (Synthetic Testbed)",
+    "schema_version": "1.0",
+    "synthetic": true,
+    "crs": "WGS84",
+    "center": {
+      "lon": 78.4867,
+      "lat": 17.385
+    },
+    "weight_semantics": "edge.weight = fraction of the target node's function lost when the source fails completely. delay_h = hours before the loss reaches the target. type 'hazard' = physical spillover (e.g. burst pipe flooding an underpass)."
+  },
+  "engine_defaults": {
+    "time_step_h": 1,
+    "horizon_h": 24,
+    "degraded_below": 0.8,
+    "failed_below": 0.4,
+    "neighborhood_impact_weights": {
+      "water": 0.4,
+      "power": 0.35,
+      "telecom": 0.1,
+      "road": 0.15
+    }
+  },
+  "nodes": [
+    {
+      "id": "WT1",
+      "name": "North Water Works",
+      "type": "water_plant",
+      "network": "water",
+      "lon": 78.5,
+      "lat": 17.428,
+      "capacity": 120,
+      "load": 84,
+      "unit": "ML/day",
+      "built_year": 1992,
+      "age_years": 34,
+      "criticality": 4,
+      "status": "normal"
+    },
+    {
+      "id": "WT2",
+      "name": "South Water Works",
+      "type": "water_plant",
+      "network": "water",
+      "lon": 78.47,
+      "lat": 17.325,
+      "capacity": 150,
+      "load": 118,
+      "unit": "ML/day",
+      "built_year": 1958,
+      "age_years": 68,
+      "criticality": 4,
+      "status": "normal"
+    },
+    {
+      "id": "PIPE1",
+      "name": "Main Pipeline",
+      "type": "pipeline",
+      "network": "water",
+      "lon": 78.48,
+      "lat": 17.37,
+      "capacity": 220,
+      "load": 171,
+      "unit": "ML/day",
+      "built_year": 1934,
+      "age_years": 92,
+      "criticality": 5,
+      "status": "normal"
+    },
+    {
+      "id": "PIPE2",
+      "name": "West Feeder Main",
+      "type": "pipeline",
+      "network": "water",
+      "lon": 78.44,
+      "lat": 17.39,
+      "capacity": 140,
+      "load": 96,
+      "unit": "ML/day",
+      "built_year": 1976,
+      "age_years": 50,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "PUMPA",
+      "name": "Pumping Station A",
+      "type": "pump_station",
+      "network": "water",
+      "lon": 78.498,
+      "lat": 17.36,
+      "capacity": 90,
+      "load": 66,
+      "unit": "ML/day",
+      "built_year": 1988,
+      "age_years": 38,
+      "criticality": 4,
+      "status": "normal"
+    },
+    {
+      "id": "PUMPB",
+      "name": "Pumping Station B",
+      "type": "pump_station",
+      "network": "water",
+      "lon": 78.456,
+      "lat": 17.43,
+      "capacity": 70,
+      "load": 49,
+      "unit": "ML/day",
+      "built_year": 2004,
+      "age_years": 22,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "RES1",
+      "name": "Hill Reservoir",
+      "type": "reservoir",
+      "network": "water",
+      "lon": 78.43,
+      "lat": 17.36,
+      "capacity": 60,
+      "load": 41,
+      "unit": "ML",
+      "built_year": 1893,
+      "age_years": 133,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "RES2",
+      "name": "East Overhead Tank",
+      "type": "reservoir",
+      "network": "water",
+      "lon": 78.54,
+      "lat": 17.39,
+      "capacity": 45,
+      "load": 31,
+      "unit": "ML",
+      "built_year": 2012,
+      "age_years": 14,
+      "criticality": 2,
+      "status": "normal"
+    },
+    {
+      "id": "PP1",
+      "name": "Grid Power Plant",
+      "type": "power_plant",
+      "network": "power",
+      "lon": 78.52,
+      "lat": 17.315,
+      "capacity": 400,
+      "load": 332,
+      "unit": "MW",
+      "built_year": 1979,
+      "age_years": 47,
+      "criticality": 5,
+      "status": "normal"
+    },
+    {
+      "id": "SUB1",
+      "name": "North Substation",
+      "type": "substation",
+      "network": "power",
+      "lon": 78.49,
+      "lat": 17.43,
+      "capacity": 120,
+      "load": 88,
+      "unit": "MVA",
+      "built_year": 1995,
+      "age_years": 31,
+      "criticality": 4,
+      "status": "normal"
+    },
+    {
+      "id": "SUB2",
+      "name": "Central Substation",
+      "type": "substation",
+      "network": "power",
+      "lon": 78.486,
+      "lat": 17.385,
+      "capacity": 160,
+      "load": 138,
+      "unit": "MVA",
+      "built_year": 1971,
+      "age_years": 55,
+      "criticality": 5,
+      "status": "normal"
+    },
+    {
+      "id": "SUB3",
+      "name": "South Substation",
+      "type": "substation",
+      "network": "power",
+      "lon": 78.48,
+      "lat": 17.34,
+      "capacity": 120,
+      "load": 97,
+      "unit": "MVA",
+      "built_year": 1984,
+      "age_years": 42,
+      "criticality": 4,
+      "status": "normal"
+    },
+    {
+      "id": "SUB4",
+      "name": "East Substation",
+      "type": "substation",
+      "network": "power",
+      "lon": 78.53,
+      "lat": 17.4,
+      "capacity": 100,
+      "load": 71,
+      "unit": "MVA",
+      "built_year": 2008,
+      "age_years": 18,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "SUB5",
+      "name": "West Substation",
+      "type": "substation",
+      "network": "power",
+      "lon": 78.425,
+      "lat": 17.4,
+      "capacity": 90,
+      "load": 63,
+      "unit": "MVA",
+      "built_year": 2016,
+      "age_years": 10,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "TX1",
+      "name": "Core Telecom Exchange",
+      "type": "telecom_core",
+      "network": "telecom",
+      "lon": 78.475,
+      "lat": 17.395,
+      "capacity": 100,
+      "load": 62,
+      "unit": "Gbps",
+      "built_year": 2005,
+      "age_years": 21,
+      "criticality": 5,
+      "status": "normal"
+    },
+    {
+      "id": "T1",
+      "name": "Telecom Tower 1",
+      "type": "telecom_tower",
+      "network": "telecom",
+      "lon": 78.5,
+      "lat": 17.415,
+      "capacity": 10,
+      "load": 6.4,
+      "unit": "Gbps",
+      "built_year": 2014,
+      "age_years": 12,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "T2",
+      "name": "Telecom Tower 2",
+      "type": "telecom_tower",
+      "network": "telecom",
+      "lon": 78.512,
+      "lat": 17.356,
+      "capacity": 10,
+      "load": 7.2,
+      "unit": "Gbps",
+      "built_year": 2011,
+      "age_years": 15,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "T3",
+      "name": "Telecom Tower 3",
+      "type": "telecom_tower",
+      "network": "telecom",
+      "lon": 78.45,
+      "lat": 17.37,
+      "capacity": 10,
+      "load": 5.1,
+      "unit": "Gbps",
+      "built_year": 2018,
+      "age_years": 8,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "T4",
+      "name": "Telecom Tower 4",
+      "type": "telecom_tower",
+      "network": "telecom",
+      "lon": 78.535,
+      "lat": 17.335,
+      "capacity": 10,
+      "load": 6.0,
+      "unit": "Gbps",
+      "built_year": 2009,
+      "age_years": 17,
+      "criticality": 2,
+      "status": "normal"
+    },
+    {
+      "id": "RJ1",
+      "name": "Central Junction",
+      "type": "junction",
+      "network": "road",
+      "lon": 78.485,
+      "lat": 17.365,
+      "capacity": 4200,
+      "load": 3600,
+      "unit": "veh/h",
+      "built_year": 1962,
+      "age_years": 64,
+      "criticality": 4,
+      "status": "normal"
+    },
+    {
+      "id": "RJ2",
+      "name": "North Junction",
+      "type": "junction",
+      "network": "road",
+      "lon": 78.465,
+      "lat": 17.405,
+      "capacity": 3600,
+      "load": 2700,
+      "unit": "veh/h",
+      "built_year": 1985,
+      "age_years": 41,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "RJ3",
+      "name": "East Junction",
+      "type": "junction",
+      "network": "road",
+      "lon": 78.515,
+      "lat": 17.385,
+      "capacity": 3800,
+      "load": 2900,
+      "unit": "veh/h",
+      "built_year": 1999,
+      "age_years": 27,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "UJ1",
+      "name": "East Underpass",
+      "type": "underpass",
+      "network": "road",
+      "lon": 78.525,
+      "lat": 17.37,
+      "capacity": 2800,
+      "load": 2100,
+      "unit": "veh/h",
+      "built_year": 2003,
+      "age_years": 23,
+      "criticality": 4,
+      "status": "normal"
+    },
+    {
+      "id": "UJ2",
+      "name": "West Underpass",
+      "type": "underpass",
+      "network": "road",
+      "lon": 78.435,
+      "lat": 17.38,
+      "capacity": 2600,
+      "load": 1800,
+      "unit": "veh/h",
+      "built_year": 2010,
+      "age_years": 16,
+      "criticality": 3,
+      "status": "normal"
+    },
+    {
+      "id": "H1",
+      "name": "City General Hospital",
+      "type": "hospital",
+      "network": "health",
+      "lon": 78.51,
+      "lat": 17.375,
+      "capacity": 600,
+      "load": 520,
+      "unit": "beds",
+      "built_year": 1968,
+      "age_years": 58,
+      "criticality": 5,
+      "status": "normal",
+      "backup_power_hours": 8
+    },
+    {
+      "id": "H2",
+      "name": "Northwest Medical Center",
+      "type": "hospital",
+      "network": "health",
+      "lon": 78.445,
+      "lat": 17.408,
+      "capacity": 350,
+      "load": 290,
+      "unit": "beds",
+      "built_year": 2001,
+      "age_years": 25,
+      "criticality": 5,
+      "status": "normal",
+      "backup_power_hours": 6
+    }
+  ],
+  "edges": [
+    {
+      "id": "E01",
+      "source": "WT1",
+      "target": "PIPE2",
+      "type": "water",
+      "weight": 0.75,
+      "delay_h": 2
+    },
+    {
+      "id": "E02",
+      "source": "WT2",
+      "target": "PIPE2",
+      "type": "water",
+      "weight": 0.25,
+      "delay_h": 3
+    },
+    {
+      "id": "E03",
+      "source": "WT1",
+      "target": "PIPE1",
+      "type": "water",
+      "weight": 0.3,
+      "delay_h": 3
+    },
+    {
+      "id": "E04",
+      "source": "WT2",
+      "target": "PIPE1",
+      "type": "water",
+      "weight": 0.7,
+      "delay_h": 2
+    },
+    {
+      "id": "E05",
+      "source": "PIPE1",
+      "target": "PUMPA",
+      "type": "water",
+      "weight": 1.0,
+      "delay_h": 1
+    },
+    {
+      "id": "E06",
+      "source": "PIPE2",
+      "target": "PUMPB",
+      "type": "water",
+      "weight": 0.7,
+      "delay_h": 1
+    },
+    {
+      "id": "E07",
+      "source": "RES1",
+      "target": "PUMPB",
+      "type": "water",
+      "weight": 0.3,
+      "delay_h": 1
+    },
+    {
+      "id": "E08",
+      "source": "PIPE1",
+      "target": "RES1",
+      "type": "water",
+      "weight": 0.5,
+      "delay_h": 2
+    },
+    {
+      "id": "E09",
+      "source": "PIPE2",
+      "target": "RES1",
+      "type": "water",
+      "weight": 0.5,
+      "delay_h": 2
+    },
+    {
+      "id": "E10",
+      "source": "PIPE1",
+      "target": "RES2",
+      "type": "water",
+      "weight": 0.6,
+      "delay_h": 2
+    },
+    {
+      "id": "E11",
+      "source": "PUMPA",
+      "target": "RES2",
+      "type": "water",
+      "weight": 0.4,
+      "delay_h": 1
+    },
+    {
+      "id": "E12",
+      "source": "PUMPA",
+      "target": "H1",
+      "type": "water",
+      "weight": 0.7,
+      "delay_h": 1
+    },
+    {
+      "id": "E13",
+      "source": "RES2",
+      "target": "H1",
+      "type": "water",
+      "weight": 0.3,
+      "delay_h": 1
+    },
+    {
+      "id": "E14",
+      "source": "PUMPB",
+      "target": "H2",
+      "type": "water",
+      "weight": 0.7,
+      "delay_h": 1
+    },
+    {
+      "id": "E15",
+      "source": "RES1",
+      "target": "H2",
+      "type": "water",
+      "weight": 0.3,
+      "delay_h": 1
+    },
+    {
+      "id": "E16",
+      "source": "PP1",
+      "target": "SUB2",
+      "type": "power",
+      "weight": 1.0,
+      "delay_h": 0
+    },
+    {
+      "id": "E17",
+      "source": "PP1",
+      "target": "SUB3",
+      "type": "power",
+      "weight": 0.6,
+      "delay_h": 0
+    },
+    {
+      "id": "E18",
+      "source": "SUB2",
+      "target": "SUB3",
+      "type": "power",
+      "weight": 0.4,
+      "delay_h": 0
+    },
+    {
+      "id": "E19",
+      "source": "PP1",
+      "target": "SUB4",
+      "type": "power",
+      "weight": 0.5,
+      "delay_h": 0
+    },
+    {
+      "id": "E20",
+      "source": "SUB2",
+      "target": "SUB4",
+      "type": "power",
+      "weight": 0.5,
+      "delay_h": 0
+    },
+    {
+      "id": "E21",
+      "source": "SUB2",
+      "target": "SUB1",
+      "type": "power",
+      "weight": 0.6,
+      "delay_h": 0
+    },
+    {
+      "id": "E22",
+      "source": "SUB4",
+      "target": "SUB1",
+      "type": "power",
+      "weight": 0.4,
+      "delay_h": 0
+    },
+    {
+      "id": "E23",
+      "source": "SUB2",
+      "target": "SUB5",
+      "type": "power",
+      "weight": 0.5,
+      "delay_h": 0
+    },
+    {
+      "id": "E24",
+      "source": "SUB1",
+      "target": "SUB5",
+      "type": "power",
+      "weight": 0.5,
+      "delay_h": 0
+    },
+    {
+      "id": "E25",
+      "source": "SUB1",
+      "target": "WT1",
+      "type": "power",
+      "weight": 1.0,
+      "delay_h": 0
+    },
+    {
+      "id": "E26",
+      "source": "SUB3",
+      "target": "WT2",
+      "type": "power",
+      "weight": 1.0,
+      "delay_h": 0
+    },
+    {
+      "id": "E27",
+      "source": "SUB2",
+      "target": "PUMPA",
+      "type": "power",
+      "weight": 0.6,
+      "delay_h": 0
+    },
+    {
+      "id": "E28",
+      "source": "SUB3",
+      "target": "PUMPA",
+      "type": "power",
+      "weight": 0.4,
+      "delay_h": 0
+    },
+    {
+      "id": "E29",
+      "source": "SUB1",
+      "target": "PUMPB",
+      "type": "power",
+      "weight": 0.6,
+      "delay_h": 0
+    },
+    {
+      "id": "E30",
+      "source": "SUB5",
+      "target": "PUMPB",
+      "type": "power",
+      "weight": 0.4,
+      "delay_h": 0
+    },
+    {
+      "id": "E31",
+      "source": "SUB2",
+      "target": "TX1",
+      "type": "power",
+      "weight": 1.0,
+      "delay_h": 0
+    },
+    {
+      "id": "E32",
+      "source": "SUB1",
+      "target": "T1",
+      "type": "power",
+      "weight": 1.0,
+      "delay_h": 0
+    },
+    {
+      "id": "E33",
+      "source": "SUB3",
+      "target": "T2",
+      "type": "power",
+      "weight": 1.0,
+      "delay_h": 0
+    },
+    {
+      "id": "E34",
+      "source": "SUB5",
+      "target": "T3",
+      "type": "power",
+      "weight": 1.0,
+      "delay_h": 0
+    },
+    {
+      "id": "E35",
+      "source": "SUB4",
+      "target": "T4",
+      "type": "power",
+      "weight": 1.0,
+      "delay_h": 0
+    },
+    {
+      "id": "E36",
+      "source": "SUB4",
+      "target": "H1",
+      "type": "power",
+      "weight": 0.8,
+      "delay_h": 0
+    },
+    {
+      "id": "E37",
+      "source": "SUB2",
+      "target": "H1",
+      "type": "power",
+      "weight": 0.2,
+      "delay_h": 0
+    },
+    {
+      "id": "E38",
+      "source": "SUB5",
+      "target": "H2",
+      "type": "power",
+      "weight": 0.8,
+      "delay_h": 0
+    },
+    {
+      "id": "E39",
+      "source": "SUB1",
+      "target": "H2",
+      "type": "power",
+      "weight": 0.2,
+      "delay_h": 0
+    },
+    {
+      "id": "E40",
+      "source": "SUB2",
+      "target": "RJ1",
+      "type": "power",
+      "weight": 0.3,
+      "delay_h": 0
+    },
+    {
+      "id": "E41",
+      "source": "SUB4",
+      "target": "RJ3",
+      "type": "power",
+      "weight": 0.3,
+      "delay_h": 0
+    },
+    {
+      "id": "E42",
+      "source": "SUB5",
+      "target": "RJ2",
+      "type": "power",
+      "weight": 0.3,
+      "delay_h": 0
+    },
+    {
+      "id": "E43",
+      "source": "TX1",
+      "target": "T1",
+      "type": "telecom",
+      "weight": 0.7,
+      "delay_h": 0
+    },
+    {
+      "id": "E44",
+      "source": "TX1",
+      "target": "T2",
+      "type": "telecom",
+      "weight": 0.7,
+      "delay_h": 0
+    },
+    {
+      "id": "E45",
+      "source": "TX1",
+      "target": "T3",
+      "type": "telecom",
+      "weight": 0.7,
+      "delay_h": 0
+    },
+    {
+      "id": "E46",
+      "source": "TX1",
+      "target": "T4",
+      "type": "telecom",
+      "weight": 0.7,
+      "delay_h": 0
+    },
+    {
+      "id": "E47",
+      "source": "T2",
+      "target": "PUMPA",
+      "type": "telecom",
+      "weight": 0.3,
+      "delay_h": 0
+    },
+    {
+      "id": "E48",
+      "source": "T1",
+      "target": "PUMPB",
+      "type": "telecom",
+      "weight": 0.3,
+      "delay_h": 0
+    },
+    {
+      "id": "E49",
+      "source": "T2",
+      "target": "H1",
+      "type": "telecom",
+      "weight": 0.3,
+      "delay_h": 0
+    },
+    {
+      "id": "E50",
+      "source": "T3",
+      "target": "H2",
+      "type": "telecom",
+      "weight": 0.3,
+      "delay_h": 0
+    },
+    {
+      "id": "E51",
+      "source": "RJ1",
+      "target": "RJ2",
+      "type": "road",
+      "weight": 0.4,
+      "delay_h": 1
+    },
+    {
+      "id": "E52",
+      "source": "RJ1",
+      "target": "RJ3",
+      "type": "road",
+      "weight": 0.5,
+      "delay_h": 1
+    },
+    {
+      "id": "E53",
+      "source": "UJ1",
+      "target": "RJ3",
+      "type": "road",
+      "weight": 0.5,
+      "delay_h": 1
+    },
+    {
+      "id": "E54",
+      "source": "RJ1",
+      "target": "UJ1",
+      "type": "road",
+      "weight": 0.3,
+      "delay_h": 1
+    },
+    {
+      "id": "E55",
+      "source": "RJ1",
+      "target": "UJ2",
+      "type": "road",
+      "weight": 0.3,
+      "delay_h": 1
+    },
+    {
+      "id": "E56",
+      "source": "UJ2",
+      "target": "RJ2",
+      "type": "road",
+      "weight": 0.3,
+      "delay_h": 1
+    },
+    {
+      "id": "E57",
+      "source": "UJ1",
+      "target": "H1",
+      "type": "road",
+      "weight": 0.5,
+      "delay_h": 1
+    },
+    {
+      "id": "E58",
+      "source": "RJ3",
+      "target": "H1",
+      "type": "road",
+      "weight": 0.5,
+      "delay_h": 1
+    },
+    {
+      "id": "E59",
+      "source": "RJ2",
+      "target": "H2",
+      "type": "road",
+      "weight": 0.6,
+      "delay_h": 1
+    },
+    {
+      "id": "E60",
+      "source": "UJ2",
+      "target": "H2",
+      "type": "road",
+      "weight": 0.4,
+      "delay_h": 1
+    },
+    {
+      "id": "E61",
+      "source": "PIPE1",
+      "target": "UJ1",
+      "type": "hazard",
+      "weight": 0.7,
+      "delay_h": 1
+    }
+  ]
+}
