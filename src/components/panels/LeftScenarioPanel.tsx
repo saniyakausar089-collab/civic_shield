@@ -17,14 +17,16 @@ export const LeftScenarioPanel: React.FC = () => {
   const layers = useAppStore((s) => s.layers);
   const cityMods = useAppStore((s) => s.cityMods);
   const playing = useAppStore((s) => s.playing);
+  const result = useAppStore((s) => s.result);
   const scenariosData = useAppStore((s) => s.scenariosData);
   const setScenariosData = useAppStore((s) => s.setScenariosData);
-  const previewScenario = useAppStore((s) => s.previewScenario);
-  const resetAllLayers = useAppStore((s) => s.resetAllLayers);
+  const selectScenario = useAppStore((s) => s.selectScenario);
+  const resetSim = useAppStore((s) => s.resetSim);
+  const runSim = useAppStore((s) => s.runSim);
+  const play = useAppStore((s) => s.play);
+  const pause = useAppStore((s) => s.pause);
   const toggleTrigger = useAppStore((s) => s.toggleTrigger);
   const toggleLayer = useAppStore((s) => s.toggleLayer);
-  const togglePlay = useAppStore((s) => s.togglePlay);
-  const setHour = useAppStore((s) => s.setHour);
 
   // If scenariosData is not yet loaded, load scenarios.json
   useEffect(() => {
@@ -85,7 +87,15 @@ export const LeftScenarioPanel: React.FC = () => {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <button
-              onClick={togglePlay}
+              onClick={() => {
+                if (playing) {
+                  pause();
+                } else if (!result) {
+                  runSim();
+                } else {
+                  play();
+                }
+              }}
               className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded font-medium transition-colors ${
                 playing
                   ? "bg-[#e09f3e] text-[#101418] hover:bg-[#c78024]"
@@ -96,13 +106,9 @@ export const LeftScenarioPanel: React.FC = () => {
               <span>{playing ? "Pause" : "Run Sim"}</span>
             </button>
             <button
-              onClick={() => {
-                resetAllLayers();
-                setHour(0);
-                if (playing) togglePlay();
-              }}
+              onClick={() => resetSim()}
               className="flex items-center justify-center gap-1.5 py-2 px-3 rounded bg-[#242c33] border border-[#303941] hover:bg-[#2c363f] text-[#d2d8de] transition-colors"
-              title="Reset simulation and clear active failure pulses"
+              title="Reset simulation and return all nodes to normal (Reset T+0)"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset T+0</span>
@@ -121,7 +127,7 @@ export const LeftScenarioPanel: React.FC = () => {
               return (
                 <button
                   key={s.id}
-                  onClick={() => previewScenario(s)}
+                  onClick={() => selectScenario(s)}
                   className={`w-full text-left p-2 rounded border transition-colors flex flex-col gap-0.5 ${
                     isActive
                       ? "bg-[#252e35] border-[#9BAA76] text-[#f1f4f6]"

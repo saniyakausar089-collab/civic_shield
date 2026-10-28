@@ -11,7 +11,9 @@ export const SimulateTab: React.FC = () => {
   const cityMods = useAppStore((s) => s.cityMods);
   const scenariosData = useAppStore((s) => s.scenariosData);
   const setScenariosData = useAppStore((s) => s.setScenariosData);
-  const previewScenario = useAppStore((s) => s.previewScenario);
+  const selectScenario = useAppStore((s) => s.selectScenario);
+  const result = useAppStore((s) => s.result);
+  const t = useAppStore((s) => s.t);
   const toggleTrigger = useAppStore((s) => s.toggleTrigger);
 
   useEffect(() => {
@@ -83,7 +85,7 @@ export const SimulateTab: React.FC = () => {
             return (
               <button
                 key={s.id}
-                onClick={() => previewScenario(s)}
+                onClick={() => selectScenario(s)}
                 className={`flex flex-col text-left p-3 rounded border transition-all ${
                   isActive
                     ? "bg-[#252e35] border-[#9BAA76] shadow-sm"
@@ -139,6 +141,48 @@ export const SimulateTab: React.FC = () => {
           })}
         </div>
       </div>
+
+      {/* Requirement 6: Cascade Event Log (T+0 to T+{t}, newest first) */}
+      {result && Array.isArray(result.events) && (
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-xs uppercase font-mono tracking-wider text-muted-foreground">
+              3. Cascade Event Log (T+0 to T+{t}h — {result.events.filter((e) => e.t <= t).length} events)
+            </h3>
+            <span className="text-[10px] font-mono text-[#8a96a1]">Newest first</span>
+          </div>
+          <div className="max-h-48 overflow-y-auto space-y-1 bg-[#14191d] p-2.5 rounded-lg border border-[#303941]">
+            {result.events.filter((e) => e.t <= t).length === 0 ? (
+              <div className="text-xs font-mono text-[#8a96a1] text-center py-2">
+                No events recorded up to T+{t}h
+              </div>
+            ) : (
+              [...result.events.filter((e) => e.t <= t)].reverse().map((e, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-start gap-2 text-xs font-mono py-1 px-1.5 rounded hover:bg-[#1f272e] transition-colors"
+                >
+                  <span className="text-[#9BAA76] shrink-0 font-bold">
+                    T+{String(e.t).padStart(2, "0")}h
+                  </span>
+                  <span
+                    className={`text-[9px] uppercase px-1 py-0.5 rounded font-bold shrink-0 ${
+                      e.kind === "trigger"
+                        ? "bg-[#401c1c] text-[#ff8f8f] border border-[#d9534f]/50"
+                        : e.kind === "cascade"
+                        ? "bg-[#3d2d14] text-[#f6be73] border border-[#e09f3e]/50"
+                        : "bg-[#1f2e1a] text-[#8fae70] border border-[#8fae70]/50"
+                    }`}
+                  >
+                    {e.kind}
+                  </span>
+                  <span className="text-[#e5e9ec]">{e.text}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

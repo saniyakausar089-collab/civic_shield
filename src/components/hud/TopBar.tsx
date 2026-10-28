@@ -1,6 +1,6 @@
 import React from "react";
-import { Users, Building2, AlertTriangle, Sun, Moon, RotateCcw, Home, Sliders, Shield } from "lucide-react";
-import { useAppStore, currentSnapshot } from "@/store/appStore";
+import { Users, Building2, AlertTriangle, Sun, Moon, RotateCcw } from "lucide-react";
+import { useAppStore } from "@/store/appStore";
 import { PRESETS } from "@/engine/plans";
 
 interface TopBarProps {
@@ -10,14 +10,35 @@ interface TopBarProps {
 
 export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOpen }) => {
   const result = useAppStore((s) => s.result);
-  const hour = useAppStore((s) => s.hour);
+  const t = useAppStore((s) => s.t);
+  const selectedScenario = useAppStore((s) => s.selectedScenario);
   const presetId = useAppStore((s) => s.presetId);
+  const scenariosData = useAppStore((s) => s.scenariosData);
   const dayNight = useAppStore((s) => s.dayNight);
   const set = useAppStore((s) => s.set);
-  const setHour = useAppStore((s) => s.setHour);
+  const resetSim = useAppStore((s) => s.resetSim);
 
-  const snap = currentSnapshot(result, hour);
-  const activePreset = PRESETS.find((p) => p.id === presetId);
+  // Requirement 5: Top bar counters from frame. Before any run, show zeros.
+  const frame = result && Array.isArray(result.frames) ? result.frames[t] : null;
+
+  const affectedStr = frame ? frame.affected_pop.toLocaleString("en-IN") : "0";
+  const hospitalsCount = frame ? frame.hospitals_down : 0;
+  const failedCount = frame ? frame.failed.length : 0;
+
+  // Active scenario name
+  const scenarioTitle =
+    selectedScenario?.name ||
+    scenariosData.find(
+      (s) =>
+        s.id === presetId ||
+        (presetId === "pipeline" && s.id === "pipeline_burst") ||
+        (presetId === "monsoon" && s.id === "monsoon_flood") ||
+        (presetId === "heatwave" && s.id === "heatwave_overload") ||
+        (presetId === "cyber" && s.id === "cyberattack") ||
+        (presetId === "quake" && s.id === "earthquake")
+    )?.name ||
+    PRESETS.find((p) => p.id === presetId)?.label ||
+    "Custom Outage";
 
   return (
     <header className="h-12 w-full bg-[#191F24] border-b border-[#303941] px-3 flex items-center justify-between text-xs text-[#e5e9ec] select-none shrink-0 z-30">
@@ -47,18 +68,18 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
         <div className="hidden md:flex items-center gap-2 bg-[#14191d] px-2.5 py-1 rounded border border-[#303941]">
           <span className="text-[10px] uppercase font-mono text-[#8a96a1]">Scenario:</span>
           <span className="font-medium text-[#e5e9ec] truncate max-w-[160px]">
-            {activePreset ? activePreset.label : "Custom Outage"}
+            {scenarioTitle}
           </span>
         </div>
 
-        {/* Current Simulated Time */}
+        {/* Current Simulated Time: T+hh:00 / 24h */}
         <div className="flex items-center gap-1.5 font-mono text-[11px] bg-[#14191d] px-2 py-1 rounded border border-[#303941]">
-          <span className="text-[#9BAA76] font-bold">T+{hour.toString().padStart(2, "0")}h</span>
+          <span className="text-[#9BAA76] font-bold">T+{String(t).padStart(2, "0")}:00</span>
           <span className="text-[#8a96a1]">/ 24h</span>
         </div>
       </div>
 
-      {/* Center Operational Impact Counters */}
+      {/* Center Operational Impact Counters (Requirement 5) */}
       <div className="flex items-center gap-2 sm:gap-4">
         {/* Affected Population */}
         <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#14191d] border border-[#303941]">
@@ -66,7 +87,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
           <div className="flex items-center gap-1">
             <span className="hidden sm:inline text-[10px] text-[#8a96a1] uppercase font-mono">Affected:</span>
             <span className="font-mono font-bold text-[#f1f4f6] tabular-nums">
-              {snap.affectedPopulation.toLocaleString()}
+              {affectedStr}
             </span>
           </div>
         </div>
@@ -74,16 +95,16 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
         {/* Hospitals Impacted */}
         <div
           className={`flex items-center gap-1.5 px-2 py-1 rounded border transition-colors ${
-            snap.hospitalsDown > 0
+            hospitalsCount > 0
               ? "bg-[#401c1c] border-[#d9534f]/60 text-[#ff8f8f]"
               : "bg-[#14191d] border-[#303941] text-[#e5e9ec]"
           }`}
         >
-          <Building2 className={`w-3.5 h-3.5 ${snap.hospitalsDown > 0 ? "text-[#d9534f]" : "text-[#8a96a1]"}`} />
+          <Building2 className={`w-3.5 h-3.5 ${hospitalsCount > 0 ? "text-[#d9534f]" : "text-[#8a96a1]"}`} />
           <div className="flex items-center gap-1">
             <span className="hidden sm:inline text-[10px] text-[#8a96a1] uppercase font-mono">Hospitals:</span>
             <span className="font-mono font-bold tabular-nums">
-              {snap.hospitalsDown} <span className="text-[10px] text-[#8a96a1] font-normal">/ 2</span>
+              {hospitalsCount} <span className="text-[10px] text-[#8a96a1] font-normal">/ 2</span>
             </span>
           </div>
         </div>
@@ -91,16 +112,16 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
         {/* Systems Failed */}
         <div
           className={`flex items-center gap-1.5 px-2 py-1 rounded border transition-colors ${
-            snap.systemsFailed > 0
+            failedCount > 0
               ? "bg-[#3d2d14] border-[#e09f3e]/60 text-[#f6be73]"
               : "bg-[#14191d] border-[#303941] text-[#e5e9ec]"
           }`}
         >
-          <AlertTriangle className={`w-3.5 h-3.5 ${snap.systemsFailed > 0 ? "text-[#e09f3e]" : "text-[#8a96a1]"}`} />
+          <AlertTriangle className={`w-3.5 h-3.5 ${failedCount > 0 ? "text-[#e09f3e]" : "text-[#8a96a1]"}`} />
           <div className="flex items-center gap-1">
             <span className="hidden sm:inline text-[10px] text-[#8a96a1] uppercase font-mono">Failed:</span>
             <span className="font-mono font-bold tabular-nums">
-              {snap.systemsFailed} <span className="text-[10px] text-[#8a96a1] font-normal">/ 26</span>
+              {failedCount} <span className="text-[10px] text-[#8a96a1] font-normal">/ 26</span>
             </span>
           </div>
         </div>
@@ -117,11 +138,11 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
           {dayNight === "day" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
         </button>
 
-        {/* Reset Simulation to Hour 0 */}
+        {/* Reset Simulation to Hour 0 (Reset T+0) */}
         <button
-          onClick={() => setHour(0)}
+          onClick={() => resetSim()}
           className="p-1.5 rounded bg-[#242c33] border border-[#303941] text-[#8a96a1] hover:text-[#f1f4f6] hover:bg-[#2c363f] transition-colors"
-          title="Reset Simulation Time"
+          title="Reset Simulation (Reset T+0)"
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </button>

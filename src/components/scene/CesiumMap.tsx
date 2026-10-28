@@ -40,7 +40,9 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
   const setSelectedGisNode = useAppStore((s) => s.setSelectedGisNode);
   const select = useAppStore((s) => s.select);
   const setCivicShieldLayer = useAppStore((s) => s.setCivicShieldLayer);
+  const setCivicShieldData = useAppStore((s) => s.setCivicShieldData);
   const setScenariosData = useAppStore((s) => s.setScenariosData);
+  const engineError = useAppStore((s) => s.engineError);
   const setStore = useAppStore((s) => s.set);
   const presetId = useAppStore((s) => s.presetId);
   const viewportMode = useAppStore((s) => s.viewportMode);
@@ -156,6 +158,11 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
           if (!isMounted || !viewer || viewer.isDestroyed()) return;
 
           setScenariosData(data.scenarios);
+          setCivicShieldData({
+            network: data.network,
+            neighborhoods: data.neighborhoods,
+            scenarios: data.scenarios,
+          });
 
           // Guard against React StrictMode double-mount: destroy old layer if exists
           if (layerRef.current) {
@@ -336,14 +343,17 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
       )}
 
       {/* Diagnostics / Error / Notice Bar */}
-      {loadError && (
-        <div className="absolute top-12 left-3 right-3 z-10 p-2.5 rounded bg-[#241c1c]/95 border border-[#d9534f]/60 text-xs font-mono text-[#ff8f8f] flex items-center justify-between shadow-xl">
+      {(loadError || engineError) && (
+        <div className="absolute top-12 left-3 right-3 z-30 p-2.5 rounded bg-[#401c1c]/95 border border-[#d9534f] text-xs font-mono text-[#ff8f8f] flex items-center justify-between shadow-xl">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-[#d9534f] shrink-0" />
-            <span>{loadError}</span>
+            <span>{loadError || engineError}</span>
           </div>
           <button
-            onClick={() => setLoadError(null)}
+            onClick={() => {
+              setLoadError(null);
+              setStore({ engineError: null });
+            }}
             className="text-[10px] uppercase font-bold text-[#e5e9ec] hover:underline shrink-0 ml-2"
           >
             Dismiss
