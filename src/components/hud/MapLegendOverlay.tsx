@@ -1,9 +1,10 @@
-import React from "react";
-import { Sparkles } from "lucide-react";
+import React, { useState } from "react";
+import { Sparkles, Layers, ChevronDown, ChevronUp } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { STYLE_LEGEND_CONFIGS } from "../scene/cesiumStyles";
 
 export const MapLegendOverlay: React.FC = () => {
+  const [collapsed, setCollapsed] = useState(true);
   const viewportMode = useAppStore((s) => s.viewportMode);
   const cesiumBuildingStyle = useAppStore((s) => s.cesiumBuildingStyle);
   const layers = useAppStore((s) => s.layers);
@@ -14,16 +15,49 @@ export const MapLegendOverlay: React.FC = () => {
       ? STYLE_LEGEND_CONFIGS[cesiumBuildingStyle]
       : null;
 
+  if (collapsed) {
+    return (
+      <button
+        data-testid="gis-legend-collapsed-btn"
+        onClick={() => setCollapsed(false)}
+        className="absolute bottom-3 left-3 z-10 bg-[#191F24]/90 hover:bg-[#20282f] backdrop-blur-md border border-[#303941] rounded px-2.5 py-1.5 text-[11px] text-[#e5e9ec] select-none pointer-events-auto shadow-lg flex items-center gap-2 transition-colors font-mono"
+        title="Click to expand GIS Legend"
+      >
+        <Layers className="w-3.5 h-3.5 text-[#9BAA76]" />
+        <span className="font-semibold text-[10px] uppercase tracking-wider text-[#8a96a1]">
+          GIS Legend
+        </span>
+        <ChevronUp className="w-3.5 h-3.5 text-[#8a96a1]" />
+      </button>
+    );
+  }
+
   return (
-    <div className="absolute bottom-3 left-3 z-10 bg-[#191F24]/90 backdrop-blur-md border border-[#303941] rounded p-2.5 text-[11px] text-[#e5e9ec] select-none pointer-events-auto shadow-lg max-w-xs space-y-2">
+    <div
+      data-testid="gis-legend-expanded"
+      className="absolute bottom-3 left-3 z-10 bg-[#191F24]/90 backdrop-blur-md border border-[#303941] rounded p-2.5 text-[11px] text-[#e5e9ec] select-none pointer-events-auto shadow-lg max-w-xs space-y-2"
+    >
       {/* Legend Title */}
-      <div className="flex items-center justify-between border-b border-[#303941] pb-1">
-        <span className="font-semibold text-[10px] uppercase font-mono tracking-wider text-[#8a96a1]">
-          GIS Network Legend
-        </span>
-        <span className="text-[9px] font-mono text-[#9BAA76]">
-          {viewportMode === "cesium" ? "Cesium 3D Globe" : "Synthetic Twin"}
-        </span>
+      <div className="flex items-center justify-between border-b border-[#303941] pb-1 gap-2">
+        <div className="flex items-center gap-1.5">
+          <Layers className="w-3.5 h-3.5 text-[#9BAA76]" />
+          <span className="font-semibold text-[10px] uppercase font-mono tracking-wider text-[#8a96a1]">
+            GIS Legend
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[9px] font-mono text-[#9BAA76]">
+            {viewportMode === "cesium" ? "Cesium 3D" : "Twin"}
+          </span>
+          <button
+            data-testid="gis-legend-collapse-btn"
+            onClick={() => setCollapsed(true)}
+            className="p-0.5 hover:bg-[#252e35] rounded text-[#8a96a1] hover:text-[#e5e9ec] transition-colors"
+            title="Collapse GIS Legend"
+          >
+            <ChevronDown className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       {/* Dynamic 3D Tiles Legend (when Cesium is active) */}

@@ -80,6 +80,8 @@ export interface SimOptions {
   restore?: Record<string, number>;
   /** A neighborhood counts as "affected" when its impact >= this (default 0.25). */
   affectedThreshold?: number;
+  edgeScale?: Record<string, number>;   // "SRC>TGT" -> weight multiplier
+  backupBoost?: Record<string, { power?: number; water?: number }>;
 }
 
 export interface SimEvent {
@@ -200,7 +202,8 @@ export function simulate(
           e.type === "hazard"
             ? (e.delay_h === 0 ? (dNow[e.source] ?? 0) : damageAt(e.source, t - e.delay_h))
             : 1 - (e.delay_h === 0 ? (fNow[e.source] ?? 1) : valueAt(e.source, t - e.delay_h));
-        const contrib = e.weight * lossOfSource;
+        const w = e.weight * (opts.edgeScale?.[`${e.source}>${e.target}`] ?? 1);
+        const contrib = w * lossOfSource;
         groups[e.type] = (groups[e.type] ?? 0) + contrib;
         if (contrib > best) { best = contrib; bestSrc = e.source; }
       }
@@ -211,7 +214,9 @@ export function simulate(
         let loss = Math.min(1, groups[type] ?? 0);
         if (loss > 1e-9) {
           if (ls[type] === undefined) ls[type] = t;
-          const backup = type === "power" ? n.backup_power_hours : type === "water" ? n.backup_water_hours : 0;
+          const baseBackup = type === "power" ? n.backup_power_hours : type === "water" ? n.backup_water_hours : 0;
+          const boost = type === "power" ? opts.backupBoost?.[id]?.power : type === "water" ? opts.backupBoost?.[id]?.water : 0;
+          const backup = (baseBackup ?? 0) + (boost ?? 0);
           if (backup && t - ls[type]! < backup) loss = 0;
         } else {
           delete ls[type];

@@ -17,7 +17,7 @@ import { StageIndicator } from "./StageIndicator";
 import { BASE_CITY } from "@/engine/city";
 import { weakestLinks, analyzeHarm, resilienceScore } from "@/engine/analysis";
 import { runSim } from "@/engine/sim";
-import { PLANS } from "@/engine/plans";
+import { LEGACY_PLANS as PLANS } from "@/engine/plans";
 import { PostProcessingEffects } from "./PostProcessingEffects";
 import { FpsTracker } from "./FpsTracker";
 import { Shield, ArrowRight, Eye, RefreshCw, Gauge } from "lucide-react";

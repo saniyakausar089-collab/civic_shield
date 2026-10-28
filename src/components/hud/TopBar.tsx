@@ -12,6 +12,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
   const result = useAppStore((s) => s.result);
   const t = useAppStore((s) => s.t);
   const selectedScenario = useAppStore((s) => s.selectedScenario);
+  const appliedPlan = useAppStore((s) => s.appliedPlan);
   const presetId = useAppStore((s) => s.presetId);
   const scenariosData = useAppStore((s) => s.scenariosData);
   const dayNight = useAppStore((s) => s.dayNight);
@@ -71,6 +72,16 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
             {scenarioTitle}
           </span>
         </div>
+
+        {/* Applied Plan Chip (Phase 4a) */}
+        {appliedPlan && (
+          <div className="hidden md:flex items-center gap-1.5 bg-[#142328] border border-[#38bdf8]/60 px-2.5 py-1 rounded text-[10px] font-mono shadow-sm animate-in fade-in">
+            <span className="text-[#8a96a1] uppercase">PLAN:</span>
+            <span className="font-semibold text-[#38bdf8] truncate max-w-[160px]">
+              {appliedPlan.name}
+            </span>
+          </div>
+        )}
 
         {/* Current Simulated Time: T+hh:00 / 24h */}
         <div className="flex items-center gap-1.5 font-mono text-[11px] bg-[#14191d] px-2 py-1 rounded border border-[#303941]">

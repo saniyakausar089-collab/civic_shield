@@ -2,7 +2,7 @@
 import { create } from "zustand";
 import { BASE_CITY } from "@/engine/city";
 import { applyMods, type CityMod } from "@/engine/analysis";
-import { planById, type CustomParams } from "@/engine/plans";
+import { planById, type CustomParams, type Plan, type PlanEvaluation } from "@/engine/plans";
 import {
   simulate,
   type SimResult as CascadeSimResult,
@@ -34,6 +34,7 @@ export interface AppStore {
 
   // Phase 3 simulation state
   selectedScenario: Scenario | null;
+  appliedPlan: Plan | null;
   result: CascadeSimResult | null;
   t: number;
   hour: number;
@@ -54,7 +55,7 @@ export interface AppStore {
   scenariosData: Scenario[];
 
   set: (partial: Partial<AppStore>) => void;
-  runSim: () => Promise<void>;
+  runSim: (customScenario?: Scenario) => Promise<void>;
   play: () => void;
   pause: () => void;
   setT: (t: number) => void;
@@ -62,6 +63,7 @@ export interface AppStore {
   setSpeed: (s: 1 | 2 | 4) => void;
   resetSim: () => void;
   selectScenario: (scenario: Scenario) => void;
+  applyPlan: (evalPlan: PlanEvaluation) => void;
   setCivicShieldData: (data: {
     network: NetworkData;
     neighborhoods: NeighborhoodsData;
@@ -101,6 +103,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   // Phase 3 Initial State
   selectedScenario: null,
+  appliedPlan: null,
   result: null,
   t: 0,
   hour: 0,
@@ -122,7 +125,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   set: (partial) => set(partial),
 
-  runSim: async () => {
+  runSim: async (customScenario?: Scenario) => {
     const state = get();
     let network = state.networkData;
     let hoods = state.neighborhoodsData;
@@ -145,7 +148,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
 
     // Determine target scenario
-    let sc = state.selectedScenario;
+    let sc = customScenario || state.selectedScenario;
     if (!sc) {
       const pId = state.presetId;
       sc =
@@ -189,6 +192,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
       set({
         selectedScenario: sc,
+        appliedPlan: null,
         presetId: sc.id,
         result: res,
         t: 0,
@@ -262,6 +266,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       civicShieldLayer.previewScenario(selectedScenario);
     }
     set({
+      appliedPlan: null,
       result: null,
       t: 0,
       hour: 0,
@@ -283,6 +288,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     const triggerNodes = scenario.triggers ? scenario.triggers.map((tr) => tr.node) : [];
     set({
       selectedScenario: scenario,
+      appliedPlan: null,
       presetId: scenario.id,
       triggers: triggerNodes,
       result: null,
@@ -292,6 +298,31 @@ export const useAppStore = create<AppStore>((set, get) => ({
       engineError: null,
       selectedNodeId: null,
       selectedGisNode: null,
+    });
+  },
+
+  applyPlan: (evalPlan: PlanEvaluation) => {
+    const { civicShieldLayer } = get();
+    if (civicShieldLayer && typeof civicShieldLayer.clearPreview === "function") {
+      civicShieldLayer.clearPreview();
+    }
+    const res = evalPlan.result;
+    const frame0 = res.frames[0];
+    if (frame0 && civicShieldLayer) {
+      if (typeof civicShieldLayer.setNodeStatus === "function") {
+        civicShieldLayer.setNodeStatus(frame0.status);
+      }
+      if (typeof civicShieldLayer.setNeighborhoodImpact === "function") {
+        civicShieldLayer.setNeighborhoodImpact(frame0.neighborhood_impact);
+      }
+    }
+    set({
+      appliedPlan: evalPlan.plan,
+      result: res,
+      t: 0,
+      hour: 0,
+      playing: true,
+      engineError: null,
     });
   },
 

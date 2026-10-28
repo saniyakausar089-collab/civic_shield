@@ -242,6 +242,16 @@ export class CivicShieldLayer {
     });
   }
 
+  flyToNode(nodeId, duration = 1.5) {
+    const n = this.nodeById.get(nodeId);
+    if (!n || !this.viewer) return;
+    const target = new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(n.lon, n.lat, NODE_HEIGHT_M), 150);
+    this.viewer.camera.flyToBoundingSphere(target, {
+      duration,
+      offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-45), 2000),
+    });
+  }
+
   destroy() {
     this.handler?.destroy();
     if (this.viewer && !this.viewer.isDestroyed()) {
