@@ -1,4 +1,5 @@
 import * as Cesium from "cesium";
+import { HYDERABAD_COLLEGES_AND_PLACES } from "../data/hyderabadPlaces";
 
 export const STATUS_COLOR = {
   normal: "#8a9a7b",
@@ -48,26 +49,32 @@ export async function loadCivicShieldData(base = "/data") {
 export class CivicShieldLayer {
   /**
    * @param {Cesium.Viewer} viewer
-   * @param {{network:object, neighborhoods:object, onNodeSelect?:(node:object)=>void}} opts
+   * @param {{network:object, neighborhoods:object, onNodeSelect?:(node:object)=>void, onPlaceInspect?:(place:object)=>void}} opts
    */
-  constructor(viewer, { network, neighborhoods, onNodeSelect }) {
+  constructor(viewer, { network, neighborhoods, onNodeSelect, onPlaceInspect }) {
     this.viewer = viewer;
     this.network = network;
+    this.neighborhoods = neighborhoods;
     this.nodeById = new Map(network.nodes.map((n) => [n.id, n]));
     this.status = Object.fromEntries(network.nodes.map((n) => [n.id, "normal"]));
     this.ds = new Cesium.CustomDataSource("civicshield");
+    this.poiDs = new Cesium.CustomDataSource("civicshield_poi");
     this.nodeEntities = new Map();
     this.edgeEntities = new Map();
     this.hoodEntities = new Map();
+    this.poiEntities = new Map();
     this.pulseEntities = [];
     this.hiddenNetworks = new Set();
     this.onNodeSelect = onNodeSelect;
+    this.onPlaceInspect = onPlaceInspect;
 
     this._buildNeighborhoods(neighborhoods);
     this._buildEdges();
     this._buildNodes();
+    this._buildPlaceLabels();
     viewer.dataSources.add(this.ds);
-    this._bindPicking(onNodeSelect);
+    viewer.dataSources.add(this.poiDs);
+    this._bindPicking(onNodeSelect, onPlaceInspect);
   }
 
   // ---------- build ----------
@@ -137,13 +144,102 @@ export class CivicShieldLayer {
     }
   }
 
-  _bindPicking(onNodeSelect) {
-    if (!onNodeSelect) return;
+  _buildPlaceLabels() {
+    for (const p of HYDERABAD_COLLEGES_AND_PLACES) {
+      const isCollege = p.category === "college" || p.category === "university";
+      const icon = isCollege ? "🎓 " : p.category === "hospital" ? "🏥 " : p.category === "research" ? "🔬 " : "📍 ";
+      const pinColor = isCollege ? "#a855f7" : p.category === "hospital" ? "#ec4899" : "#38bdf8";
+
+      const e = this.poiDs.entities.add({
+        id: `poi:${p.id}`,
+        name: p.name,
+        position: Cesium.Cartesian3.fromDegrees(p.lon, p.lat, 25),
+        properties: new Cesium.PropertyBag({
+          poiId: p.id,
+          poiData: {
+            name: p.name,
+            category: p.category,
+            categoryLabel: p.categoryLabel,
+            subtext: p.subtext,
+            address: p.address,
+            lon: p.lon,
+            lat: p.lat,
+            isCurated: true,
+            details: {
+              "Campus / Facility": p.shortName || p.name,
+              "Established": p.established ? String(p.established) : "Historical",
+              "Category": p.categoryLabel,
+            },
+          },
+        }),
+        point: {
+          pixelSize: 10,
+          color: Cesium.Color.fromCssColorString(pinColor),
+          outlineColor: Cesium.Color.WHITE,
+          outlineWidth: 2,
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 45000),
+        },
+        label: {
+          text: `${icon}${p.shortName || p.name}`,
+          font: '11px "JetBrains Mono", sans-serif',
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          fillColor: Cesium.Color.WHITE,
+          outlineColor: Cesium.Color.fromCssColorString("#0f172a"),
+          outlineWidth: 3,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, -12),
+          disableDepthTestDistance: Number.POSITIVE_INFINITY,
+          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 32000),
+        },
+      });
+      this.poiEntities.set(p.id, e);
+    }
+  }
+
+  _bindPicking(onNodeSelect, onPlaceInspect) {
     this.handler = new Cesium.ScreenSpaceEventHandler(this.viewer.scene.canvas);
     this.handler.setInputAction((click) => {
+      // 1. Check if an entity was picked
       const picked = this.viewer.scene.pick(click.position);
-      const id = picked?.id?.properties?.nodeId?.getValue?.();
-      if (id) onNodeSelect(this.nodeById.get(id));
+
+      // 1a. Node entity picked?
+      const nodeId = picked?.id?.properties?.nodeId?.getValue?.();
+      if (nodeId && onNodeSelect) {
+        onNodeSelect(this.nodeById.get(nodeId));
+        return;
+      }
+
+      // 1b. POI entity picked?
+      const poiData = picked?.id?.properties?.poiData?.getValue?.();
+      if (poiData && onPlaceInspect) {
+        onPlaceInspect(poiData);
+        this.highlightLocation(poiData.lon, poiData.lat, poiData.name);
+        return;
+      }
+
+      // 2. Clicked on map ground, building, or 3D terrain
+      if (onPlaceInspect) {
+        let cartesian = null;
+        if (this.viewer.scene.globe) {
+          const ray = this.viewer.camera.getPickRay(click.position);
+          if (ray) {
+            cartesian = this.viewer.scene.globe.pick(ray, this.viewer.scene);
+          }
+        }
+        if (!cartesian) {
+          cartesian = this.viewer.scene.pickPosition(click.position);
+        }
+
+        if (cartesian) {
+          const carto = Cesium.Cartographic.fromCartesian(cartesian);
+          const lon = Cesium.Math.toDegrees(carto.longitude);
+          const lat = Cesium.Math.toDegrees(carto.latitude);
+
+          this.highlightLocation(lon, lat);
+          onPlaceInspect({ lon, lat, isResolving: true });
+        }
+      }
     }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
   }
 
@@ -242,20 +338,106 @@ export class CivicShieldLayer {
     });
   }
 
-  flyToNode(nodeId, duration = 1.5) {
+  flyToNode(nodeId, duration = 1.2) {
     const n = this.nodeById.get(nodeId);
-    if (!n || !this.viewer) return;
+    if (!n || !this.viewer || this.viewer.isDestroyed()) return;
     const target = new Cesium.BoundingSphere(Cesium.Cartesian3.fromDegrees(n.lon, n.lat, NODE_HEIGHT_M), 150);
     this.viewer.camera.flyToBoundingSphere(target, {
       duration,
-      offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-45), 2000),
+      offset: new Cesium.HeadingPitchRange(0, Cesium.Math.toRadians(-45), 1800),
     });
+    this.highlightLocation(n.lon, n.lat, n.name);
+  }
+
+  flyToCoordinates(lon, lat, altitude = 2200, duration = 1.2) {
+    if (!this.viewer || this.viewer.isDestroyed()) return;
+    this.viewer.camera.flyTo({
+      destination: Cesium.Cartesian3.fromDegrees(lon, lat, altitude),
+      orientation: {
+        heading: Cesium.Math.toRadians(0),
+        pitch: Cesium.Math.toRadians(-45),
+        roll: 0.0,
+      },
+      duration,
+    });
+    this.highlightLocation(lon, lat);
+  }
+
+  flyToNeighborhood(hoodId, duration = 1.2) {
+    if (!this.viewer || this.viewer.isDestroyed()) return;
+    const feat = this.neighborhoods?.features?.find((f) => f.properties?.id === hoodId);
+    if (!feat) return;
+    const coords = feat.geometry?.coordinates?.[0] || [];
+    if (coords.length === 0) return;
+    let sumLon = 0, sumLat = 0;
+    for (const pt of coords) {
+      sumLon += pt[0];
+      sumLat += pt[1];
+    }
+    const centerLon = sumLon / coords.length;
+    const centerLat = sumLat / coords.length;
+    this.flyToCoordinates(centerLon, centerLat, 4500, duration);
+  }
+
+  highlightLocation(lon, lat, label = "") {
+    if (!this.viewer || this.viewer.isDestroyed()) return;
+    if (this._searchBeacon) {
+      try {
+        this.viewer.entities.remove(this._searchBeacon);
+      } catch {}
+      this._searchBeacon = null;
+    }
+    const startTime = Cesium.JulianDate.now();
+    const beacon = this.viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(lon, lat, 20),
+      ellipse: {
+        semiMajorAxis: new Cesium.CallbackProperty((time) => {
+          const diff = Cesium.JulianDate.secondsDifference(time, startTime);
+          return 120 + ((diff * 2) % 3) * 150;
+        }, false),
+        semiMinorAxis: new Cesium.CallbackProperty((time) => {
+          const diff = Cesium.JulianDate.secondsDifference(time, startTime);
+          return 120 + ((diff * 2) % 3) * 150;
+        }, false),
+        material: new Cesium.ColorMaterialProperty(
+          Cesium.Color.fromCssColorString("#38bdf8").withAlpha(0.6)
+        ),
+        outline: true,
+        outlineColor: Cesium.Color.fromCssColorString("#38bdf8"),
+        outlineWidth: 2,
+        height: 20,
+      },
+    });
+    this._searchBeacon = beacon;
+    setTimeout(() => {
+      if (this.viewer && !this.viewer.isDestroyed() && this._searchBeacon === beacon) {
+        try {
+          this.viewer.entities.remove(beacon);
+        } catch {}
+        this._searchBeacon = null;
+      }
+    }, 5000);
+  }
+
+  setPlaceLabelsVisible(visible) {
+    if (this.poiDs) {
+      this.poiDs.show = visible;
+    }
   }
 
   destroy() {
     this.handler?.destroy();
     if (this.viewer && !this.viewer.isDestroyed()) {
       this.viewer.dataSources.remove(this.ds, true);
+      if (this.poiDs) {
+        this.viewer.dataSources.remove(this.poiDs, true);
+      }
+      if (this._searchBeacon) {
+        try {
+          this.viewer.entities.remove(this._searchBeacon);
+        } catch {}
+        this._searchBeacon = null;
+      }
     }
   }
 }

@@ -1,6 +1,7 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 import cesium from "vite-plugin-cesium";
 import type { Plugin } from "vite";
+import { loadEnv } from "vite";
 import { execFile } from "node:child_process";
 import path from "node:path";
 import fs from "node:fs";
@@ -9,6 +10,53 @@ function cppCascadePlugin(): Plugin {
   return {
     name: "vite-plugin-cpp-cascade",
     configureServer(server) {
+      // Ensure server-side env vars (ANTHROPIC_API_KEY, CLAUDE_MODEL) are loaded from .env
+      const env = loadEnv(server.config.mode || "development", process.cwd(), "");
+      Object.assign(process.env, env);
+
+      server.middlewares.use("/api/report", (req, res) => {
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ error: "Method Not Allowed" }));
+          return;
+        }
+
+        let bodyStr = "";
+        let exceeded = false;
+        req.on("data", (chunk: any) => {
+          bodyStr += chunk;
+          if (bodyStr.length > 50 * 1024) {
+            exceeded = true;
+          }
+        });
+
+        req.on("end", async () => {
+          if (exceeded) {
+            res.statusCode = 400;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "Payload too large. Maximum body size is 50 KB." }));
+            return;
+          }
+
+          const ip =
+            ((req.headers["x-forwarded-for"] as string) || "").split(",")[0]?.trim() ||
+            req.socket.remoteAddress ||
+            "127.0.0.1";
+
+          try {
+            const { handleReportRequest } = await import("./src/lib/reportHandler");
+            const response = await handleReportRequest(bodyStr, ip);
+            res.statusCode = response.status;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(response.body));
+          } catch (handlerErr: any) {
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: handlerErr.message || String(handlerErr) }));
+          }
+        });
+      });
       server.middlewares.use("/api/cascade", (req, res) => {
         if (req.method !== "POST") {
           res.statusCode = 405;

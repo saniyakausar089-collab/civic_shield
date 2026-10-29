@@ -20,7 +20,8 @@ import { runSim } from "@/engine/sim";
 import { LEGACY_PLANS as PLANS } from "@/engine/plans";
 import { PostProcessingEffects } from "./PostProcessingEffects";
 import { FpsTracker } from "./FpsTracker";
-import { Shield, ArrowRight, Eye, RefreshCw, Gauge } from "lucide-react";
+import { Shield, ArrowRight, Eye, RefreshCw, Gauge, Lock } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 export const CinematicLanding: React.FC = () => {
   const [mounted, setMounted] = useState(false);
@@ -222,6 +223,15 @@ export const CinematicLanding: React.FC = () => {
             <Eye className="w-3.5 h-3.5" />
             <span>{reducedMotion ? "Reduced Motion: ON" : "Motion: Fluid"}</span>
           </button>
+
+          {/* Operator Login Button */}
+          <Link
+            to="/login"
+            className="px-3.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-mono text-xs uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+          >
+            <Lock className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Operator Login</span>
+          </Link>
 
           {/* Skip Intro Button */}
           <button

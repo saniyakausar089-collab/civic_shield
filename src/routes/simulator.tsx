@@ -1,5 +1,6 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { supabase } from "@/lib/supabase";
 import { useAppStore } from "@/store/appStore";
 import { TopBar } from "@/components/hud/TopBar";
 import { CompactTimelineBar } from "@/components/hud/CompactTimelineBar";
@@ -14,10 +15,14 @@ import {
   Compass,
   Globe,
   Box,
+  GraduationCap,
 } from "lucide-react";
 
 import { CityScene } from "@/components/scene/CityScene";
 import { CesiumMap } from "@/components/scene/CesiumMap";
+import { MapAreaSearch } from "@/components/hud/MapAreaSearch";
+import { AuthGuard } from "@/components/auth/AuthGuard";
+import { hasStoredSession } from "@/lib/supabase";
 
 export const Route = createFileRoute("/simulator")({
   component: SimulatorPage,
@@ -27,6 +32,10 @@ export function SimulatorPage() {
   const selectedNodeId = useAppStore((s) => s.selectedNodeId);
   const viewportMode = useAppStore((s) => s.viewportMode);
   const resetAllLayers = useAppStore((s) => s.resetAllLayers);
+  const showPlaceLabels = useAppStore((s) => s.showPlaceLabels);
+  const togglePlaceLabels = useAppStore((s) => s.togglePlaceLabels);
+  const inspectMode = useAppStore((s) => s.inspectMode);
+  const toggleInspectMode = useAppStore((s) => s.toggleInspectMode);
   const setStore = useAppStore((s) => s.set);
 
   const [resetSignal, setResetSignal] = useState(0);
@@ -37,7 +46,8 @@ export function SimulatorPage() {
   }, [setStore]);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-[#101418] select-none flex flex-col font-sans">
+    <AuthGuard>
+      <div className="relative w-screen h-screen overflow-hidden bg-[#101418] select-none flex flex-col font-sans">
       {/* 1. Engineering Top Bar */}
       <TopBar />
 
@@ -117,6 +127,37 @@ export function SimulatorPage() {
               <RotateCcw className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Reset View</span>
             </button>
+
+            {/* Fast Map Area & Facility Search */}
+            <MapAreaSearch />
+
+            {/* Toggle Place & College Labels */}
+            <button
+              onClick={togglePlaceLabels}
+              className={`px-2.5 py-1.5 rounded backdrop-blur-md border text-xs font-mono flex items-center gap-1.5 transition-colors shadow ${
+                showPlaceLabels
+                  ? "bg-[#282138] border-purple-500/50 text-purple-300 font-medium"
+                  : "bg-[#191F24]/90 border-[#303941] text-[#8a96a1] hover:text-[#d2d8de]"
+              }`}
+              title={showPlaceLabels ? "Hide College & Place Labels on Globe" : "Show College & Place Labels on Globe"}
+            >
+              <GraduationCap className={`w-3.5 h-3.5 ${showPlaceLabels ? "text-purple-400" : "text-[#8a96a1]"}`} />
+              <span className="hidden lg:inline">Colleges & Places</span>
+            </button>
+
+            {/* Toggle Place Inspection Mode */}
+            <button
+              onClick={toggleInspectMode}
+              className={`px-2.5 py-1.5 rounded backdrop-blur-md border text-xs font-mono flex items-center gap-1.5 transition-colors shadow ${
+                inspectMode
+                  ? "bg-[#1d2d3d] border-sky-500/50 text-sky-300 font-medium"
+                  : "bg-[#191F24]/90 border-[#303941] text-[#8a96a1] hover:text-[#d2d8de]"
+              }`}
+              title="Click any building, college, or location on the 3D globe to reveal full place information"
+            >
+              <span className={`w-2 h-2 rounded-full ${inspectMode ? "bg-sky-400 animate-pulse" : "bg-[#505a63]"}`} />
+              <span className="hidden lg:inline">Inspect Places</span>
+            </button>
           </div>
 
           {/* Map Compass & North Indicator */}
@@ -139,5 +180,6 @@ export function SimulatorPage() {
       {/* 4. Bottom Resizable & Collapsible Analysis Drawer */}
       <ResizableAnalysisDrawer />
     </div>
+    </AuthGuard>
   );
 }

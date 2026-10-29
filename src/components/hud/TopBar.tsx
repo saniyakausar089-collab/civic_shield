@@ -1,8 +1,20 @@
 import React from "react";
-import { Users, Building2, AlertTriangle, Sun, Moon, RotateCcw } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import {
+  Users,
+  Building2,
+  AlertTriangle,
+  Sun,
+  Moon,
+  RotateCcw,
+  LogIn,
+  LogOut,
+  User as UserIcon,
+} from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { PRESETS } from "@/engine/plans";
 import { LiveEnvironmentClock } from "./LiveEnvironmentClock";
+import { useAuth } from "@/context/AuthContext";
 
 interface TopBarProps {
   onToggleLeftPanel?: () => void;
@@ -21,6 +33,9 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
   const engineDurationMs = useAppStore((s) => s.engineDurationMs);
   const set = useAppStore((s) => s.set);
   const resetSim = useAppStore((s) => s.resetSim);
+
+  // Supabase Auth hook
+  const { user, profile, isAuthenticated, signOut } = useAuth();
 
   // Requirement 5: Top bar counters from frame. Before any run, show zeros.
   const frame = result && Array.isArray(result.frames) ? result.frames[t] : null;
@@ -168,6 +183,46 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
       <div className="flex items-center gap-2">
         {/* Real-time Clock & Hyderabad Environmental Factors */}
         <LiveEnvironmentClock />
+
+        <div className="h-4 w-px bg-[#303941] hidden sm:block" />
+
+        {/* Supabase Authentication Widget */}
+        {isAuthenticated && user ? (
+          <div className="flex items-center gap-1.5">
+            <Link
+              to="/login"
+              className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1e262d] hover:bg-[#28323b] border border-[#303941] text-xs font-mono transition-colors"
+              title={`Logged in as ${profile?.full_name || user.email}`}
+            >
+              <div className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className="text-[#9BAA76] font-semibold max-w-[80px] sm:max-w-[100px] truncate">
+                {profile?.full_name?.split(" ")[0] || "Operator"}
+              </span>
+              <span className="hidden lg:inline text-[9px] px-1 py-0.2 rounded bg-[#2c363f] text-[#8a96a1] uppercase">
+                {profile?.role?.replace("_", " ") || "Analyst"}
+              </span>
+            </Link>
+            <button
+              onClick={async () => {
+                await signOut();
+                window.location.replace("/login");
+              }}
+              className="p-1.5 rounded bg-[#242c33] border border-[#303941] text-[#8a96a1] hover:text-rose-400 hover:bg-[#2c363f] transition-colors"
+              title="Sign Out (Supabase Session)"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#242c33] hover:bg-[#2e3740] border border-[#303941] text-[#9BAA76] hover:text-[#b4c38d] transition-colors text-xs font-mono"
+            title="Authenticate with Supabase"
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Operator Login</span>
+          </Link>
+        )}
 
         <div className="h-4 w-px bg-[#303941] hidden sm:block" />
 

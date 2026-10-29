@@ -12,6 +12,7 @@ import {
   type NeighborhoodsData,
 } from "@/engine/cascade";
 import { loadCivicShieldData } from "@/gis/civicshieldLayer";
+import { type InspectedPlaceResult } from "@/data/hyderabadPlaces";
 import { toast } from "sonner";
 
 export interface Layers {
@@ -35,6 +36,7 @@ export interface AppStore {
   // Phase 3 simulation state
   selectedScenario: Scenario | null;
   appliedPlan: Plan | null;
+  baselineResult: CascadeSimResult | null;
   result: CascadeSimResult | null;
   t: number;
   hour: number;
@@ -55,6 +57,11 @@ export interface AppStore {
   activeTab: "simulate" | "plans" | "weaklinks" | "command" | "report";
   civicShieldLayer: any | null;
   scenariosData: Scenario[];
+
+  // Interactive Place & College Inspector
+  inspectedPlace: (InspectedPlaceResult & { isLoading?: boolean }) | null;
+  showPlaceLabels: boolean;
+  inspectMode: boolean;
 
   set: (partial: Partial<AppStore>) => void;
   runSim: (customScenario?: Scenario) => Promise<void>;
@@ -91,6 +98,11 @@ export interface AppStore {
   togglePlay: () => void;
   setActiveTab: (tab: "simulate" | "plans" | "weaklinks" | "command" | "report") => void;
   toggleTheme: () => void;
+
+  setInspectedPlace: (place: (InspectedPlaceResult & { isLoading?: boolean }) | null) => void;
+  setShowPlaceLabels: (show: boolean) => void;
+  togglePlaceLabels: () => void;
+  toggleInspectMode: () => void;
 }
 
 export const useAppStore = create<AppStore>((set, get) => ({
@@ -106,6 +118,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   // Phase 3 Initial State
   selectedScenario: null,
   appliedPlan: null,
+  baselineResult: null,
   result: null,
   t: 0,
   hour: 0,
@@ -126,6 +139,10 @@ export const useAppStore = create<AppStore>((set, get) => ({
   activeTab: "simulate",
   civicShieldLayer: null,
   scenariosData: [],
+
+  inspectedPlace: null,
+  showPlaceLabels: true,
+  inspectMode: true,
 
   set: (partial) => set(partial),
 
@@ -232,6 +249,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
         selectedScenario: sc,
         appliedPlan: null,
         presetId: sc.id,
+        baselineResult: res,
         result: res,
         t: 0,
         hour: 0,
@@ -307,6 +325,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
     }
     set({
       appliedPlan: null,
+      baselineResult: null,
       result: null,
       t: 0,
       hour: 0,
@@ -333,6 +352,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       appliedPlan: null,
       presetId: scenario.id,
       triggers: triggerNodes,
+      baselineResult: null,
       result: null,
       t: 0,
       hour: 0,
@@ -454,7 +474,26 @@ export const useAppStore = create<AppStore>((set, get) => ({
 
   resetAllLayers: () => {
     get().resetSim();
+    set({
+      selectedNodeId: null,
+      selectedGisNode: null,
+      inspectedPlace: null,
+    });
   },
+
+  setInspectedPlace: (inspectedPlace) => set({ inspectedPlace }),
+  setShowPlaceLabels: (show) => {
+    const layer = get().civicShieldLayer;
+    if (layer && typeof layer.setPlaceLabelsVisible === "function") {
+      layer.setPlaceLabelsVisible(show);
+    }
+    set({ showPlaceLabels: show });
+  },
+  togglePlaceLabels: () => {
+    const next = !get().showPlaceLabels;
+    get().setShowPlaceLabels(next);
+  },
+  toggleInspectMode: () => set((s) => ({ inspectMode: !s.inspectMode })),
 
   enterSim: () => set({ view: "sim" }),
   setActiveTab: (activeTab) => set({ activeTab }),

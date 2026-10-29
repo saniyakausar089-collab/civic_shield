@@ -65,6 +65,29 @@ export default {
         }
       }
 
+      if (url.pathname === "/api/report" && request.method === "POST") {
+        try {
+          const ip =
+            request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            request.headers.get("cf-connecting-ip") ||
+            "127.0.0.1";
+          const bodyText = await request.text();
+          const apiKey = (env as any)?.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
+          const model = (env as any)?.CLAUDE_MODEL || process.env.CLAUDE_MODEL || "claude-sonnet-5-5";
+          const { handleReportRequest } = await import("./lib/reportHandler");
+          const res = await handleReportRequest(bodyText, ip, apiKey, model);
+          return new Response(JSON.stringify(res.body), {
+            status: res.status,
+            headers: { "content-type": "application/json" },
+          });
+        } catch (err: any) {
+          return new Response(JSON.stringify({ error: err.message || String(err) }), {
+            status: 500,
+            headers: { "content-type": "application/json" },
+          });
+        }
+      }
+
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

@@ -4,6 +4,7 @@ import { BASE_CITY } from "@/engine/city";
 import { applyMods } from "@/engine/analysis";
 import { useAppStore } from "@/store/appStore";
 import { Flame, Droplets, Zap, Shield, Globe, Layers } from "lucide-react";
+import { AiRiskEstimateCard } from "./AiRiskEstimateCard";
 
 export const SimulateTab: React.FC = () => {
   const presetId = useAppStore((s) => s.presetId);
@@ -15,6 +16,41 @@ export const SimulateTab: React.FC = () => {
   const result = useAppStore((s) => s.result);
   const t = useAppStore((s) => s.t);
   const toggleTrigger = useAppStore((s) => s.toggleTrigger);
+  const networkData = useAppStore((s) => s.networkData);
+
+  const getAssetName = (id: string) => {
+    const fromStore = networkData?.nodes.find((n) => n.id === id);
+    if (fromStore?.name) return fromStore.name;
+    const names: Record<string, string> = {
+      WT1: "North Water Works",
+      WT2: "South Water Works",
+      PIPE1: "Main Pipeline",
+      PIPE2: "West Feeder Main",
+      PUMPA: "Pumping Station A",
+      PUMPB: "Pumping Station B",
+      RES1: "Hill Reservoir",
+      RES2: "East Overhead Tank",
+      PP1: "Grid Power Plant",
+      SUB1: "North Substation",
+      SUB2: "Central Substation",
+      SUB3: "South Substation",
+      SUB4: "East Substation",
+      SUB5: "West Substation",
+      TX1: "Core Telecom Exchange",
+      T1: "Telecom Tower 1",
+      T2: "Telecom Tower 2",
+      T3: "Telecom Tower 3",
+      T4: "Telecom Tower 4",
+      RJ1: "Central Junction",
+      RJ2: "North Junction",
+      RJ3: "East Junction",
+      UJ1: "East Underpass",
+      UJ2: "West Underpass",
+      H1: "City General Hospital",
+      H2: "Northwest Medical Center",
+    };
+    return names[id] || id;
+  };
 
   useEffect(() => {
     if (scenariosData.length === 0) {
@@ -107,13 +143,16 @@ export const SimulateTab: React.FC = () => {
                   {s.summary || s.blurb}
                 </p>
                 <div className="mt-2 text-[10px] font-mono text-[#9BAA76] truncate">
-                  Nodes: {triggerNodes.join(", ")}
+                  Triggers: {triggerNodes.map((id: string) => getAssetName(id)).join(", ")}
                 </div>
               </button>
             );
           })}
         </div>
       </div>
+
+      {/* AI Risk Estimate Card (Surrogate Model) */}
+      <AiRiskEstimateCard />
 
       {/* Manual Triggers Picker */}
       <div>

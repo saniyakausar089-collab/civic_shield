@@ -3,6 +3,8 @@ import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { useAppStore } from "@/store/appStore";
 import { CivicShieldLayer, loadCivicShieldData, type NodeData } from "@/gis/civicshieldLayer";
+import { identifyPlaceAtLocation } from "@/data/hyderabadPlaces";
+import { PlaceInspectorPopup } from "@/components/hud/PlaceInspectorPopup";
 import {
   createYearStyle,
   createHeightStyle,
@@ -46,6 +48,8 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
   const setStore = useAppStore((s) => s.set);
   const presetId = useAppStore((s) => s.presetId);
   const viewportMode = useAppStore((s) => s.viewportMode);
+  const showPlaceLabels = useAppStore((s) => s.showPlaceLabels);
+  const inspectedPlace = useAppStore((s) => s.inspectedPlace);
 
   // Component State
   const [loading, setLoading] = useState(true);
@@ -178,6 +182,43 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
               setSelectedGisNode(node);
               select(node?.id ?? null);
             },
+            onPlaceInspect: async (target: any) => {
+              const store = useAppStore.getState();
+              if (!store.inspectMode) return;
+
+              if (target.isResolving) {
+                store.setInspectedPlace({
+                  name: "Scanning Location...",
+                  category: "resolving",
+                  categoryLabel: "Identifying Place & Facility",
+                  subtext: `Inspecting urban sector at ${target.lat.toFixed(4)}° N, ${target.lon.toFixed(4)}° E`,
+                  address: `Hyderabad Urban Area (${target.lat.toFixed(5)}° N, ${target.lon.toFixed(5)}° E)`,
+                  lon: target.lon,
+                  lat: target.lat,
+                  isCurated: false,
+                  isLoading: true,
+                });
+
+                try {
+                  const place = await identifyPlaceAtLocation(target.lon, target.lat);
+                  store.setInspectedPlace({ ...place, isLoading: false });
+                } catch {
+                  store.setInspectedPlace({
+                    name: "Hyderabad Urban Sector",
+                    category: "location",
+                    categoryLabel: "Urban Facility / Sector",
+                    subtext: `Coordinates: ${target.lat.toFixed(4)}° N, ${target.lon.toFixed(4)}° E`,
+                    address: `Greater Hyderabad Metropolitan Area (${target.lat.toFixed(5)}° N, ${target.lon.toFixed(5)}° E)`,
+                    lon: target.lon,
+                    lat: target.lat,
+                    isCurated: false,
+                    isLoading: false,
+                  });
+                }
+              } else {
+                store.setInspectedPlace({ ...target, isLoading: false });
+              }
+            },
           });
 
           layerRef.current = layer;
@@ -192,6 +233,7 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
           layer.setNetworkVisible("water", layers.water);
           layer.setNetworkVisible("road", layers.roads);
           layer.setNetworkVisible("telecom", layers.telecom);
+          layer.setPlaceLabelsVisible(useAppStore.getState().showPlaceLabels);
 
           // Fly camera to city bounding sphere
           layer.flyToCity();
@@ -279,6 +321,13 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
       layerRef.current.setNetworkVisible("telecom", layers.telecom);
     }
   }, [layers]);
+
+  // React to place & college labels visibility
+  useEffect(() => {
+    if (layerRef.current && typeof layerRef.current.setPlaceLabelsVisible === "function") {
+      layerRef.current.setPlaceLabelsVisible(showPlaceLabels);
+    }
+  }, [showPlaceLabels]);
 
   // 4. Resize Viewer when viewport mode switches to cesium
   useEffect(() => {
@@ -437,6 +486,9 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
           </div>
         </div>
       )}
+
+      {/* Interactive Place & College Inspector Popup */}
+      <PlaceInspectorPopup />
 
       {/* Top Floating Cesium Style Controls */}
       <div className="absolute top-3 right-28 z-10 flex items-center gap-2 bg-[#191F24]/90 backdrop-blur-md border border-[#303941] px-2.5 py-1.5 rounded shadow">
