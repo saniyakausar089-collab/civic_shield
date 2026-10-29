@@ -22,8 +22,10 @@ import { PostProcessingEffects } from "./PostProcessingEffects";
 import { FpsTracker } from "./FpsTracker";
 import { Shield, ArrowRight, Eye, RefreshCw, Gauge, Lock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/context/AuthContext";
 
 export const CinematicLanding: React.FC = () => {
+  const { isAuthenticated, profile } = useAuth();
   const [mounted, setMounted] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [dpr, setDpr] = useState<number>(1.5);
@@ -224,14 +226,26 @@ export const CinematicLanding: React.FC = () => {
             <span>{reducedMotion ? "Reduced Motion: ON" : "Motion: Fluid"}</span>
           </button>
 
-          {/* Operator Login Button */}
-          <Link
-            to="/login"
-            className="px-3.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-mono text-xs uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
-          >
-            <Lock className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Operator Login</span>
-          </Link>
+          {/* Operator Login / Status Button */}
+          {isAuthenticated ? (
+            <Link
+              to="/simulator"
+              className="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-mono text-xs uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="hidden sm:inline">
+                {profile?.role?.replace("_", " ") || "Operator Active"}
+              </span>
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="px-3.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-mono text-xs uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Operator Login</span>
+            </Link>
+          )}
 
           {/* Skip Intro Button */}
           <button
