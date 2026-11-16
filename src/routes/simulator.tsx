@@ -27,6 +27,7 @@ const CesiumMap = lazy(() =>
 import { MapAreaSearch } from "@/components/hud/MapAreaSearch";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { hasStoredSession } from "@/lib/supabase";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 export const Route = createFileRoute("/simulator")({
   component: SimulatorPage,
@@ -66,27 +67,29 @@ export function SimulatorPage() {
           style={{ height: "100%", minHeight: "400px" }}
         >
           {/* 3D GIS Canvas (CesiumJS 3D Globe or ThreeJS Synthetic Twin) */}
-          <Suspense
-            fallback={
-              <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#9BAA76]">
-                Loading 3D Viewport...
+          <ErrorBoundary fallbackTitle="Geospatial 3D Viewport Error">
+            <Suspense
+              fallback={
+                <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#9BAA76]">
+                  Loading 3D Viewport...
+                </div>
+              }
+            >
+              <div
+                className="w-full h-full"
+                style={{ display: viewportMode === "cesium" ? "block" : "none" }}
+              >
+                <CesiumMap resetSignal={resetSignal} />
               </div>
-            }
-          >
-            <div
-              className="w-full h-full"
-              style={{ display: viewportMode === "cesium" ? "block" : "none" }}
-            >
-              <CesiumMap resetSignal={resetSignal} />
-            </div>
 
-            <div
-              className="w-full h-full"
-              style={{ display: viewportMode === "three" ? "block" : "none" }}
-            >
-              <CityScene resetSignal={resetSignal} />
-            </div>
-          </Suspense>
+              <div
+                className="w-full h-full"
+                style={{ display: viewportMode === "three" ? "block" : "none" }}
+              >
+                <CityScene resetSignal={resetSignal} />
+              </div>
+            </Suspense>
+          </ErrorBoundary>
 
           {/* Floating Map Utility Controls */}
           <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
