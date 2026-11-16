@@ -1,6 +1,180 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
+import cesium from "vite-plugin-cesium";
+import type { Plugin } from "vite";
+import { loadEnv } from "vite";
+import { execFile } from "node:child_process";
+import path from "node:path";
+import fs from "node:fs";
+
+function cppCascadePlugin(): Plugin {
+  return {
+    name: "vite-plugin-cpp-cascade",
+    configureServer(server) {
+      // Ensure server-side env vars (ANTHROPIC_API_KEY, CLAUDE_MODEL) are loaded from .env
+      const env = loadEnv(server.config.mode || "development", process.cwd(), "");
+      Object.assign(process.env, env);
+
+      server.middlewares.use("/api/report", (req, res) => {
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ error: "Method Not Allowed" }));
+          return;
+        }
+
+        let bodyStr = "";
+        let exceeded = false;
+        req.on("data", (chunk: any) => {
+          bodyStr += chunk;
+          if (bodyStr.length > 50 * 1024) {
+            exceeded = true;
+          }
+        });
+
+        req.on("end", async () => {
+          if (exceeded) {
+            res.statusCode = 400;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "Payload too large. Maximum body size is 50 KB." }));
+            return;
+          }
+
+          const ip =
+            ((req.headers["x-forwarded-for"] as string) || "").split(",")[0]?.trim() ||
+            req.socket.remoteAddress ||
+            "127.0.0.1";
+
+          try {
+            const { handleReportRequest } = await import("./src/lib/reportHandler");
+            const response = await handleReportRequest(bodyStr, ip);
+            res.statusCode = response.status;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify(response.body));
+          } catch (handlerErr: any) {
+            res.statusCode = 500;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: handlerErr.message || String(handlerErr) }));
+          }
+        });
+      });
+      server.middlewares.use("/api/cascade", (req, res) => {
+        if (req.method !== "POST") {
+          res.statusCode = 405;
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ error: "Method Not Allowed" }));
+          return;
+        }
+
+        let bodyStr = "";
+        req.on("data", (chunk: any) => {
+          bodyStr += chunk;
+        });
+
+        req.on("end", () => {
+          try {
+            const body = JSON.parse(bodyStr || "{}");
+            const { scenario, opts = {} } = body;
+            if (!scenario || !scenario.id) {
+              res.statusCode = 400;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: "Missing scenario in request body" }));
+              return;
+            }
+
+            const root = path.resolve(".");
+            const isWin = process.platform === "win32";
+            const bin = isWin
+              ? path.join(root, "build", "cascade_cli.exe")
+              : path.join(root, "build", "cascade_cli");
+
+            if (!fs.existsSync(bin)) {
+              res.statusCode = 500;
+              res.setHeader("Content-Type", "application/json");
+              res.end(JSON.stringify({ error: `C++ binary not found at ${bin}` }));
+              return;
+            }
+
+            const networkPath = path.join(root, "public", "data", "network.json");
+            const hoodsPath = path.join(root, "public", "data", "neighborhoods.geojson");
+
+            const payload = [{ scenario, opts }];
+            const t0 = Date.now();
+
+            const child = execFile(
+              bin,
+              [networkPath, hoodsPath, "-"],
+              { timeout: 5000, maxBuffer: 10 * 1024 * 1024 },
+              (err, stdout, stderr) => {
+                const durationMs = Date.now() - t0;
+                if (err) {
+                  res.statusCode = 500;
+                  res.setHeader("Content-Type", "application/json");
+                  res.end(JSON.stringify({ error: stderr ? stderr.trim() : err.message }));
+                  return;
+                }
+
+                try {
+                  const raw = stdout.trim();
+                  const cleanJson = raw.charCodeAt(0) === 0xfeff ? raw.slice(1) : raw;
+                  const parsed = JSON.parse(cleanJson);
+                  res.statusCode = 200;
+                  res.setHeader("Content-Type", "application/json");
+                  res.end(
+                    JSON.stringify({
+                      result: parsed[0],
+                      engine: "cpp",
+                      durationMs,
+                    })
+                  );
+                } catch (parseErr: any) {
+                  res.statusCode = 500;
+                  res.setHeader("Content-Type", "application/json");
+                  res.end(JSON.stringify({ error: "Invalid JSON from C++ binary: " + parseErr.message }));
+                }
+              }
+            );
+
+            if (child.stdin) {
+              child.stdin.write(JSON.stringify(payload));
+              child.stdin.end();
+            }
+          } catch (jsonErr: any) {
+            res.statusCode = 400;
+            res.setHeader("Content-Type", "application/json");
+            res.end(JSON.stringify({ error: "Invalid JSON body: " + jsonErr.message }));
+          }
+        });
+      });
+    },
+  };
+}
+
+function safeCesiumPlugin(): Plugin {
+  const plugin = cesium({
+    rebuildCesium: true,
+  }) as Plugin;
+  const origConfig = plugin.config;
+  if (origConfig && typeof origConfig === "function") {
+    plugin.config = function (c, env) {
+      const res = origConfig.call(this, c, env);
+      if (res && typeof res === "object" && "build" in res) {
+        const build = res.build as any;
+        const output = build?.rollupOptions?.output;
+        if (output && typeof output.intro === "string") {
+          output.intro = `if (typeof window !== "undefined") { ${output.intro} }`;
+        }
+      }
+      return res;
+    };
+  }
+  return plugin;
+}
 
 export default defineConfig({
+  plugins: [
+    cppCascadePlugin(),
+    safeCesiumPlugin(),
+  ],
   define: {
     // Tell Cesium where static build assets reside
     CESIUM_BASE_URL: JSON.stringify("/cesium"),

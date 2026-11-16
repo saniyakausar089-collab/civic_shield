@@ -1,0 +1,133 @@
+{
+  "scenarios": [
+    {
+      "id": "pipeline_burst",
+      "name": "Pipeline burst",
+      "icon": "droplet",
+      "severity": 3,
+      "summary": "The Main Pipeline ruptures \u2014 water and the East Underpass follow.",
+      "triggers": [
+        {
+          "node": "PIPE1",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "Main Pipeline ruptured \u2014 trunk main offline"
+        }
+      ]
+    },
+    {
+      "id": "monsoon_flood",
+      "name": "Monsoon flood",
+      "icon": "cloud-rain",
+      "severity": 4,
+      "summary": "Flooding takes the South Water Works, pipeline and underpass at once.",
+      "triggers": [
+        {
+          "node": "PIPE1",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "Main Pipeline went offline \u2014 flood damage to the trunk main"
+        },
+        {
+          "node": "WT2",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "South Water Works inundated \u2014 treatment halted"
+        },
+        {
+          "node": "UJ1",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "East Underpass flooded \u2014 road closed"
+        }
+      ]
+    },
+    {
+      "id": "heatwave_overload",
+      "name": "Heatwave overload",
+      "icon": "flame",
+      "severity": 3,
+      "summary": "Record demand trips the grid plant and the Central Substation.",
+      "triggers": [
+        {
+          "node": "PP1",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "Grid Power Plant tripped on record demand"
+        },
+        {
+          "node": "SUB2",
+          "t_hours": 2,
+          "severity": 1.0,
+          "event": "Central Substation overloaded and tripped"
+        }
+      ]
+    },
+    {
+      "id": "cyberattack",
+      "name": "Cyberattack",
+      "icon": "zap",
+      "severity": 4,
+      "summary": "Intrusion drops Central and South substations plus one telecom tower.",
+      "triggers": [
+        {
+          "node": "SUB2",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "Central Substation SCADA compromised \u2014 shutdown"
+        },
+        {
+          "node": "SUB3",
+          "t_hours": 1,
+          "severity": 1.0,
+          "event": "South Substation SCADA compromised \u2014 shutdown"
+        },
+        {
+          "node": "T2",
+          "t_hours": 2,
+          "severity": 1.0,
+          "event": "Telecom Tower 2 knocked offline"
+        }
+      ]
+    },
+    {
+      "id": "earthquake",
+      "name": "Earthquake",
+      "icon": "activity",
+      "severity": 5,
+      "summary": "Multi-structure damage: pipeline, North Substation, underpass, junction.",
+      "triggers": [
+        {
+          "node": "PIPE1",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "Main Pipeline fractured"
+        },
+        {
+          "node": "SUB1",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "North Substation structural damage"
+        },
+        {
+          "node": "UJ1",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "East Underpass collapsed"
+        },
+        {
+          "node": "RJ1",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "Central Junction blocked by debris"
+        },
+        {
+          "node": "PUMPA",
+          "t_hours": 0,
+          "severity": 1.0,
+          "event": "Pumping Station A damaged"
+        }
+      ]
+    }
+  ]
+}

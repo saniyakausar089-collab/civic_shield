@@ -17,6 +17,7 @@ dist-ssr
 .nitro
 *.local
 .env*
+!.env.example
 public/cesium/
 
 # Wrangler / Cloudflare

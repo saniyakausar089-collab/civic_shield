@@ -1,7 +1,20 @@
 import React from "react";
-import { Users, Building2, AlertTriangle, Sun, Moon, RotateCcw, Home, Sliders, Shield } from "lucide-react";
-import { useAppStore, currentSnapshot } from "@/store/appStore";
+import { Link } from "@tanstack/react-router";
+import {
+  Users,
+  Building2,
+  AlertTriangle,
+  Sun,
+  Moon,
+  RotateCcw,
+  LogIn,
+  LogOut,
+  User as UserIcon,
+} from "lucide-react";
+import { useAppStore } from "@/store/appStore";
 import { PRESETS } from "@/engine/plans";
+import { LiveEnvironmentClock } from "./LiveEnvironmentClock";
+import { useAuth } from "@/context/AuthContext";
 
 interface TopBarProps {
   onToggleLeftPanel?: () => void;
@@ -10,17 +23,44 @@ interface TopBarProps {
 
 export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOpen }) => {
   const result = useAppStore((s) => s.result);
-  const hour = useAppStore((s) => s.hour);
+  const t = useAppStore((s) => s.t);
+  const selectedScenario = useAppStore((s) => s.selectedScenario);
+  const appliedPlan = useAppStore((s) => s.appliedPlan);
   const presetId = useAppStore((s) => s.presetId);
+  const scenariosData = useAppStore((s) => s.scenariosData);
   const dayNight = useAppStore((s) => s.dayNight);
+  const activeEngine = useAppStore((s) => s.activeEngine);
+  const engineDurationMs = useAppStore((s) => s.engineDurationMs);
   const set = useAppStore((s) => s.set);
-  const setHour = useAppStore((s) => s.setHour);
+  const resetSim = useAppStore((s) => s.resetSim);
 
-  const snap = currentSnapshot(result, hour);
-  const activePreset = PRESETS.find((p) => p.id === presetId);
+  // Supabase Auth hook
+  const { user, profile, isAuthenticated, signOut } = useAuth();
+
+  // Requirement 5: Top bar counters from frame. Before any run, show zeros.
+  const frame = result && Array.isArray(result.frames) ? result.frames[t] : null;
+
+  const affectedStr = frame ? frame.affected_pop.toLocaleString("en-IN") : "0";
+  const hospitalsCount = frame ? frame.hospitals_down : 0;
+  const failedCount = frame ? frame.failed.length : 0;
+
+  // Active scenario name
+  const scenarioTitle =
+    selectedScenario?.name ||
+    scenariosData.find(
+      (s) =>
+        s.id === presetId ||
+        (presetId === "pipeline" && s.id === "pipeline_burst") ||
+        (presetId === "monsoon" && s.id === "monsoon_flood") ||
+        (presetId === "heatwave" && s.id === "heatwave_overload") ||
+        (presetId === "cyber" && s.id === "cyberattack") ||
+        (presetId === "quake" && s.id === "earthquake")
+    )?.name ||
+    PRESETS.find((p) => p.id === presetId)?.label ||
+    "Custom Outage";
 
   return (
-    <header className="h-12 w-full bg-[#191F24] border-b border-[#303941] px-3 flex items-center justify-between text-xs text-[#e5e9ec] select-none shrink-0 z-30">
+    <header className="h-12 w-full bg-[#191F24] border-b border-[#303941] px-3 flex items-center justify-between text-xs text-[#e5e9ec] select-none shrink-0 z-40">
       {/* Brand & Scenario info */}
       <div className="flex items-center gap-3">
         <button
@@ -36,7 +76,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
               CIVIC<span className="text-[#9BAA76]">SHIELD</span>
             </span>
             <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#242c33] text-[#8a96a1] border border-[#303941]">
-              GIS OPS
+              SYNTHETIC TWIN
             </span>
           </div>
         </button>
@@ -47,18 +87,51 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
         <div className="hidden md:flex items-center gap-2 bg-[#14191d] px-2.5 py-1 rounded border border-[#303941]">
           <span className="text-[10px] uppercase font-mono text-[#8a96a1]">Scenario:</span>
           <span className="font-medium text-[#e5e9ec] truncate max-w-[160px]">
-            {activePreset ? activePreset.label : "Custom Outage"}
+            {scenarioTitle}
           </span>
         </div>
 
-        {/* Current Simulated Time */}
+        {/* Applied Plan Chip (Phase 4a) */}
+        {appliedPlan && (
+          <div className="hidden md:flex items-center gap-1.5 bg-[#142328] border border-[#38bdf8]/60 px-2.5 py-1 rounded text-[10px] font-mono shadow-sm animate-in fade-in">
+            <span className="text-[#8a96a1] uppercase">PLAN:</span>
+            <span className="font-semibold text-[#38bdf8] truncate max-w-[160px]">
+              {appliedPlan.name}
+            </span>
+          </div>
+        )}
+
+        {/* Active Engine Badge (Phase 4C) */}
+        {activeEngine === "cpp" && (
+          <div
+            className="hidden sm:flex items-center gap-1.5 bg-[#0f2316] border border-[#22c55e]/60 px-2 py-1 rounded text-[10px] font-mono shadow-sm animate-in fade-in text-[#4ade80]"
+            title={`Native C++ Cascade Engine Execution (${engineDurationMs != null ? `${engineDurationMs.toFixed(1)}ms` : "sub-millisecond"})`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
+            <span className="font-bold tracking-tight">ENGINE: C++ NATIVE</span>
+            {engineDurationMs != null && (
+              <span className="text-[#86efac]/80 font-semibold">{engineDurationMs.toFixed(1)}ms</span>
+            )}
+          </div>
+        )}
+        {activeEngine === "ts" && (
+          <div
+            className="hidden sm:flex items-center gap-1.5 bg-[#1e252d] border border-[#9BAA76]/60 px-2 py-1 rounded text-[10px] font-mono shadow-sm animate-in fade-in text-[#9BAA76]"
+            title="TypeScript Fallback Cascade Engine"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-[#9BAA76]" />
+            <span className="font-bold tracking-tight">ENGINE: TS</span>
+          </div>
+        )}
+
+        {/* Current Simulated Time: T+hh:00 / 24h */}
         <div className="flex items-center gap-1.5 font-mono text-[11px] bg-[#14191d] px-2 py-1 rounded border border-[#303941]">
-          <span className="text-[#9BAA76] font-bold">T+{hour.toString().padStart(2, "0")}h</span>
+          <span className="text-[#9BAA76] font-bold">T+{String(t).padStart(2, "0")}:00</span>
           <span className="text-[#8a96a1]">/ 24h</span>
         </div>
       </div>
 
-      {/* Center Operational Impact Counters */}
+      {/* Center Operational Impact Counters (Requirement 5) */}
       <div className="flex items-center gap-2 sm:gap-4">
         {/* Affected Population */}
         <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#14191d] border border-[#303941]">
@@ -66,7 +139,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
           <div className="flex items-center gap-1">
             <span className="hidden sm:inline text-[10px] text-[#8a96a1] uppercase font-mono">Affected:</span>
             <span className="font-mono font-bold text-[#f1f4f6] tabular-nums">
-              {snap.affectedPopulation.toLocaleString()}
+              {affectedStr}
             </span>
           </div>
         </div>
@@ -74,16 +147,16 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
         {/* Hospitals Impacted */}
         <div
           className={`flex items-center gap-1.5 px-2 py-1 rounded border transition-colors ${
-            snap.hospitalsDown > 0
+            hospitalsCount > 0
               ? "bg-[#401c1c] border-[#d9534f]/60 text-[#ff8f8f]"
               : "bg-[#14191d] border-[#303941] text-[#e5e9ec]"
           }`}
         >
-          <Building2 className={`w-3.5 h-3.5 ${snap.hospitalsDown > 0 ? "text-[#d9534f]" : "text-[#8a96a1]"}`} />
+          <Building2 className={`w-3.5 h-3.5 ${hospitalsCount > 0 ? "text-[#d9534f]" : "text-[#8a96a1]"}`} />
           <div className="flex items-center gap-1">
             <span className="hidden sm:inline text-[10px] text-[#8a96a1] uppercase font-mono">Hospitals:</span>
             <span className="font-mono font-bold tabular-nums">
-              {snap.hospitalsDown} <span className="text-[10px] text-[#8a96a1] font-normal">/ 2</span>
+              {hospitalsCount} <span className="text-[10px] text-[#8a96a1] font-normal">/ 2</span>
             </span>
           </div>
         </div>
@@ -91,23 +164,68 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
         {/* Systems Failed */}
         <div
           className={`flex items-center gap-1.5 px-2 py-1 rounded border transition-colors ${
-            snap.systemsFailed > 0
+            failedCount > 0
               ? "bg-[#3d2d14] border-[#e09f3e]/60 text-[#f6be73]"
               : "bg-[#14191d] border-[#303941] text-[#e5e9ec]"
           }`}
         >
-          <AlertTriangle className={`w-3.5 h-3.5 ${snap.systemsFailed > 0 ? "text-[#e09f3e]" : "text-[#8a96a1]"}`} />
+          <AlertTriangle className={`w-3.5 h-3.5 ${failedCount > 0 ? "text-[#e09f3e]" : "text-[#8a96a1]"}`} />
           <div className="flex items-center gap-1">
             <span className="hidden sm:inline text-[10px] text-[#8a96a1] uppercase font-mono">Failed:</span>
             <span className="font-mono font-bold tabular-nums">
-              {snap.systemsFailed} <span className="text-[10px] text-[#8a96a1] font-normal">/ 26</span>
+              {failedCount} <span className="text-[10px] text-[#8a96a1] font-normal">/ 26</span>
             </span>
           </div>
         </div>
       </div>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-2">
+        {/* Real-time Clock & Hyderabad Environmental Factors */}
+        <LiveEnvironmentClock />
+
+        <div className="h-4 w-px bg-[#303941] hidden sm:block" />
+
+        {/* Supabase Authentication Widget */}
+        {isAuthenticated && user ? (
+          <div className="flex items-center gap-1.5">
+            <Link
+              to="/login"
+              className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1e262d] hover:bg-[#28323b] border border-[#303941] text-xs font-mono transition-colors"
+              title={`Logged in as ${profile?.full_name || user.email}`}
+            >
+              <div className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className="text-[#9BAA76] font-semibold max-w-[80px] sm:max-w-[100px] truncate">
+                {profile?.full_name?.split(" ")[0] || "Operator"}
+              </span>
+              <span className="hidden lg:inline text-[9px] px-1 py-0.2 rounded bg-[#2c363f] text-[#8a96a1] uppercase">
+                {profile?.role?.replace("_", " ") || "Analyst"}
+              </span>
+            </Link>
+            <button
+              onClick={async () => {
+                await signOut();
+                window.location.replace("/login");
+              }}
+              className="p-1.5 rounded bg-[#242c33] border border-[#303941] text-[#8a96a1] hover:text-rose-400 hover:bg-[#2c363f] transition-colors"
+              title="Sign Out (Supabase Session)"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#242c33] hover:bg-[#2e3740] border border-[#303941] text-[#9BAA76] hover:text-[#b4c38d] transition-colors text-xs font-mono"
+            title="Authenticate with Supabase"
+          >
+            <LogIn className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Operator Login</span>
+          </Link>
+        )}
+
+        <div className="h-4 w-px bg-[#303941] hidden sm:block" />
+
         {/* Day/Night Basemap Mode */}
         <button
           onClick={() => set({ dayNight: dayNight === "day" ? "night" : "day" })}
@@ -117,11 +235,11 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
           {dayNight === "day" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
         </button>
 
-        {/* Reset Simulation to Hour 0 */}
+        {/* Reset Simulation to Hour 0 (Reset T+0) */}
         <button
-          onClick={() => setHour(0)}
+          onClick={() => resetSim()}
           className="p-1.5 rounded bg-[#242c33] border border-[#303941] text-[#8a96a1] hover:text-[#f1f4f6] hover:bg-[#2c363f] transition-colors"
-          title="Reset Simulation Time"
+          title="Reset Simulation (Reset T+0)"
         >
           <RotateCcw className="w-3.5 h-3.5" />
         </button>
