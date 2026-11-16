@@ -13,6 +13,10 @@ let soilCutawayTextureCache: THREE.CanvasTexture | null = null;
 let metalTextureCache: { map: THREE.CanvasTexture; roughness: THREE.CanvasTexture } | null = null;
 
 export function getBuildingTextures() {
+  if (typeof document === "undefined") {
+    const dummy = new THREE.Texture() as THREE.CanvasTexture;
+    return { diffuse: dummy, emissive: dummy };
+  }
   if (buildingTextureCache) return buildingTextureCache;
 
   const width = 512;
@@ -93,6 +97,9 @@ export function getBuildingTextures() {
 }
 
 export function getAsphaltTexture() {
+  if (typeof document === "undefined") {
+    return new THREE.Texture() as THREE.CanvasTexture;
+  }
   if (asphaltTextureCache) return asphaltTextureCache;
 
   const size = 512;
@@ -144,6 +151,9 @@ export function getAsphaltTexture() {
 }
 
 export function getSoilCutawayTexture() {
+  if (typeof document === "undefined") {
+    return new THREE.Texture() as THREE.CanvasTexture;
+  }
   if (soilCutawayTextureCache) return soilCutawayTextureCache;
 
   const w = 512;
@@ -195,6 +205,10 @@ export function getSoilCutawayTexture() {
 }
 
 export function getBrushedMetalTexture() {
+  if (typeof document === "undefined") {
+    const dummy = new THREE.Texture() as THREE.CanvasTexture;
+    return { map: dummy, roughness: dummy };
+  }
   if (metalTextureCache) return metalTextureCache;
 
   const size = 256;

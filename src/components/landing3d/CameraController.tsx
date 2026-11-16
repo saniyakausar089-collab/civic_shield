@@ -19,6 +19,7 @@ export const CameraController: React.FC<CameraControllerProps> = ({
 
   // Handle subtle mouse parallax
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const onMouseMove = (e: MouseEvent) => {
       mouseOffset.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
       mouseOffset.current.y = (e.clientY / window.innerHeight - 0.5) * 2;

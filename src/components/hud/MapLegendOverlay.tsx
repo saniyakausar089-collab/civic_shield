@@ -1,7 +1,7 @@
 import React from "react";
 import { Info, Layers, Sparkles } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
-import { STYLE_LEGEND_CONFIGS } from "../scene/cesiumStyles";
+import { STYLE_LEGEND_CONFIGS } from "../scene/cesiumLegendConfigs";
 
 export const MapLegendOverlay: React.FC = () => {
   const viewportMode = useAppStore((s) => s.viewportMode);

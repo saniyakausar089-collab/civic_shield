@@ -103,7 +103,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 function RootShell({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Register PWA service worker if supported
-    if ("serviceWorker" in navigator && import.meta.env.PROD) {
+    if (typeof navigator !== "undefined" && "serviceWorker" in navigator && import.meta.env.PROD) {
       navigator.serviceWorker.register("/sw.js").catch((err) => {
         console.warn("PWA ServiceWorker registration failed: ", err);
       });

@@ -38,6 +38,8 @@ export const CinematicLanding: React.FC = () => {
 
   // Initialize Lenis smooth scroll
   useEffect(() => {
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+
     // Check reduced motion preference
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     if (mediaQuery.matches) {
@@ -81,6 +83,7 @@ export const CinematicLanding: React.FC = () => {
 
   // Jump smoothly to a specific stage
   const handleSelectStage = (stageIndex: number) => {
+    if (typeof window === "undefined" || typeof document === "undefined") return;
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
     const targetScroll = (stageIndex / 9.5) * maxScroll;
     if (lenisRef.current) {
@@ -91,7 +94,9 @@ export const CinematicLanding: React.FC = () => {
   };
 
   const handleLaunchSimulator = () => {
-    window.location.href = "/simulator";
+    if (typeof window !== "undefined") {
+      window.location.href = "/simulator";
+    }
   };
 
   // Live simulation engine data for contextual panels
