@@ -1,6 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { supabase } from "@/lib/supabase";
+import { createFileRoute, ClientOnly } from "@tanstack/react-router";
 import { useAppStore } from "@/store/appStore";
 import { TopBar } from "@/components/hud/TopBar";
 import { CompactTimelineBar } from "@/components/hud/CompactTimelineBar";
@@ -8,6 +7,7 @@ import { LeftScenarioPanel } from "@/components/panels/LeftScenarioPanel";
 import { RightImpactInspector } from "@/components/panels/RightImpactInspector";
 import { ResizableAnalysisDrawer } from "@/components/panels/ResizableAnalysisDrawer";
 import { MapLegendOverlay } from "@/components/hud/MapLegendOverlay";
+import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 import {
   RotateCcw,
   PanelLeftClose,
@@ -27,7 +27,6 @@ const CesiumMap = lazy(() =>
 import { MapAreaSearch } from "@/components/hud/MapAreaSearch";
 import { AuthGuard } from "@/components/auth/AuthGuard";
 import { hasStoredSession } from "@/lib/supabase";
-import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 export const Route = createFileRoute("/simulator")({
   component: SimulatorPage,
@@ -52,7 +51,7 @@ export function SimulatorPage() {
 
   return (
     <AuthGuard>
-      <div className="relative w-screen h-screen overflow-hidden bg-[#101418] select-none flex flex-col font-sans">
+      <div className="relative w-screen h-screen overflow-hidden bg-[#F7F8FA] dark:bg-[#09090B] select-none flex flex-col font-sans">
       {/* 1. Engineering Top Bar */}
       <TopBar />
 
@@ -63,53 +62,61 @@ export function SimulatorPage() {
 
         {/* Central GIS Viewport Container */}
         <div
-          className="flex-1 relative h-full min-w-0 bg-[#101418]"
+          className="flex-1 relative h-full min-w-0 bg-[#09090B]"
           style={{ height: "100%", minHeight: "400px" }}
         >
           {/* 3D GIS Canvas (CesiumJS 3D Globe or ThreeJS Synthetic Twin) */}
-          <ErrorBoundary fallbackTitle="Geospatial 3D Viewport Error">
-            <Suspense
-              fallback={
-                <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#9BAA76]">
-                  Loading 3D Viewport...
+          <ClientOnly
+            fallback={
+              <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#94A3B8] dark:text-[#A1A1AA] bg-[#09090B]">
+                Initializing 3D Viewport...
+              </div>
+            }
+          >
+            <ErrorBoundary fallbackTitle="Geospatial 3D Viewport Error">
+              <Suspense
+                fallback={
+                  <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#94A3B8] dark:text-[#A1A1AA] bg-[#09090B]">
+                    Loading 3D Viewport...
+                  </div>
+                }
+              >
+                <div
+                  className="w-full h-full"
+                  style={{ display: viewportMode === "cesium" ? "block" : "none" }}
+                >
+                  <CesiumMap resetSignal={resetSignal} />
                 </div>
-              }
-            >
-              <div
-                className="w-full h-full"
-                style={{ display: viewportMode === "cesium" ? "block" : "none" }}
-              >
-                <CesiumMap resetSignal={resetSignal} />
-              </div>
 
-              <div
-                className="w-full h-full"
-                style={{ display: viewportMode === "three" ? "block" : "none" }}
-              >
-                <CityScene resetSignal={resetSignal} />
-              </div>
-            </Suspense>
-          </ErrorBoundary>
+                <div
+                  className="w-full h-full"
+                  style={{ display: viewportMode === "three" ? "block" : "none" }}
+                >
+                  <CityScene resetSignal={resetSignal} />
+                </div>
+              </Suspense>
+            </ErrorBoundary>
+          </ClientOnly>
 
           {/* Floating Map Utility Controls */}
-          <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5">
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-2 max-w-[calc(100%-160px)]">
             {/* Toggle Left Scenario Panel */}
             <button
               onClick={() => setShowLeftPanel(!showLeftPanel)}
-              className="p-2 rounded bg-[#191F24]/90 backdrop-blur-md border border-[#303941] text-[#e5e9ec] hover:bg-[#242c33] transition-colors shadow"
+              className="p-2 rounded-lg bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] transition-colors shadow-xs cursor-pointer"
               title={showLeftPanel ? "Hide Scenario Panel" : "Show Scenario Panel"}
             >
               {showLeftPanel ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
             </button>
 
             {/* Viewport Engine Switcher: Cesium 3D Tiles vs Three.js */}
-            <div className="flex items-center bg-[#191F24]/90 backdrop-blur-md border border-[#303941] rounded p-0.5 shadow">
+            <div className="flex items-center bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] rounded-lg p-0.5 shadow-xs">
               <button
                 onClick={() => setStore({ viewportMode: "cesium" })}
-                className={`px-2.5 py-1 rounded text-xs font-mono flex items-center gap-1.5 transition-colors ${
+                className={`px-3 py-1 rounded-md text-[13px] flex items-center gap-1.5 transition-colors cursor-pointer ${
                   viewportMode === "cesium"
-                    ? "bg-[#2c363f] text-[#38bdf8] font-medium"
-                    : "text-[#8a96a1] hover:text-[#d2d8de]"
+                    ? "bg-[#2563EB] text-white font-semibold shadow-2xs"
+                    : "text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA]"
                 }`}
                 title="Cesium 3D Globe + 3D Tileset (Asset #4854512)"
               >
@@ -118,10 +125,10 @@ export function SimulatorPage() {
               </button>
               <button
                 onClick={() => setStore({ viewportMode: "three" })}
-                className={`px-2.5 py-1 rounded text-xs font-mono flex items-center gap-1.5 transition-colors ${
+                className={`px-3 py-1 rounded-md text-[13px] flex items-center gap-1.5 transition-colors cursor-pointer ${
                   viewportMode === "three"
-                    ? "bg-[#2c363f] text-[#9BAA76] font-medium"
-                    : "text-[#8a96a1] hover:text-[#d2d8de]"
+                    ? "bg-[#2563EB] text-white font-semibold shadow-2xs"
+                    : "text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA]"
                 }`}
                 title="Three.js Extruded Topographic Twin"
               >
@@ -136,10 +143,10 @@ export function SimulatorPage() {
                 resetAllLayers();
                 setResetSignal((s) => s + 1);
               }}
-              className="p-2 rounded bg-[#191F24]/90 backdrop-blur-md border border-[#303941] text-[#e5e9ec] hover:bg-[#242c33] transition-colors shadow flex items-center gap-1.5 text-xs font-mono"
+              className="px-3 py-1.5 rounded-lg bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] transition-colors shadow-xs flex items-center gap-1.5 text-[13px] cursor-pointer"
               title="Reset GIS Camera View & Clear Scenario Pulses"
             >
-              <RotateCcw className="w-3.5 h-3.5" />
+              <RotateCcw className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
               <span className="hidden sm:inline">Reset View</span>
             </button>
 
@@ -149,36 +156,36 @@ export function SimulatorPage() {
             {/* Toggle Place & College Labels */}
             <button
               onClick={togglePlaceLabels}
-              className={`px-2.5 py-1.5 rounded backdrop-blur-md border text-xs font-mono flex items-center gap-1.5 transition-colors shadow ${
+              className={`px-3 py-1.5 rounded-lg backdrop-blur-md border text-[13px] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer ${
                 showPlaceLabels
-                  ? "bg-[#282138] border-purple-500/50 text-purple-300 font-medium"
-                  : "bg-[#191F24]/90 border-[#303941] text-[#8a96a1] hover:text-[#d2d8de]"
+                  ? "bg-[#2563EB]/15 border-[#2563EB]/50 text-[#2563EB] dark:text-[#3B82F6] font-semibold"
+                  : "bg-white/95 dark:bg-[#111318]/95 border-[#E5E7EB] dark:border-[#27272A] text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22]"
               }`}
               title={showPlaceLabels ? "Hide College & Place Labels on Globe" : "Show College & Place Labels on Globe"}
             >
-              <GraduationCap className={`w-3.5 h-3.5 ${showPlaceLabels ? "text-purple-400" : "text-[#8a96a1]"}`} />
-              <span className="hidden lg:inline">Colleges & Places</span>
+              <GraduationCap className={`w-3.5 h-3.5 ${showPlaceLabels ? "text-[#2563EB] dark:text-[#3B82F6]" : "text-[#94A3B8] dark:text-[#71717A]"}`} />
+              <span className="hidden lg:inline">Colleges &amp; Places</span>
             </button>
 
             {/* Toggle Place Inspection Mode */}
             <button
               onClick={toggleInspectMode}
-              className={`px-2.5 py-1.5 rounded backdrop-blur-md border text-xs font-mono flex items-center gap-1.5 transition-colors shadow ${
+              className={`px-3 py-1.5 rounded-lg backdrop-blur-md border text-[13px] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer ${
                 inspectMode
-                  ? "bg-[#1d2d3d] border-sky-500/50 text-sky-300 font-medium"
-                  : "bg-[#191F24]/90 border-[#303941] text-[#8a96a1] hover:text-[#d2d8de]"
+                  ? "bg-[#2563EB]/15 border-[#2563EB]/50 text-[#2563EB] dark:text-[#3B82F6] font-semibold"
+                  : "bg-white/95 dark:bg-[#111318]/95 border-[#E5E7EB] dark:border-[#27272A] text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22]"
               }`}
               title="Click any building, college, or location on the 3D globe to reveal full place information"
             >
-              <span className={`w-2 h-2 rounded-full ${inspectMode ? "bg-sky-400 animate-pulse" : "bg-[#505a63]"}`} />
+              <span className={`w-2 h-2 rounded-full ${inspectMode ? "bg-[#2563EB] dark:bg-[#3B82F6] animate-pulse" : "bg-[#94A3B8]"}`} />
               <span className="hidden lg:inline">Inspect Places</span>
             </button>
           </div>
 
           {/* Map Compass & North Indicator */}
-          <div className="absolute top-3 right-3 z-10 bg-[#191F24]/90 backdrop-blur-md border border-[#303941] px-2.5 py-1 rounded flex items-center gap-1.5 text-[11px] font-mono text-[#8a96a1]">
-            <Compass className="w-3.5 h-3.5 text-[#9BAA76]" />
-            <span>NORTH ↑</span>
+          <div className="absolute top-3 right-3 z-10 bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] px-3 py-1 rounded-lg flex items-center gap-1.5 text-[12px] text-[#94A3B8] dark:text-[#71717A] shadow-xs">
+            <Compass className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
+            <span className="font-semibold text-[#111827] dark:text-[#FAFAFA]">NORTH ↑</span>
           </div>
 
           {/* Map Legend Overlay */}

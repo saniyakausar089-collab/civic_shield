@@ -184,6 +184,30 @@ export default defineConfig({
       strict: false,
     },
   },
+  optimizeDeps: {
+    include: [
+      "use-sync-external-store",
+      "use-sync-external-store/shim",
+      "use-sync-external-store/shim/with-selector",
+      "use-sync-external-store/shim/with-selector.js",
+      "zustand",
+      "zustand/middleware",
+      "zustand/traditional",
+    ],
+  },
+  resolve: {
+    dedupe: ["use-sync-external-store", "zustand", "react", "react-dom"],
+    alias: [
+      {
+        find: /^use-sync-external-store\/shim\/with-selector(\.js)?$/,
+        replacement: path.resolve(__dirname, "src/lib/withSelectorShim.ts"),
+      },
+      {
+        find: /^use-sync-external-store\/with-selector(\.js)?$/,
+        replacement: path.resolve(__dirname, "src/lib/withSelectorShim.ts"),
+      },
+    ],
+  },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

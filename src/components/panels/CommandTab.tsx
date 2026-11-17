@@ -77,7 +77,7 @@ export const CommandTab: React.FC = () => {
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               />
               <path
-                className="text-cyan-400 transition-all duration-500 ease-out"
+                className="text-[#2563EB] dark:text-[#3B82F6] transition-all duration-500 ease-out"
                 strokeDasharray={`${currentScore}, 100`}
                 strokeWidth="3.5"
                 strokeLinecap="round"
@@ -87,24 +87,24 @@ export const CommandTab: React.FC = () => {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xl font-bold font-mono text-foreground leading-none">
+              <span className="text-xl font-bold font-mono text-[#111827] dark:text-[#FAFAFA] leading-none">
                 {currentScore}
               </span>
-              <span className="text-[9px] font-mono uppercase text-muted-foreground">/ 100</span>
+              <span className="text-[9px] font-mono uppercase text-[#94A3B8] dark:text-[#71717A]">/ 100</span>
             </div>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-cyan-400" />
-              <h3 className="font-bold text-foreground text-sm">City Resilience Score</h3>
+              <ShieldCheck className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />
+              <h3 className="font-semibold text-[#111827] dark:text-[#FAFAFA] text-sm">City Resilience Score</h3>
               {currentScore > baseScore && (
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-semibold">
                   +{currentScore - baseScore} from baseline
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-1 max-w-md">
+            <p className="text-xs text-[#475569] dark:text-[#A1A1AA] mt-1 max-w-md">
               Calculated across all disaster presets (pipeline, monsoon, heatwave, cyberattack, earthquake).
               Current upgrades: {cityMods.length} active. Baseline score: {baseScore}.
             </p>
@@ -115,11 +115,11 @@ export const CommandTab: React.FC = () => {
       {/* Emergency Command Panel */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs uppercase font-mono tracking-wider text-muted-foreground">
+          <h3 className="text-xs uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold">
             Emergency Command Actions
           </h3>
-          <span className="text-xs text-muted-foreground">
-            Active: <span className="font-mono text-cyan-400">{actionIds.length} deployed</span>
+          <span className="text-xs text-[#94A3B8] dark:text-[#71717A]">
+            Active: <span className="font-semibold text-[#2563EB] dark:text-[#3B82F6]">{actionIds.length} deployed</span>
           </span>
         </div>
 
@@ -130,30 +130,30 @@ export const CommandTab: React.FC = () => {
               <button
                 key={action.id}
                 onClick={() => toggleAction(action.id)}
-                className={`p-3.5 rounded-2xl border text-left flex items-start gap-3 transition-all ${
+                className={`p-3.5 rounded-lg border text-left flex items-start gap-3 transition-all cursor-pointer ${
                   isDeployed
-                    ? "bg-cyan-950/30 border-cyan-500 ring-1 ring-cyan-500/50 shadow-md"
-                    : "bg-card hover:bg-muted/40 border-border"
+                    ? "bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 border-[#2563EB] dark:border-[#3B82F6] shadow-xs"
+                    : "bg-white dark:bg-[#181B22] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D] border-[#E5E7EB] dark:border-[#27272A]"
                 }`}
               >
                 <div
-                  className={`text-xl p-2 rounded-xl shrink-0 ${
-                    isDeployed ? "bg-cyan-500/20" : "bg-muted"
+                  className={`text-xl p-2 rounded-lg shrink-0 ${
+                    isDeployed ? "bg-[#2563EB]/15 dark:bg-[#3B82F6]/20" : "bg-[#F7F8FA] dark:bg-[#111318]"
                   }`}
                 >
                   {action.icon}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="font-semibold text-xs text-foreground">{action.label}</span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                    <span className="font-semibold text-xs text-[#111827] dark:text-[#FAFAFA]">{action.label}</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#111318] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A]">
                       Cost: {action.cost} crew
                     </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">{action.effect}</p>
-                  <div className="mt-2 text-[10px] font-mono text-cyan-400/90 flex items-center justify-between">
+                  <p className="text-xs text-[#475569] dark:text-[#A1A1AA]">{action.effect}</p>
+                  <div className="mt-2 text-[10px] text-[#2563EB] dark:text-[#3B82F6] flex items-center justify-between">
                     <span>Delay: T+{action.delayHours}h</span>
-                    <span className={isDeployed ? "text-cyan-300 font-bold" : "text-muted-foreground"}>
+                    <span className={isDeployed ? "text-[#2563EB] dark:text-[#3B82F6] font-semibold" : "text-[#94A3B8] dark:text-[#71717A]"}>
                       {isDeployed ? "● DEPLOYED" : "○ STANDBY"}
                     </span>
                   </div>
@@ -165,11 +165,11 @@ export const CommandTab: React.FC = () => {
       </div>
 
       {/* What-If Infrastructure Builder */}
-      <div className="p-4 rounded-2xl bg-card border border-border">
+      <div className="p-4 rounded-lg bg-white dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-cyan-400" />
-            <h3 className="text-xs uppercase font-mono tracking-wider text-muted-foreground">
+            <Wrench className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />
+            <h3 className="text-xs uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold">
               What-If Infrastructure Builder
             </h3>
           </div>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import React, { useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useAuth } from "@/context/AuthContext";
 import {
   Shield,
@@ -12,8 +12,9 @@ import {
   ArrowRight,
   LogOut,
   Cpu,
-  Radio,
   Lock,
+  Sparkles,
+  Server,
 } from "lucide-react";
 
 export const Route = createFileRoute("/login")({
@@ -23,7 +24,6 @@ export const Route = createFileRoute("/login")({
 export function LoginPage() {
   const { user, profile, isAuthenticated, signInWithEmail, signUpWithEmail, signOut, isLoading } =
     useAuth();
-  const navigate = useNavigate();
 
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -82,7 +82,7 @@ export function LoginPage() {
 
     setSubmitting(true);
     try {
-      const { error, user: newUser } = await signUpWithEmail(email, password, {
+      const { error } = await signUpWithEmail(email, password, {
         fullName,
         role,
         organization,
@@ -104,47 +104,46 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0e1216] text-[#e5e9ec] flex flex-col justify-between selection:bg-[#9BAA76] selection:text-[#101418] relative overflow-hidden font-sans">
-      {/* Background Cyber-Grid Effect */}
-      <div
-        className="absolute inset-0 pointer-events-none opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(#9BAA76 1px, transparent 1px), linear-gradient(90deg, #9BAA76 1px, transparent 1px)`,
-          backgroundSize: "32px 32px",
-        }}
-      />
+    <div className="min-h-screen bg-[#F7F8FA] dark:bg-[#09090B] text-[#111827] dark:text-[#FAFAFA] flex flex-col justify-between font-sans selection:bg-[#2563EB]/15 relative overflow-hidden">
+      {/* Ambient background lighting */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-gradient-to-b from-[#2563EB]/10 dark:from-[#3B82F6]/15 to-transparent blur-3xl pointer-events-none" />
+      <div className="absolute inset-0 bg-ambient-grid opacity-50 pointer-events-none" />
 
       {/* Top Header Navigation */}
-      <header className="h-14 border-b border-[#26313a] bg-[#14191d]/80 backdrop-blur-md px-4 sm:px-8 flex items-center justify-between z-10">
-        <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded bg-[#9BAA76] flex items-center justify-center text-[#101418] font-bold text-xs">
-            C
-          </div>
-          <span className="font-bold tracking-wider text-sm sm:text-base text-[#f1f4f6]">
-            CIVICSHIELD
-          </span>
-          <span className="hidden sm:inline-block text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#1e262d] text-[#8a96a1] border border-[#2b3741]">
-            AUTHENTICATION GATEWAY
+      <header className="h-16 border-b border-[#E5E7EB] dark:border-[#27272A] bg-white/80 dark:bg-[#09090B]/80 backdrop-blur-xl px-6 sm:px-10 flex items-center justify-between z-10 shadow-xs">
+        <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white shadow-xs">
+              <Shield className="w-4 h-4" />
+            </div>
+            <span className="font-semibold text-[17px] tracking-tight text-[#111827] dark:text-[#FAFAFA]">
+              Civic<span className="text-[#2563EB] dark:text-[#3B82F6]">Shield</span>
+            </span>
+          </Link>
+          <span className="hidden sm:inline-block text-[13px] text-[#94A3B8] dark:text-[#71717A] font-normal pl-2.5 border-l border-[#E5E7EB] dark:border-[#27272A]">
+            Operator Access Gateway
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-[#8a96a1]">
-            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span>CLUSTER: trrggaiakntmikkbazbd</span>
-          </div>
+        <div className="flex items-center gap-4">
+          <Link
+            to="/"
+            className="text-[13.5px] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] transition-colors font-medium"
+          >
+            ← Return to Overview
+          </Link>
 
           {isAuthenticated ? (
             <Link
               to="/simulator"
-              className="px-3 py-1.5 rounded text-xs font-mono bg-[#1c242b] hover:bg-[#252f38] text-[#9BAA76] border border-[#303f4d] flex items-center gap-1.5 transition-colors"
+              className="px-4 py-2 rounded-lg text-[13.5px] font-semibold bg-[#2563EB] hover:bg-[#1D4ED8] text-white flex items-center gap-2 transition-all duration-180 shadow-xs active:scale-[0.98]"
             >
               <span>Enter Simulator</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
           ) : (
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-mono bg-[#1c242b] text-[#8a96a1] border border-[#26313a]">
-              <Lock className="w-3.5 h-3.5 text-amber-400" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] bg-white dark:bg-[#111318] text-[#475569] dark:text-[#A1A1AA] border border-[#E5E7EB] dark:border-[#27272A]">
+              <Lock className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
               <span>Login Required</span>
             </div>
           )}
@@ -152,59 +151,59 @@ export function LoginPage() {
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 flex items-center justify-center p-4 sm:p-6 z-10">
+      <main className="flex-1 flex items-center justify-center p-6 sm:p-10 z-10 relative">
         <div className="w-full max-w-md">
           {/* Authenticated State Card */}
           {isAuthenticated && user ? (
-            <div className="bg-[#14191d] border border-[#303941] rounded-xl p-6 sm:p-8 shadow-2xl space-y-6">
-              <div className="flex items-center gap-3 border-b border-[#26313a] pb-4">
-                <div className="w-12 h-12 rounded-lg bg-[#242c33] border border-[#374552] flex items-center justify-center text-[#9BAA76]">
+            <div className="bg-white dark:bg-[#111318] border border-[#E5E7EB] dark:border-[#27272A] rounded-2xl p-7 sm:p-9 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)] space-y-6 relative overflow-hidden">
+              <div className="flex items-center gap-4 border-b border-[#E5E7EB] dark:border-[#27272A] pb-5">
+                <div className="w-12 h-12 rounded-xl bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] flex items-center justify-center text-[#2563EB] dark:text-[#3B82F6]">
                   <Shield className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-[#f1f4f6]">
+                    <span className="text-[16px] font-semibold text-[#111827] dark:text-[#FAFAFA]">
                       {profile?.full_name || user.email?.split("@")[0] || "Operator"}
                     </span>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#1b2b22] text-emerald-400 border border-emerald-500/40 uppercase">
+                    <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 uppercase">
                       Authorized
                     </span>
                   </div>
-                  <div className="text-xs font-mono text-[#8a96a1] truncate max-w-[240px]">
+                  <div className="text-[13px] text-[#94A3B8] dark:text-[#71717A] truncate max-w-[240px]">
                     {user.email}
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-3 bg-[#0f1418] p-4 rounded-lg border border-[#222b33] text-xs font-mono">
-                <div className="flex justify-between py-1 border-b border-[#1b242b]">
-                  <span className="text-[#8a96a1]">Security Clearance:</span>
-                  <span className="text-[#9BAA76] capitalize">
+              <div className="space-y-2.5 bg-[#F7F8FA] dark:bg-[#181B22] p-4 rounded-xl border border-[#E5E7EB] dark:border-[#27272A] text-[13px]">
+                <div className="flex justify-between py-1 border-b border-[#E5E7EB] dark:border-[#27272A]/70">
+                  <span className="text-[#94A3B8] dark:text-[#71717A]">Clearance Level:</span>
+                  <span className="text-[#111827] dark:text-[#FAFAFA] font-medium capitalize">
                     {profile?.role?.replace("_", " ") || "Analyst"}
                   </span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#1b242b]">
-                  <span className="text-[#8a96a1]">Agency Unit:</span>
-                  <span className="text-[#e5e9ec] truncate max-w-[180px]">
-                    {profile?.organization || "Civic Infrastructure Command"}
+                <div className="flex justify-between py-1 border-b border-[#E5E7EB] dark:border-[#27272A]/70">
+                  <span className="text-[#94A3B8] dark:text-[#71717A]">Agency Unit:</span>
+                  <span className="text-[#111827] dark:text-[#FAFAFA] font-medium truncate max-w-[180px]">
+                    {profile?.organization || "Hyderabad Municipal Command"}
                   </span>
                 </div>
-                <div className="flex justify-between py-1 border-b border-[#1b242b]">
-                  <span className="text-[#8a96a1]">Operator UUID:</span>
-                  <span className="text-[#717e89] truncate max-w-[150px]">
+                <div className="flex justify-between py-1 border-b border-[#E5E7EB] dark:border-[#27272A]/70">
+                  <span className="text-[#94A3B8] dark:text-[#71717A]">Operator ID:</span>
+                  <span className="text-[#475569] dark:text-[#A1A1AA] font-mono text-[12px] truncate max-w-[150px]">
                     {user.id.slice(0, 13)}...
                   </span>
                 </div>
                 <div className="flex justify-between py-1">
-                  <span className="text-[#8a96a1]">Auth Protocol:</span>
-                  <span className="text-[#38bdf8]">Supabase PostgreSQL</span>
+                  <span className="text-[#94A3B8] dark:text-[#71717A]">Security Context:</span>
+                  <span className="text-[#2563EB] dark:text-[#3B82F6] font-medium">Supabase PostgreSQL RLS</span>
                 </div>
               </div>
 
               <div className="space-y-3 pt-2">
                 <button
                   onClick={() => window.location.replace("/simulator")}
-                  className="w-full py-2.5 px-4 rounded-lg bg-[#9BAA76] hover:bg-[#a9b984] text-[#101418] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors shadow-lg shadow-[#9BAA76]/10"
+                  className="w-full py-3 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-semibold text-[14.5px] flex items-center justify-center gap-2 transition-all duration-180 shadow-xs cursor-pointer active:scale-[0.98]"
                 >
                   <Cpu className="w-4 h-4" />
                   <span>Enter Command Console</span>
@@ -215,40 +214,33 @@ export function LoginPage() {
                     await signOut();
                     setSuccessMessage("Session terminated.");
                   }}
-                  className="w-full py-2 px-4 rounded-lg bg-[#1f262d] hover:bg-[#2b353e] text-[#8a96a1] hover:text-[#d2d8de] text-xs font-mono flex items-center justify-center gap-2 transition-colors border border-[#2a353f]"
+                  className="w-full py-2.5 px-4 rounded-lg bg-white dark:bg-[#181B22] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] text-[13.5px] font-medium flex items-center justify-center gap-2 transition-colors border border-[#E5E7EB] dark:border-[#27272A] cursor-pointer"
                 >
-                  <LogOut className="w-3.5 h-3.5" />
+                  <LogOut className="w-4 h-4" />
                   <span>Sign Out</span>
                 </button>
               </div>
             </div>
           ) : (
-            /* Mandatory Login / Signup Form Card */
-            <div className="bg-[#14191d] border border-[#303941] rounded-xl p-6 sm:p-8 shadow-2xl space-y-6">
+            /* Login / Signup Form Card */
+            <div className="bg-white dark:bg-[#111318] border border-[#E5E7EB] dark:border-[#27272A] rounded-2xl p-7 sm:p-9 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)] space-y-6 relative overflow-hidden">
               {/* Header Title & Mode Toggle */}
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-[#9BAA76]" />
-                    <span className="text-xs font-mono uppercase tracking-widest text-[#8a96a1]">
-                      MANDATORY OPERATOR AUTH
-                    </span>
-                  </div>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1c242b] text-[#38bdf8] border border-[#273542]">
-                    v5.2
-                  </span>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] text-[12px] font-medium">
+                  <Lock className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
+                  <span>Operator Authentication Gateway</span>
                 </div>
 
-                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#f1f4f6]">
-                  {mode === "signin" ? "Operator Authentication" : "Register Command Profile"}
+                <h2 className="text-[24px] sm:text-[28px] font-semibold tracking-tight text-[#111827] dark:text-[#FAFAFA] leading-[1.2]">
+                  {mode === "signin" ? "Sign in to CivicShield" : "Register Operator Profile"}
                 </h2>
 
-                <p className="text-xs text-[#8a96a1] font-mono leading-relaxed">
-                  Authentication is strictly required before accessing the CivicShield digital twin and simulation tools.
+                <p className="text-[14px] text-[#94A3B8] dark:text-[#71717A] leading-relaxed">
+                  Enter your credentials to access the 3D digital twin, cascade simulator, and emergency plans.
                 </p>
 
                 {/* Tabs */}
-                <div className="grid grid-cols-2 gap-1 bg-[#0f1418] p-1 rounded-lg border border-[#222b33]">
+                <div className="grid grid-cols-2 p-1 bg-[#F7F8FA] dark:bg-[#181B22] rounded-xl border border-[#E5E7EB] dark:border-[#27272A]">
                   <button
                     type="button"
                     onClick={() => {
@@ -256,10 +248,10 @@ export function LoginPage() {
                       setErrorMessage(null);
                       setSuccessMessage(null);
                     }}
-                    className={`py-1.5 text-xs font-medium rounded transition-colors ${
+                    className={`py-2 text-[13.5px] rounded-lg transition-all duration-150 cursor-pointer ${
                       mode === "signin"
-                        ? "bg-[#252f38] text-[#9BAA76] shadow font-semibold"
-                        : "text-[#8a96a1] hover:text-[#d2d8de]"
+                        ? "bg-white dark:bg-[#111318] text-[#111827] dark:text-[#FAFAFA] shadow-xs font-semibold"
+                        : "text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] font-medium"
                     }`}
                   >
                     Sign In
@@ -271,64 +263,64 @@ export function LoginPage() {
                       setErrorMessage(null);
                       setSuccessMessage(null);
                     }}
-                    className={`py-1.5 text-xs font-medium rounded transition-colors ${
+                    className={`py-2 text-[13.5px] rounded-lg transition-all duration-150 cursor-pointer ${
                       mode === "signup"
-                        ? "bg-[#252f38] text-[#9BAA76] shadow font-semibold"
-                        : "text-[#8a96a1] hover:text-[#d2d8de]"
+                        ? "bg-white dark:bg-[#111318] text-[#111827] dark:text-[#FAFAFA] shadow-xs font-semibold"
+                        : "text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] font-medium"
                     }`}
                   >
-                    New Account
+                    Register
                   </button>
                 </div>
               </div>
 
               {/* Alert Feedback Messages */}
               {errorMessage && (
-                <div className="p-3 rounded-lg bg-[#331c1c] border border-rose-500/50 text-rose-300 text-xs flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-400" />
-                  <span className="font-mono">{errorMessage}</span>
+                <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-400 text-[13px] flex items-start gap-2.5">
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
+                  <span>{errorMessage}</span>
                 </div>
               )}
 
               {successMessage && (
-                <div className="p-3 rounded-lg bg-[#192b20] border border-emerald-500/50 text-emerald-300 text-xs flex items-start gap-2">
-                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />
-                  <span className="font-mono">{successMessage}</span>
+                <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[13px] flex items-start gap-2.5">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600 dark:text-emerald-400" />
+                  <span>{successMessage}</span>
                 </div>
               )}
 
               {/* Form */}
               <form
                 onSubmit={mode === "signin" ? handleSignIn : handleSignUp}
-                className="space-y-4 text-xs font-mono"
+                className="space-y-4 text-[14px]"
               >
                 {/* Additional fields for signup */}
                 {mode === "signup" && (
                   <>
                     <div className="space-y-1.5">
-                      <label className="text-[#8a96a1] flex items-center gap-1.5">
-                        <User className="w-3.5 h-3.5 text-[#9BAA76]" />
-                        <span>OPERATOR FULL NAME</span>
+                      <label className="text-[13px] font-medium text-[#475569] dark:text-[#A1A1AA] flex items-center gap-1.5">
+                        <User className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
+                        <span>Full Name</span>
                       </label>
                       <input
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder="Dr. Rajesh Varma"
-                        className="w-full bg-[#0f1418] border border-[#2b3741] focus:border-[#9BAA76] rounded px-3 py-2 text-[#f1f4f6] placeholder-[#53616c] focus:outline-none transition-colors"
+                        className="w-full bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] focus:border-[#2563EB] dark:focus:border-[#3B82F6] focus:ring-2 focus:ring-[#2563EB]/20 rounded-lg px-3.5 py-2.5 text-[#111827] dark:text-[#FAFAFA] placeholder-[#94A3B8] dark:placeholder-[#71717A] focus:outline-none transition-all"
                         required
                       />
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[#8a96a1] flex items-center gap-1.5">
-                        <Building className="w-3.5 h-3.5 text-[#9BAA76]" />
-                        <span>ROLE CLASSIFICATION</span>
+                      <label className="text-[13px] font-medium text-[#475569] dark:text-[#A1A1AA] flex items-center gap-1.5">
+                        <Building className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
+                        <span>Role Classification</span>
                       </label>
                       <select
                         value={role}
                         onChange={(e) => setRole(e.target.value as any)}
-                        className="w-full bg-[#0f1418] border border-[#2b3741] focus:border-[#9BAA76] rounded px-3 py-2 text-[#f1f4f6] focus:outline-none transition-colors"
+                        className="w-full bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] focus:border-[#2563EB] dark:focus:border-[#3B82F6] focus:ring-2 focus:ring-[#2563EB]/20 rounded-lg px-3.5 py-2.5 text-[#111827] dark:text-[#FAFAFA] focus:outline-none transition-all cursor-pointer"
                       >
                         <option value="analyst">Infrastructure Analyst (Standard)</option>
                         <option value="lead_engineer">Lead Systems Engineer</option>
@@ -338,13 +330,13 @@ export function LoginPage() {
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[#8a96a1]">ORGANIZATION / AGENCY</label>
+                      <label className="text-[13px] font-medium text-[#475569] dark:text-[#A1A1AA]">Organization / Agency</label>
                       <input
                         type="text"
                         value={organization}
                         onChange={(e) => setOrganization(e.target.value)}
                         placeholder="Hyderabad Municipal Command"
-                        className="w-full bg-[#0f1418] border border-[#2b3741] focus:border-[#9BAA76] rounded px-3 py-2 text-[#f1f4f6] placeholder-[#53616c] focus:outline-none transition-colors"
+                        className="w-full bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] focus:border-[#2563EB] dark:focus:border-[#3B82F6] focus:ring-2 focus:ring-[#2563EB]/20 rounded-lg px-3.5 py-2.5 text-[#111827] dark:text-[#FAFAFA] placeholder-[#94A3B8] dark:placeholder-[#71717A] focus:outline-none transition-all"
                       />
                     </div>
                   </>
@@ -352,32 +344,32 @@ export function LoginPage() {
 
                 {/* Email Field */}
                 <div className="space-y-1.5">
-                  <label className="text-[#8a96a1] flex items-center gap-1.5">
-                    <Mail className="w-3.5 h-3.5 text-[#9BAA76]" />
-                    <span>TERMINAL EMAIL</span>
+                  <label className="text-[13px] font-medium text-[#475569] dark:text-[#A1A1AA] flex items-center gap-1.5">
+                    <Mail className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
+                    <span>Email Address</span>
                   </label>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="operator@civicshield.gov.in"
-                    className="w-full bg-[#0f1418] border border-[#2b3741] focus:border-[#9BAA76] rounded px-3 py-2 text-[#f1f4f6] placeholder-[#53616c] focus:outline-none transition-colors"
+                    className="w-full bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] focus:border-[#2563EB] dark:focus:border-[#3B82F6] focus:ring-2 focus:ring-[#2563EB]/20 rounded-lg px-3.5 py-2.5 text-[#111827] dark:text-[#FAFAFA] placeholder-[#94A3B8] dark:placeholder-[#71717A] focus:outline-none transition-all"
                     required
                   />
                 </div>
 
                 {/* Password Field */}
                 <div className="space-y-1.5">
-                  <label className="text-[#8a96a1] flex items-center gap-1.5">
-                    <KeyRound className="w-3.5 h-3.5 text-[#9BAA76]" />
-                    <span>SECURITY KEY / PASSWORD</span>
+                  <label className="text-[13px] font-medium text-[#475569] dark:text-[#A1A1AA] flex items-center gap-1.5">
+                    <KeyRound className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
+                    <span>Password</span>
                   </label>
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full bg-[#0f1418] border border-[#2b3741] focus:border-[#9BAA76] rounded px-3 py-2 text-[#f1f4f6] placeholder-[#53616c] focus:outline-none transition-colors"
+                    className="w-full bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] focus:border-[#2563EB] dark:focus:border-[#3B82F6] focus:ring-2 focus:ring-[#2563EB]/20 rounded-lg px-3.5 py-2.5 text-[#111827] dark:text-[#FAFAFA] placeholder-[#94A3B8] dark:placeholder-[#71717A] focus:outline-none transition-all"
                     required
                   />
                 </div>
@@ -386,22 +378,22 @@ export function LoginPage() {
                 <button
                   type="submit"
                   disabled={submitting || isLoading}
-                  className="w-full py-2.5 px-4 rounded-lg bg-[#9BAA76] hover:bg-[#a9b984] disabled:bg-[#505a40] text-[#101418] font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors mt-2 shadow-lg shadow-[#9BAA76]/10"
+                  className="w-full py-3 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] disabled:bg-[#2563EB]/50 text-white font-semibold text-[14.5px] flex items-center justify-center gap-2 transition-all duration-180 shadow-xs mt-3 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2 active:scale-[0.98]"
                 >
                   {submitting ? (
                     <div className="flex items-center gap-2">
-                      <div className="w-3.5 h-3.5 border-2 border-[#101418] border-t-transparent rounded-full animate-spin" />
-                      <span>Verifying Credentials...</span>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <span>Authenticating...</span>
                     </div>
                   ) : mode === "signin" ? (
                     <>
-                      <Lock className="w-3.5 h-3.5" />
-                      <span>Authorize Session</span>
+                      <Lock className="w-4 h-4" />
+                      <span>Sign In</span>
                     </>
                   ) : (
                     <>
-                      <Shield className="w-3.5 h-3.5" />
-                      <span>Create Command Account</span>
+                      <Shield className="w-4 h-4" />
+                      <span>Create Account</span>
                     </>
                   )}
                 </button>
@@ -410,19 +402,22 @@ export function LoginPage() {
           )}
 
           {/* Bottom Security Note */}
-          <div className="mt-4 text-center text-[11px] font-mono text-[#62707b] space-y-1">
-            <div>Protected by Supabase Authentication & PostgreSQL RLS</div>
-            <div className="text-[10px] text-[#4f5b64]">
-              Instance: trrggaiakntmikkbazbd.supabase.co • TLS 1.3 Encrypted
+          <div className="mt-5 text-center text-[13px] text-[#94A3B8] dark:text-[#71717A] space-y-1">
+            <div className="flex items-center justify-center gap-1.5">
+              <Server className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
+              <span>Protected by Supabase Authentication &amp; PostgreSQL RLS</span>
+            </div>
+            <div className="text-[12px] text-[#94A3B8]/80 dark:text-[#71717A]/80">
+              TLS 1.3 Encrypted Enterprise Session
             </div>
           </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="h-10 border-t border-[#222c34] bg-[#101418] px-4 flex items-center justify-between text-[11px] font-mono text-[#65737e] z-10">
-        <div>CIVICSHIELD RESILIENCE DIGITAL TWIN</div>
-        <div>STATION: HYD-METRO-01</div>
+      <footer className="h-14 border-t border-[#E5E7EB] dark:border-[#27272A] bg-white/80 dark:bg-[#09090B]/80 backdrop-blur-xl px-6 sm:px-10 flex items-center justify-between text-[13px] text-[#94A3B8] dark:text-[#71717A] z-10">
+        <div>CivicShield Urban Resilience Digital Twin</div>
+        <div>Operational Station: HYD-METRO-01</div>
       </footer>
     </div>
   );

@@ -16,7 +16,7 @@ function Index() {
   return (
     <ClientOnly
       fallback={
-        <div className="min-h-screen bg-[#0a0f16] flex items-center justify-center text-cyan-400 font-mono text-sm">
+        <div className="min-h-screen bg-[#09090B] flex items-center justify-center text-[#2563EB] font-mono text-sm">
           Loading CivicShield...
         </div>
       }
@@ -24,7 +24,7 @@ function Index() {
       <ErrorBoundary fallbackTitle="3D Landing Viewport Error">
         <Suspense
           fallback={
-            <div className="min-h-screen bg-[#0a0f16] flex items-center justify-center text-cyan-400 font-mono text-sm">
+            <div className="min-h-screen bg-[#09090B] flex items-center justify-center text-[#2563EB] font-mono text-sm">
               Loading CivicShield...
             </div>
           }

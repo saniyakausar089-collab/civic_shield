@@ -385,17 +385,17 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
 
       {/* Loading Overlay */}
       {loading && (
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[#101418]/85 backdrop-blur-sm gap-3 font-mono text-xs text-[#9BAA76]">
-          <div className="w-7 h-7 border-2 border-[#9BAA76] border-t-transparent rounded-full animate-spin" />
-          <span>Connecting to 3D Geospatial Viewport & Infrastructure...</span>
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-white/85 dark:bg-[#09090B]/85 backdrop-blur-sm gap-3 font-sans text-xs text-[#111827] dark:text-[#FAFAFA]">
+          <div className="w-7 h-7 border-2 border-[#2563EB] dark:border-[#3B82F6] border-t-transparent rounded-full animate-spin" />
+          <span className="font-medium text-[#475569] dark:text-[#A1A1AA]">Connecting to 3D Geospatial Viewport &amp; Infrastructure...</span>
         </div>
       )}
 
       {/* Diagnostics / Error / Notice Bar */}
       {(loadError || engineError) && (
-        <div className="absolute top-12 left-3 right-3 z-30 p-2.5 rounded bg-[#401c1c]/95 border border-[#d9534f] text-xs font-mono text-[#ff8f8f] flex items-center justify-between shadow-xl">
+        <div className="absolute top-12 left-3 right-3 z-30 p-2.5 rounded-lg bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-xs font-sans text-rose-800 dark:text-rose-300 flex items-center justify-between shadow-md">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 text-[#d9534f] shrink-0" />
+            <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
             <span>{loadError || engineError}</span>
           </div>
           <button
@@ -403,40 +403,40 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
               setLoadError(null);
               setStore({ engineError: null });
             }}
-            className="text-[10px] uppercase font-bold text-[#e5e9ec] hover:underline shrink-0 ml-2"
+            className="text-[11px] font-semibold text-rose-700 dark:text-rose-300 hover:underline shrink-0 ml-2 cursor-pointer"
           >
             Dismiss
           </button>
         </div>
       )}
 
-      {/* Node Info Panel on select (Step 6) */}
+      {/* Node Info Panel on select */}
       {selectedGisNode && (
-        <div className="absolute top-14 right-3 z-20 w-72 bg-[#191F24]/95 backdrop-blur-md border border-[#303941] rounded-lg p-3 text-[#e5e9ec] shadow-2xl animate-in fade-in slide-in-from-right-2 duration-150">
-          <div className="flex items-start justify-between gap-2 border-b border-[#303941] pb-2 mb-2">
+        <div className="absolute top-14 right-3 z-20 w-72 bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] rounded-lg p-3.5 text-[#111827] dark:text-[#FAFAFA] shadow-xl animate-in fade-in slide-in-from-right-2 duration-150 font-sans">
+          <div className="flex items-start justify-between gap-2 border-b border-[#E5E7EB] dark:border-[#27272A] pb-2 mb-2">
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-semibold text-xs text-[#f1f4f6]">
+                <span className="font-semibold text-xs text-[#111827] dark:text-[#FAFAFA]">
                   {selectedGisNode.name}
                 </span>
-                <span className="text-[9px] font-mono px-1 py-0.5 rounded bg-[#242c33] text-[#8a96a1] border border-[#303941]">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#181B22] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A] font-medium">
                   {selectedGisNode.id}
                 </span>
               </div>
-              <div className="text-[10px] text-[#8a96a1] font-mono mt-0.5 uppercase flex items-center gap-1.5">
+              <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A] mt-0.5 uppercase flex items-center gap-1.5 font-medium">
                 <span
                   className="w-1.5 h-1.5 rounded-full"
                   style={{
                     backgroundColor:
                       selectedGisNode.network === "water"
-                        ? "#4fb3e8"
+                        ? "#2563EB"
                         : selectedGisNode.network === "power"
-                        ? "#f5b942"
+                        ? "#d97706"
                         : selectedGisNode.network === "telecom"
-                        ? "#9aa7b8"
+                        ? "#8b5cf6"
                         : selectedGisNode.network === "road"
-                        ? "#e5e7eb"
-                        : "#ef4444",
+                        ? "#71717A"
+                        : "#dc2626",
                   }}
                 />
                 <span>{selectedGisNode.network}</span>
@@ -449,35 +449,35 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
                 setSelectedGisNode(null);
                 select(null);
               }}
-              className="p-1 rounded text-[#8a96a1] hover:text-[#f1f4f6] hover:bg-[#242c33] transition-colors"
+              className="p-1 rounded-md text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] transition-colors cursor-pointer"
               title="Close Panel"
             >
               <X className="w-3.5 h-3.5" />
             </button>
           </div>
 
-          <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
-            <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33]">
-              <div className="text-[9px] text-[#8a96a1] uppercase">Capacity</div>
-              <div className="text-[#e5e9ec] font-semibold mt-0.5">
+          <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+              <div className="text-[9px] text-[#94A3B8] dark:text-[#71717A] uppercase font-medium">Capacity</div>
+              <div className="text-[#111827] dark:text-[#FAFAFA] font-semibold mt-0.5">
                 {selectedGisNode.capacity} {selectedGisNode.unit || ""}
               </div>
             </div>
-            <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33]">
-              <div className="text-[9px] text-[#8a96a1] uppercase">Current Load</div>
-              <div className="text-[#9BAA76] font-semibold mt-0.5">
+            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+              <div className="text-[9px] text-[#94A3B8] dark:text-[#71717A] uppercase font-medium">Current Load</div>
+              <div className="text-[#2563EB] dark:text-[#3B82F6] font-semibold mt-0.5">
                 {selectedGisNode.load} {selectedGisNode.unit || ""}
               </div>
             </div>
-            <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33]">
-              <div className="text-[9px] text-[#8a96a1] uppercase">Built Year</div>
-              <div className="text-[#e5e9ec] mt-0.5">
+            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+              <div className="text-[9px] text-[#94A3B8] dark:text-[#71717A] uppercase font-medium">Built Year</div>
+              <div className="text-[#111827] dark:text-[#FAFAFA] font-semibold mt-0.5">
                 {selectedGisNode.built_year}
               </div>
             </div>
-            <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33]">
-              <div className="text-[9px] text-[#8a96a1] uppercase">Utilization</div>
-              <div className="text-[#e5e9ec] mt-0.5">
+            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+              <div className="text-[9px] text-[#94A3B8] dark:text-[#71717A] uppercase font-medium">Utilization</div>
+              <div className="text-[#111827] dark:text-[#FAFAFA] font-semibold mt-0.5">
                 {selectedGisNode.capacity > 0
                   ? `${Math.round((selectedGisNode.load / selectedGisNode.capacity) * 100)}%`
                   : "N/A"}
@@ -491,9 +491,9 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
       <PlaceInspectorPopup />
 
       {/* Top Floating Cesium Style Controls */}
-      <div className="absolute top-3 right-28 z-10 flex items-center gap-2 bg-[#191F24]/90 backdrop-blur-md border border-[#303941] px-2.5 py-1.5 rounded shadow">
-        <Sparkles className="w-3.5 h-3.5 text-[#9BAA76]" />
-        <span className="text-[11px] font-mono text-[#8a96a1]">3D Tiles Style:</span>
+      <div className="absolute top-3 right-28 z-10 flex items-center gap-2 bg-white/95 backdrop-blur-md border border-[#E5E7EB] px-3 py-1.5 rounded-[6px] shadow-xs font-sans">
+        <Sparkles className="w-3.5 h-3.5 text-[#0078D4]" />
+        <span className="text-[11px] text-[#64748B] font-medium">3D Tiles Style:</span>
         <select
           value={cesiumBuildingStyle}
           onChange={(e) =>
@@ -501,7 +501,7 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
               cesiumBuildingStyle: e.target.value as "year" | "height" | "tall" | "none",
             })
           }
-          className="bg-[#242c33] border border-[#303941] rounded px-2 py-0.5 text-xs text-[#f1f4f6] font-mono focus:outline-none focus:border-[#9BAA76]"
+          className="bg-[#F7F8F5] border border-[#E5E7EB] rounded-[4px] px-2 py-0.5 text-xs text-[#111827] focus:outline-none focus:border-[#0078D4] cursor-pointer"
         >
           <option value="year">Color by Construction Year</option>
           <option value="height">Color by Roof Height</option>
@@ -518,7 +518,7 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
                 });
               }
             }}
-            className="text-[11px] font-mono px-2 py-0.5 rounded bg-[#2a343d] hover:bg-[#34414c] text-[#9BAA76] border border-[#3e4a54] transition"
+            className="text-[11px] px-2.5 py-0.5 rounded-[4px] bg-[#0078D4] hover:bg-[#006CBD] text-white font-medium transition cursor-pointer shadow-2xs"
             title="Focus camera on 3D Tileset"
           >
             Zoom to Tiles
@@ -527,10 +527,10 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
       </div>
 
       {/* Region & Synthetic Infrastructure Disclaimer */}
-      <div className="absolute bottom-3 right-3 z-10 bg-[#191F24]/90 backdrop-blur-md border border-[#303941] px-3 py-1.5 rounded flex items-center gap-2 text-[10px] font-mono text-[#8a96a1] shadow">
-        <ShieldAlert className="w-3.5 h-3.5 text-[#e09f3e]" />
+      <div className="absolute bottom-3 right-3 z-10 bg-white/95 backdrop-blur-md border border-[#E5E7EB] px-3 py-1.5 rounded-[6px] flex items-center gap-2 text-[10px] text-[#64748B] shadow-xs font-sans">
+        <ShieldAlert className="w-3.5 h-3.5 text-[#0078D4]" />
         <span>
-          SYNTHETIC TESTBED: <span className="text-[#e5e9ec]">Hyderabad Urban Sector</span>
+          SYNTHETIC TESTBED: <span className="text-[#111827] font-semibold">Hyderabad Urban Sector</span>
         </span>
       </div>
     </div>

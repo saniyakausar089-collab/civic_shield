@@ -14,13 +14,14 @@ import { CascadeFailure } from "./CascadeFailure";
 import { CameraController } from "./CameraController";
 import { GlassPanel } from "./GlassPanel";
 import { StageIndicator } from "./StageIndicator";
+import { ScrollVideoHero } from "./ScrollVideoHero";
 import { BASE_CITY } from "@/engine/city";
 import { weakestLinks, analyzeHarm, resilienceScore } from "@/engine/analysis";
 import { runSim } from "@/engine/sim";
 import { LEGACY_PLANS as PLANS } from "@/engine/plans";
 import { PostProcessingEffects } from "./PostProcessingEffects";
 import { FpsTracker } from "./FpsTracker";
-import { Shield, ArrowRight, Eye, RefreshCw, Gauge, Lock } from "lucide-react";
+import { Shield, ArrowRight, Eye, Lock } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/context/AuthContext";
 
@@ -33,6 +34,8 @@ export const CinematicLanding: React.FC = () => {
   const [lowQuality, setLowQuality] = useState(false);
   const [webglError, setWebglError] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [isHeroActive, setIsHeroActive] = useState<boolean>(true);
+  const stagesTrackRef = useRef<HTMLDivElement>(null);
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
@@ -59,9 +62,25 @@ export const CinematicLanding: React.FC = () => {
 
     const onScroll = () => {
       const scrollY = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      const progress = maxScroll > 0 ? Math.min(1, Math.max(0, scrollY / maxScroll)) : 0;
-      setScrollProgress(progress);
+      const heroEl = document.getElementById("scroll-video-hero");
+      const heroDistance = heroEl
+        ? heroEl.offsetHeight - window.innerHeight
+        : window.innerHeight * 5;
+
+      const heroActive = scrollY < heroDistance - 20;
+      setIsHeroActive(heroActive);
+
+      const stagesTrack = stagesTrackRef.current;
+      const stagesDistance = stagesTrack
+        ? stagesTrack.offsetHeight - window.innerHeight
+        : window.innerHeight * 9;
+
+      const stageProgress =
+        stagesDistance > 0
+          ? Math.min(1, Math.max(0, (scrollY - heroDistance) / stagesDistance))
+          : 0;
+
+      setScrollProgress(stageProgress);
     };
 
     lenis.on("scroll", onScroll);
@@ -87,8 +106,16 @@ export const CinematicLanding: React.FC = () => {
   // Jump smoothly to a specific stage
   const handleSelectStage = (stageIndex: number) => {
     if (typeof window === "undefined" || typeof document === "undefined") return;
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    const targetScroll = (stageIndex / 9.5) * maxScroll;
+    const heroEl = document.getElementById("scroll-video-hero");
+    const heroDistance = heroEl
+      ? heroEl.offsetHeight - window.innerHeight
+      : window.innerHeight * 5;
+    const stagesTrack = stagesTrackRef.current;
+    const stagesDistance = stagesTrack
+      ? stagesTrack.offsetHeight - window.innerHeight
+      : window.innerHeight * 9;
+
+    const targetScroll = heroDistance + (stageIndex / 9.5) * stagesDistance;
     if (lenisRef.current) {
       lenisRef.current.scrollTo(targetScroll, { duration: 1.4 });
     } else {
@@ -113,7 +140,6 @@ export const CinematicLanding: React.FC = () => {
     const hospitalBackupHours = hospital?.backupHours ?? 8;
 
     // 3. Cascade simulation scrubbed by scroll progress in stage 7
-    // Stage 7 spans progress 0.70 to 0.80 -> scrubs hours 0 to 24
     const stage7Local = Math.max(0, Math.min(1, (scrollProgress - 0.70) / 0.10));
     const currentHour = Math.min(24, Math.floor(stage7Local * 24));
     const simResult = runSim(BASE_CITY, ["PIPE1"]);
@@ -152,7 +178,6 @@ export const CinematicLanding: React.FC = () => {
     if (scrollProgress >= 0.70 && scrollProgress <= 0.82) {
       return (scrollProgress - 0.70) / 0.12;
     }
-    // Lingers slightly into stage 8 then resets as plan recovers
     if (scrollProgress > 0.82 && scrollProgress <= 0.92) {
       return 1 - (scrollProgress - 0.82) / 0.10;
     }
@@ -162,82 +187,134 @@ export const CinematicLanding: React.FC = () => {
   // WebGL Error Fallback
   if (webglError) {
     return (
-      <div className="min-h-screen bg-[#0a0f16] text-white p-8 flex flex-col justify-between">
-        <header className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-cyan-400" />
-            <span className="font-mono font-bold tracking-wider">CIVICSHIELD</span>
+      <div className="min-h-screen bg-[#F7F8FA] dark:bg-[#09090B] text-[#111827] dark:text-[#FAFAFA] p-8 flex flex-col justify-between font-sans">
+        <header className="h-16 border-b border-[#E5E7EB] dark:border-[#27272A] bg-white dark:bg-[#111318] px-6 flex items-center justify-between rounded-xl shadow-xs">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white shadow-xs">
+              <Shield className="w-4 h-4" />
+            </div>
+            <span className="text-[17px] font-semibold tracking-tight text-[#111827] dark:text-[#FAFAFA]">
+              Civic<span className="text-[#2563EB] dark:text-[#3B82F6]">Shield</span>
+            </span>
           </div>
           <button
             onClick={handleLaunchSimulator}
-            className="px-4 py-2 bg-cyan-400 text-slate-950 font-bold text-xs rounded-xl"
+            className="px-5 py-2.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-[14px] rounded-lg transition-all duration-200 active:scale-[0.98]"
           >
             Launch Simulator
           </button>
         </header>
-        <main className="max-w-2xl mx-auto text-center space-y-6 py-24">
-          <h1 className="text-4xl font-extrabold">Civic Infrastructure Resilience Twin</h1>
-          <p className="text-slate-300">
-            WebGL acceleration is unavailable in your browser environment. You can still access the complete analytical simulation workspace directly.
+        <main className="max-w-2xl mx-auto text-center space-y-6 py-24 bg-white dark:bg-[#111318] p-10 rounded-2xl border border-[#E5E7EB] dark:border-[#27272A] shadow-xl">
+          <h1 className="text-[36px] font-semibold text-[#111827] dark:text-[#FAFAFA] leading-[1.2] tracking-tight">
+            Civic Infrastructure Resilience Twin
+          </h1>
+          <p className="text-[17px] text-[#475569] dark:text-[#A1A1AA] leading-[1.6]">
+            WebGL hardware acceleration is unavailable in your current browser configuration. You can proceed directly into the analytical simulation console.
           </p>
           <button
             onClick={handleLaunchSimulator}
-            className="px-8 py-4 bg-cyan-400 text-slate-950 font-bold rounded-2xl inline-flex items-center gap-2"
+            className="px-8 py-3.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-[15px] rounded-lg inline-flex items-center gap-2.5 transition-all duration-200 shadow-sm active:scale-[0.98]"
           >
             <span>Enter Simulator</span>
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4" />
           </button>
         </main>
-        <footer className="text-xs font-mono text-slate-500 text-center">
-          CivicShield Urban Failure Simulator
+        <footer className="text-[13px] text-[#94A3B8] dark:text-[#71717A] text-center">
+          CivicShield Urban Failure Simulator • Interdependent Infrastructure Analysis
         </footer>
       </div>
     );
   }
 
   return (
-    <div className="relative w-full bg-[#0a0f16] text-white select-none">
-      {/* 1. Fixed Top HUD Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 p-4 sm:p-6 flex items-center justify-between pointer-events-none">
-        <div className="flex items-center gap-3 pointer-events-auto">
-          <div className="w-7 h-7 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center backdrop-blur-md">
-            <Shield className="w-4 h-4 text-cyan-400" />
-          </div>
-          <div>
-            <span className="text-sm font-bold font-mono tracking-wider text-white">
-              CIVIC<span className="text-cyan-400">SHIELD</span>
-            </span>
-            <span className="hidden sm:inline-block ml-3 px-2 py-0.5 text-[10px] font-mono uppercase rounded bg-white/5 border border-white/10 text-slate-400">
-              3D Infrastructure Twin
-            </span>
-            <span className="hidden md:inline-block ml-2 px-2 py-0.5 text-[10px] font-mono rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-              {fps} FPS • {lowQuality ? "Eco Mode" : "PBR Ultra"}
-            </span>
+    <div className="relative w-full bg-[#09090B] text-[#111827] dark:text-[#FAFAFA] select-none font-sans">
+      {/* 1. World-Class Minimal SaaS Navigation Bar (Fixed above Hero at z-50) */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#09090B]/80 backdrop-blur-xl border-b border-[#E5E7EB]/40 dark:border-[#27272A]/40 shadow-xs px-6 sm:px-10 h-16 flex items-center justify-between pointer-events-auto transition-colors">
+        {/* Left: Brand mark & Subtitle */}
+        <div className="flex items-center gap-4">
+          <div
+            onClick={() => {
+              if (lenisRef.current) {
+                lenisRef.current.scrollTo(0, { duration: 1.2 });
+              } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }}
+            className="flex items-center gap-2.5 cursor-pointer group"
+          >
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white shadow-xs group-hover:scale-105 transition-transform duration-150">
+              <Shield className="w-4 h-4" />
+            </div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-[17px] font-semibold tracking-tight text-[#111827] dark:text-[#FAFAFA]">
+                Civic<span className="text-[#2563EB] dark:text-[#3B82F6]">Shield</span>
+              </span>
+              <span className="hidden sm:inline-block text-[13px] text-[#94A3B8] dark:text-[#71717A] font-normal">
+                Urban Resilience Digital Twin
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 pointer-events-auto">
+        {/* Right: Navigation items and Action Buttons */}
+        <nav className="flex items-center gap-3 sm:gap-5">
+          {/* Navigation text (14px–16px, font-weight 400) */}
+          <div className="hidden lg:flex items-center gap-6 text-[14px] font-medium text-[#475569] dark:text-[#A1A1AA]">
+            <button
+              onClick={() => {
+                if (lenisRef.current) {
+                  lenisRef.current.scrollTo(0, { duration: 1.2 });
+                } else {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
+              className="hover:text-[#111827] dark:hover:text-[#FAFAFA] transition-colors duration-150 cursor-pointer"
+            >
+              Intro
+            </button>
+            <button
+              onClick={() => handleSelectStage(0)}
+              className="hover:text-[#111827] dark:hover:text-[#FAFAFA] transition-colors duration-150 cursor-pointer"
+            >
+              Overview
+            </button>
+            <button
+              onClick={() => handleSelectStage(4)}
+              className="hover:text-[#111827] dark:hover:text-[#FAFAFA] transition-colors duration-150 cursor-pointer"
+            >
+              System Cascades
+            </button>
+            <button
+              onClick={() => handleSelectStage(8)}
+              className="hover:text-[#111827] dark:hover:text-[#FAFAFA] transition-colors duration-150 cursor-pointer"
+            >
+              Response Plans
+            </button>
+          </div>
+
+          <div className="h-4 w-px bg-[#E5E7EB] dark:bg-[#27272A] hidden lg:block" />
+
           {/* Reduced motion toggle */}
           <button
             onClick={() => setReducedMotion(!reducedMotion)}
-            className={`px-3 py-1.5 rounded-lg border text-xs font-mono transition-colors hidden sm:flex items-center gap-1.5 ${
+            className={`px-3 py-1.5 rounded-lg border text-[13px] font-medium transition-colors duration-150 hidden sm:flex items-center gap-1.5 cursor-pointer ${
               reducedMotion
-                ? "bg-amber-500/20 border-amber-500/40 text-amber-300"
-                : "bg-black/30 border-white/10 text-slate-400 hover:text-white"
+                ? "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400"
+                : "bg-white/80 dark:bg-[#111318]/80 border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22]"
             }`}
             title="Toggle between smooth camera flight and still frames"
           >
-            <Eye className="w-3.5 h-3.5" />
-            <span>{reducedMotion ? "Reduced Motion: ON" : "Motion: Fluid"}</span>
+            <Eye className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
+            <span>{reducedMotion ? "Motion: Paused" : "Motion: Fluid"}</span>
           </button>
 
-          {/* Operator Login / Status Button */}
+          {/* Operator Login / Status Link */}
           {isAuthenticated ? (
             <Link
               to="/simulator"
-              className="px-3.5 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 font-mono text-xs uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/15 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-[13.5px] font-medium flex items-center gap-2 transition-all duration-150 shadow-2xs cursor-pointer"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span className="hidden sm:inline">
                 {profile?.role?.replace("_", " ") || "Operator Active"}
               </span>
@@ -245,26 +322,33 @@ export const CinematicLanding: React.FC = () => {
           ) : (
             <Link
               to="/login"
-              className="px-3.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 font-mono text-xs uppercase tracking-wider flex items-center gap-1.5 backdrop-blur-md transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+              className="text-[13.5px] font-medium text-[#475569] dark:text-[#A1A1AA] hover:text-[#2563EB] dark:hover:text-[#3B82F6] px-2.5 py-1.5 rounded-lg transition-colors duration-150 flex items-center gap-1.5 cursor-pointer"
             >
-              <Lock className="w-3.5 h-3.5" />
+              <Lock className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
               <span className="hidden sm:inline">Operator Login</span>
             </Link>
           )}
 
-          {/* Skip Intro Button */}
+          {/* Primary CTA Button: Launch Simulator */}
           <button
             onClick={handleLaunchSimulator}
-            className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-mono text-xs uppercase tracking-wider flex items-center gap-2 backdrop-blur-md transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer"
+            className="px-4 py-2 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-[14px] font-semibold flex items-center gap-2 transition-all duration-180 shadow-xs cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2 active:scale-[0.98]"
           >
-            <span>Skip Intro</span>
-            <ArrowRight className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Launch Simulator</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
-        </div>
+        </nav>
       </header>
 
-      {/* 2. Full-Screen Fixed Three.js WebGL Canvas */}
-      <div className="fixed inset-0 z-10 pointer-events-none">
+      {/* 2. Scroll-Driven Video Hero (First section of the page, above all existing content) */}
+      <ScrollVideoHero />
+
+      {/* 3. Full-Screen Fixed Three.js WebGL Canvas (Revealed after video hero) */}
+      <div
+        className={`fixed inset-0 z-10 pointer-events-none transition-opacity duration-700 ${
+          isHeroActive ? "opacity-0" : "opacity-100"
+        }`}
+      >
         {mounted && (
           <Canvas
             dpr={dpr}
@@ -320,29 +404,40 @@ export const CinematicLanding: React.FC = () => {
         )}
       </div>
 
-      {/* 3. Interactive Floating Glass HUD Panels */}
-      <GlassPanel
-        currentStage={currentStage}
-        scrollProgress={scrollProgress}
-        onLaunchSimulator={handleLaunchSimulator}
-        weakLinkData={engineData.topWeak}
-        hospitalBackupHours={engineData.hospitalBackupHours}
-        failureStats={engineData.failureStats}
-        planComparison={engineData.planComparison}
-        resilienceScoreValue={engineData.resilienceScoreValue}
-      />
+      {/* 4. Interactive Floating Microsoft-Styled Panels (Revealed after video hero) */}
+      <div
+        className={`transition-opacity duration-500 ${
+          isHeroActive ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
+        }`}
+      >
+        <GlassPanel
+          currentStage={currentStage}
+          scrollProgress={scrollProgress}
+          onLaunchSimulator={handleLaunchSimulator}
+          weakLinkData={engineData.topWeak}
+          hospitalBackupHours={engineData.hospitalBackupHours}
+          failureStats={engineData.failureStats}
+          planComparison={engineData.planComparison}
+          resilienceScoreValue={engineData.resilienceScoreValue}
+        />
+      </div>
 
-      {/* 4. Side Stage Dot Indicator */}
-      <StageIndicator
-        currentStage={currentStage}
-        onSelectStage={handleSelectStage}
-      />
+      {/* 5. Side Stage Dot Indicator (Revealed after video hero) */}
+      <div
+        className={`transition-opacity duration-500 ${
+          isHeroActive ? "opacity-0 pointer-events-none" : "opacity-100 pointer-events-auto"
+        }`}
+      >
+        <StageIndicator
+          currentStage={currentStage}
+          onSelectStage={handleSelectStage}
+        />
+      </div>
 
-      {/* 5. Scroll Track: 10 sections of 100vh each */}
-      <div className="relative z-20 pointer-events-none">
+      {/* 6. Scroll Track for 3D City Stages: 10 sections of 100vh each */}
+      <div ref={stagesTrackRef} className="relative z-20 pointer-events-none">
         {Array.from({ length: 10 }).map((_, i) => (
           <section key={i} className="h-screen w-full flex items-center justify-center">
-            {/* Visual spacer anchors for browser scroll */}
             <div className="sr-only">Stage {i}</div>
           </section>
         ))}

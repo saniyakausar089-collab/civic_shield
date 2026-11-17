@@ -11,7 +11,7 @@ export const StageIndicator: React.FC<StageIndicatorProps> = ({
   onSelectStage,
 }) => {
   return (
-    <div className="fixed right-6 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-end gap-3 select-none pointer-events-auto">
+    <div className="fixed right-6 top-1/2 -translate-y-1/2 z-40 hidden md:flex flex-col items-end gap-2 select-none pointer-events-auto">
       {SCROLL_STAGES.map((s) => {
         const isActive = s.index === currentStage;
         return (
@@ -23,8 +23,10 @@ export const StageIndicator: React.FC<StageIndicatorProps> = ({
           >
             {/* Stage label tooltip on hover */}
             <span
-              className={`text-[10px] font-mono tracking-widest uppercase transition-all duration-300 opacity-0 group-hover:opacity-100 ${
-                isActive ? "text-cyan-400 font-semibold" : "text-slate-400"
+              className={`text-[12px] font-medium transition-all duration-200 opacity-0 group-hover:opacity-100 px-2.5 py-1 rounded-md bg-white/95 dark:bg-[#111318]/95 border border-[#E5E7EB] dark:border-[#27272A] shadow-sm ${
+                isActive
+                  ? "text-[#2563EB] dark:text-[#3B82F6] font-semibold"
+                  : "text-[#475569] dark:text-[#A1A1AA]"
               }`}
             >
               {s.badge.split("//")[0]?.trim()}
@@ -34,8 +36,8 @@ export const StageIndicator: React.FC<StageIndicatorProps> = ({
             <div
               className={`transition-all duration-300 rounded-full ${
                 isActive
-                  ? "w-2.5 h-6 bg-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.8)]"
-                  : "w-1.5 h-1.5 bg-slate-600 hover:bg-slate-400"
+                  ? "w-2 h-7 bg-[#2563EB] dark:bg-[#3B82F6] shadow-[0_0_12px_rgba(37,99,235,0.4)]"
+                  : "w-2 h-2 bg-[#CBD5E1] dark:bg-[#3F3F46] group-hover:bg-[#94A3B8] dark:group-hover:bg-[#71717A]"
               }`}
             />
           </button>

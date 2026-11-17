@@ -1,12 +1,23 @@
 import React from "react";
-import { SCROLL_STAGES, type StageInfo } from "./stagesData";
-import { ArrowRight, ShieldCheck, Activity, Zap, Droplets, Radio, ChevronDown } from "lucide-react";
+import { SCROLL_STAGES } from "./stagesData";
+import {
+  ArrowRight,
+  ShieldCheck,
+  Activity,
+  Zap,
+  ChevronDown,
+  Check,
+  Layers,
+  Cpu,
+  Radio,
+  Clock,
+  AlertTriangle,
+} from "lucide-react";
 
 interface GlassPanelProps {
   currentStage: number;
   scrollProgress: number;
   onLaunchSimulator: () => void;
-  // Dynamic simulation engine values
   weakLinkData?: { name: string; score: number; harm: number };
   hospitalBackupHours?: number;
   failureStats?: { hour: number; affectedPop: number; systemsFailed: number };
@@ -26,41 +37,97 @@ export const GlassPanel: React.FC<GlassPanelProps> = ({
 }) => {
   const stage = SCROLL_STAGES[currentStage] || SCROLL_STAGES[0]!;
 
-  // Stage 0: Initial cinematic title screen
+  // Stage 0: World-Class Editorial Hero Section
   if (currentStage === 0) {
     return (
-      <div className="fixed inset-0 flex flex-col items-center justify-center p-6 text-center select-none pointer-events-none z-30">
-        <div className="max-w-3xl space-y-6 pointer-events-auto">
-          {/* Top Status Tag */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#121a24]/80 border border-cyan-500/30 text-cyan-400 font-mono text-xs uppercase tracking-widest backdrop-blur-md shadow-lg shadow-cyan-950/20 animate-pulse">
-            <span className="w-2 h-2 rounded-full bg-cyan-400" />
-            <span>Civic Infrastructure Twin Initialized</span>
+      <div className="fixed inset-0 flex flex-col items-center justify-center p-4 sm:p-8 lg:p-10 select-none pointer-events-none z-30">
+        <div className="max-w-4xl w-full bg-white/95 dark:bg-[#111318]/95 backdrop-blur-2xl border border-[#E5E7EB] dark:border-[#27272A] rounded-2xl p-7 sm:p-11 lg:p-14 shadow-2xl dark:shadow-[0_20px_50px_rgba(0,0,0,0.8)] text-center pointer-events-auto transition-all duration-300 relative overflow-hidden">
+          {/* Subtle ambient lighting inside hero card */}
+          <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-96 h-48 bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 blur-3xl rounded-full pointer-events-none" />
+
+          {/* Premium Status Pill Badge */}
+          <div className="relative inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] text-[13px] font-medium mb-6 shadow-2xs">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2563EB] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#2563EB]" />
+            </span>
+            <span className="text-[#111827] dark:text-[#FAFAFA] font-semibold">CivicShield</span>
+            <span className="w-1 h-1 rounded-full bg-[#94A3B8] dark:bg-[#71717A]" />
+            <span>Urban Resilience Digital Twin</span>
           </div>
 
-          {/* Master Headline */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white font-sans leading-[1.08] drop-shadow-md">
-            CivicShield.
-            <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-sky-300 to-amber-200">
-              Break one thing. Watch the city follow.
-            </span>
+          {/* Oversized Headline (64px, weight 600, line-height 1.1) */}
+          <h1 className="relative text-[36px] sm:text-[50px] lg:text-[64px] font-semibold text-[#111827] dark:text-[#FAFAFA] leading-[1.1] tracking-[-0.03em] max-w-3xl mx-auto">
+            Break one thing. Watch the city follow.
           </h1>
 
-          <p className="max-w-xl mx-auto text-base sm:text-lg text-slate-300 font-sans font-light leading-relaxed">
-            A single pipe rupture triggers an interdependent chain reaction through water, power, hospitals and transit. Explore systemic cascades in a continuous 3D flight.
+          {/* Impactful Supporting Description */}
+          <p className="relative mt-5 text-[16px] sm:text-[18px] text-[#475569] dark:text-[#A1A1AA] font-normal leading-[1.6] max-w-2xl mx-auto">
+            A single pipe rupture triggers an interdependent chain reaction through water, power, hospitals, and transit networks. Explore systemic cascades in a continuous 3D twin and test emergency municipal interventions.
           </p>
 
-          {/* Scroll Cue & Progress bar */}
-          <div className="pt-6 flex flex-col items-center gap-3">
-            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-slate-400">
-              <span>Scroll to Begin Descent</span>
-              <ChevronDown className="w-4 h-4 text-cyan-400 animate-bounce" />
+          {/* Primary & Secondary Call To Actions */}
+          <div className="relative mt-8 flex flex-col sm:flex-row items-center justify-center gap-3.5">
+            <button
+              onClick={onLaunchSimulator}
+              className="w-full sm:w-auto px-7 py-3.5 rounded-[8px] bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-semibold text-[15px] flex items-center justify-center gap-2.5 transition-all duration-200 shadow-sm cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2 active:scale-[0.98]"
+            >
+              <span>Launch Simulator</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={() => window.scrollBy({ top: window.innerHeight, behavior: "smooth" })}
+              className="w-full sm:w-auto px-6 py-3.5 rounded-[8px] bg-[#FFFFFF] dark:bg-[#181B22] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D] text-[#111827] dark:text-[#FAFAFA] font-semibold text-[15px] border border-[#E5E7EB] dark:border-[#27272A] transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] active:scale-[0.98]"
+            >
+              <span>Explore 3D Flight</span>
+              <ChevronDown className="w-4 h-4 text-[#94A3B8] dark:text-[#71717A]" />
+            </button>
+          </div>
+
+          {/* Live Product Preview & Telemetry Strip */}
+          <div className="relative mt-8 pt-6 border-t border-[#E5E7EB] dark:border-[#27272A] grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
+            <div className="p-3 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A]">
+              <div className="flex items-center gap-2 text-[#2563EB] dark:text-[#3B82F6] mb-1">
+                <Layers className="w-4 h-4" />
+                <span className="text-[13px] font-semibold text-[#111827] dark:text-[#FAFAFA]">26 Critical Assets</span>
+              </div>
+              <p className="text-[12px] text-[#475569] dark:text-[#A1A1AA] leading-snug">
+                Power substations, water plants, hospitals, and arterial transit hubs.
+              </p>
             </div>
-            {/* Visual scroll track preview */}
-            <div className="w-48 h-1 bg-white/10 rounded-full overflow-hidden">
+
+            <div className="p-3 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A]">
+              <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 mb-1">
+                <Zap className="w-4 h-4" />
+                <span className="text-[13px] font-semibold text-[#111827] dark:text-[#FAFAFA]">Cascade Propagation</span>
+              </div>
+              <p className="text-[12px] text-[#475569] dark:text-[#A1A1AA] leading-snug">
+                Interdependent stress transmission modeling multi-sector systemic shock.
+              </p>
+            </div>
+
+            <div className="p-3 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A]">
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-1">
+                <Cpu className="w-4 h-4" />
+                <span className="text-[13px] font-semibold text-[#111827] dark:text-[#FAFAFA]">&lt; 5ms WASM Engine</span>
+              </div>
+              <p className="text-[12px] text-[#475569] dark:text-[#A1A1AA] leading-snug">
+                High-performance C++ cascade core with surrogate ML hazard estimation.
+              </p>
+            </div>
+          </div>
+
+          {/* Scroll Cue & Progress bar */}
+          <div className="relative mt-6 flex flex-col items-center gap-2">
+            <div className="flex items-center gap-2 text-[13px] text-[#94A3B8] dark:text-[#71717A] font-normal">
+              <span>Scroll down to navigate cascade stages</span>
+              <ChevronDown className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6] animate-bounce" />
+            </div>
+            <div className="w-48 h-1 bg-[#E5E7EB] dark:bg-[#27272A] rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-cyan-400 to-sky-300 transition-all duration-150"
-                style={{ width: `${Math.max(5, scrollProgress * 100)}%` }}
+                className="h-full bg-[#2563EB] dark:bg-[#3B82F6] transition-all duration-150"
+                style={{ width: `${Math.max(8, scrollProgress * 100)}%` }}
               />
             </div>
           </div>
@@ -72,188 +139,195 @@ export const GlassPanel: React.FC<GlassPanelProps> = ({
   // Stage 9: Final Executive Call-To-Action screen
   if (currentStage === 9) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center p-6 select-none pointer-events-none z-30">
-        <div className="max-w-4xl w-full bg-[#0c131c]/85 border border-white/15 rounded-3xl p-8 sm:p-12 backdrop-blur-2xl shadow-2xl space-y-8 pointer-events-auto">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-6">
+      <div className="fixed inset-0 flex items-center justify-center p-4 sm:p-6 select-none pointer-events-none z-30">
+        <div className="max-w-4xl w-full bg-white/98 dark:bg-[#111318]/98 border border-[#E5E7EB] dark:border-[#27272A] rounded-2xl p-7 sm:p-11 backdrop-blur-2xl shadow-2xl dark:shadow-[0_25px_60px_rgba(0,0,0,0.8)] space-y-7 pointer-events-auto transition-all duration-300 relative overflow-hidden">
+          {/* Subtle ambient lighting inside card */}
+          <div className="absolute -top-24 right-1/4 w-80 h-40 bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 blur-3xl rounded-full pointer-events-none" />
+
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-[#E5E7EB] dark:border-[#27272A] pb-6">
             <div>
-              <span className="text-xs font-mono tracking-widest text-cyan-400 uppercase">
-                // EXECUTIVE RESILIENCE WORKSPACE
-              </span>
-              <h2 className="text-3xl sm:text-5xl font-extrabold text-white mt-1">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 text-[#2563EB] dark:text-[#3B82F6] text-[12px] font-semibold uppercase tracking-wider mb-2">
+                Executive Resilience Workspace
+              </div>
+              <h2 className="text-[30px] sm:text-[38px] font-semibold text-[#111827] dark:text-[#FAFAFA] leading-[1.2] tracking-[-0.025em]">
                 Take Command of the City
               </h2>
+              <p className="text-[15px] text-[#475569] dark:text-[#A1A1AA] font-normal mt-1.5 max-w-xl leading-relaxed">
+                Evaluate municipal disaster scenarios, test generator contingencies, and dispatch real-time emergency interventions.
+              </p>
             </div>
             <button
               onClick={onLaunchSimulator}
-              className="px-8 py-4 rounded-2xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-base flex items-center justify-center gap-3 transition-all shadow-xl shadow-cyan-500/25 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="px-7 py-3.5 rounded-[8px] bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white font-semibold text-[15px] flex items-center justify-center gap-3 transition-all duration-200 shadow-sm cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2563EB] focus-visible:ring-offset-2 active:scale-[0.98]"
             >
               <span>Launch Simulator</span>
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
 
-          {/* Feature capability tiles - 5 key platform capabilities */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-cyan-400">
+          {/* Feature capability tiles */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
+            <div className="p-4 rounded-xl bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[#2563EB] dark:text-[#3B82F6]">
                 <Activity className="w-4 h-4" />
-                <span className="text-[11px] font-mono uppercase font-semibold">Monte Carlo</span>
+                <span className="text-[14px] font-semibold text-[#111827] dark:text-[#FAFAFA]">Monte Carlo</span>
               </div>
-              <p className="text-[11px] text-slate-300 leading-tight">
+              <p className="text-[13px] text-[#475569] dark:text-[#A1A1AA] leading-relaxed">
                 200 stochastic runs with P25–P75 confidence envelopes.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-amber-400">
+            <div className="p-4 rounded-xl bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] space-y-1.5">
+              <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
                 <Zap className="w-4 h-4" />
-                <span className="text-[11px] font-mono uppercase font-semibold">Weak Links</span>
+                <span className="text-[14px] font-semibold text-[#111827] dark:text-[#FAFAFA]">Weak Links</span>
               </div>
-              <p className="text-[11px] text-slate-300 leading-tight">
+              <p className="text-[13px] text-[#475569] dark:text-[#A1A1AA] leading-relaxed">
                 Heuristic ranking of single-point cascading bottlenecks.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-sky-400">
+            <div className="p-4 rounded-xl bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[#475569] dark:text-[#A1A1AA]">
                 <ShieldCheck className="w-4 h-4" />
-                <span className="text-[11px] font-mono uppercase font-semibold">Command Panel</span>
+                <span className="text-[14px] font-semibold text-[#111827] dark:text-[#FAFAFA]">Command Panel</span>
               </div>
-              <p className="text-[11px] text-slate-300 leading-tight">
-                Emergency interventions: tankers, generators, and road closures.
+              <p className="text-[13px] text-[#475569] dark:text-[#A1A1AA] leading-relaxed">
+                Emergency interventions: tankers, generators, and isolation.
               </p>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5">
-              <div className="flex items-center gap-1.5 text-rose-400">
-                <span className="text-xs font-mono font-bold">{resilienceScoreValue}/100</span>
-                <span className="text-[11px] font-mono uppercase font-semibold">Resilience</span>
+            <div className="p-4 rounded-xl bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] space-y-1.5">
+              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                <span className="text-[14px] font-semibold text-[#111827] dark:text-[#FAFAFA]">{resilienceScoreValue}/100</span>
+                <span className="text-[13px] text-[#475569] dark:text-[#A1A1AA]">Score</span>
               </div>
-              <p className="text-[11px] text-slate-300 leading-tight">
-                Composite stress score benchmarked against all presets.
-              </p>
-            </div>
-
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-1.5 col-span-2 sm:col-span-1">
-              <div className="flex items-center gap-1.5 text-emerald-400">
-                <Radio className="w-4 h-4" />
-                <span className="text-[11px] font-mono uppercase font-semibold">Voice Brief</span>
-              </div>
-              <p className="text-[11px] text-slate-300 leading-tight">
-                Speech-synthesized incident debrief and timeline audio.
+              <p className="text-[13px] text-[#475569] dark:text-[#A1A1AA] leading-relaxed">
+                Composite stress index benchmarked across all disaster scenarios.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs font-mono text-slate-400 pt-2">
-            <span>Cesium 3D Globe Tileset & Synthetic Three.js Twin</span>
-            <span>Zero external dependencies • Framework-free core</span>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-[13px] text-[#94A3B8] dark:text-[#71717A] pt-4 border-t border-[#E5E7EB] dark:border-[#27272A]">
+            <span className="flex items-center gap-2">
+              <Radio className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
+              <span>Cesium 3D Globe &amp; Synthetic Urban Twin</span>
+            </span>
+            <span>Framework-agnostic cascade simulation core</span>
           </div>
         </div>
       </div>
     );
   }
 
-  // Stages 1 through 8: Left-aligned glass HUD panel
+  // Stages 1 through 8: Left-aligned clean glass HUD panel
   return (
-    <div className="fixed bottom-8 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 left-6 sm:left-12 max-w-md w-[calc(100vw-3rem)] sm:w-full z-30 select-none pointer-events-none">
-      <div className="bg-[#0b1118]/80 border border-white/15 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl space-y-4 pointer-events-auto transition-all duration-300">
+    <div className="fixed bottom-6 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 left-4 sm:left-12 max-w-md w-[calc(100vw-2rem)] sm:w-full z-30 select-none pointer-events-none">
+      <div className="bg-white/95 dark:bg-[#111318]/95 border border-[#E5E7EB] dark:border-[#27272A] rounded-2xl p-6 sm:p-7 backdrop-blur-2xl shadow-2xl dark:shadow-[0_20px_40px_rgba(0,0,0,0.8)] space-y-4 pointer-events-auto transition-all duration-300">
         {/* Stage Badge & Category */}
         <div className="flex items-center justify-between">
-          <span className="text-[11px] font-mono tracking-widest uppercase text-cyan-400 font-semibold px-2 py-0.5 rounded bg-cyan-950/40 border border-cyan-800/40">
+          <span className="text-[12px] font-semibold uppercase tracking-wider text-[#2563EB] dark:text-[#3B82F6] px-2.5 py-1 rounded-[6px] bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 border border-[#2563EB]/20 dark:border-[#3B82F6]/30">
             {stage.badge}
           </span>
-          <span className="text-[11px] font-mono text-slate-400">
-            STAGE 0{currentStage} / 09
+          <span className="text-[13px] text-[#94A3B8] dark:text-[#71717A] font-normal">
+            Stage {currentStage + 1} of 10
           </span>
         </div>
 
-        {/* Headline */}
-        <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-snug">
+        {/* Section Heading */}
+        <h2 className="text-[22px] sm:text-[26px] font-semibold text-[#111827] dark:text-[#FAFAFA] tracking-tight leading-[1.25]">
           {stage.headline}
         </h2>
 
         {/* Body paragraph */}
-        <p className="text-sm text-slate-300 font-sans font-light leading-relaxed">
+        <p className="text-[15px] sm:text-[16px] text-[#475569] dark:text-[#A1A1AA] font-normal leading-[1.6]">
           {stage.body}
         </p>
 
-        {/* Contextual dynamic live telemetry from Engine */}
+        {/* Stage 4 — Weak Link telemetry */}
         {currentStage === 4 && weakLinkData && (
-          <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] flex items-center justify-between">
             <div>
-              <div className="text-[10px] font-mono text-amber-400 uppercase">
-                #1 Weak Link Identified
+              <div className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 uppercase tracking-wide flex items-center gap-1.5">
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>Primary Vulnerability</span>
               </div>
-              <div className="text-sm font-semibold text-white">{weakLinkData.name}</div>
+              <div className="text-[15px] font-semibold text-[#111827] dark:text-[#FAFAFA] mt-0.5">{weakLinkData.name}</div>
             </div>
             <div className="text-right">
-              <div className="text-xs font-mono text-amber-400 font-bold">
-                {weakLinkData.score} / 100
+              <div className="text-[17px] font-semibold text-[#2563EB] dark:text-[#3B82F6]">
+                {weakLinkData.score} <span className="text-[12px] text-[#94A3B8] dark:text-[#71717A] font-normal">/ 100</span>
               </div>
-              <div className="text-[10px] text-slate-400">Criticality Index</div>
+              <div className="text-[11px] text-[#94A3B8] dark:text-[#71717A]">Criticality Index</div>
             </div>
           </div>
         )}
 
+        {/* Stage 5 — Hospital backup */}
         {currentStage === 5 && (
-          <div className="p-3 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-between">
+          <div className="p-3.5 rounded-xl bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] flex items-center justify-between">
             <div>
-              <div className="text-[10px] font-mono text-sky-400 uppercase">
-                Eastside Medical Backup
+              <div className="text-[11px] font-semibold text-[#475569] dark:text-[#A1A1AA] uppercase tracking-wide flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
+                <span>Eastside Medical Backup</span>
               </div>
-              <div className="text-sm font-semibold text-white">Generator Autonomy</div>
+              <div className="text-[15px] font-semibold text-[#111827] dark:text-[#FAFAFA] mt-0.5">Generator Autonomy</div>
             </div>
             <div className="text-right">
-              <div className="text-base font-mono text-sky-300 font-bold">
+              <div className="text-[17px] font-semibold text-[#2563EB] dark:text-[#3B82F6]">
                 {hospitalBackupHours}.0 Hours
               </div>
-              <div className="text-[10px] text-slate-400">Before Grid Expiry</div>
+              <div className="text-[11px] text-[#94A3B8] dark:text-[#71717A]">Before Power Depletion</div>
             </div>
           </div>
         )}
 
+        {/* Stage 7 — Cascade timeline */}
         {currentStage === 7 && failureStats && (
-          <div className="p-3 rounded-xl bg-rose-500/15 border border-rose-500/30 space-y-2">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <span className="text-rose-400 uppercase font-bold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+          <div className="p-3.5 rounded-xl bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] space-y-2.5">
+            <div className="flex items-center justify-between text-[13px]">
+              <span className="text-rose-600 dark:text-rose-400 font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-rose-600 animate-ping" />
                 Cascade Timeline
               </span>
-              <span className="text-white font-bold">HOUR {failureStats.hour}:00</span>
+              <span className="text-[#111827] dark:text-[#FAFAFA] font-semibold">T+{failureStats.hour}:00</span>
             </div>
-            <div className="flex items-center justify-between text-xs text-slate-300 font-mono">
-              <span>Affected Citizens:</span>
-              <span className="text-rose-300 font-semibold">
-                {failureStats.affectedPop.toLocaleString()}
+            <div className="flex items-center justify-between text-[13px] text-[#475569] dark:text-[#A1A1AA]">
+              <span>Affected Population:</span>
+              <span className="text-rose-600 dark:text-rose-400 font-semibold">
+                {failureStats.affectedPop.toLocaleString()} citizens
               </span>
             </div>
-            <div className="w-full bg-black/40 h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-[#E5E7EB] dark:bg-[#27272A] h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-rose-500 h-full transition-all duration-200"
+                className="bg-[#2563EB] dark:bg-[#3B82F6] h-full transition-all duration-200"
                 style={{ width: `${(failureStats.hour / 24) * 100}%` }}
               />
             </div>
           </div>
         )}
 
+        {/* Stage 8 — Plan comparison */}
         {currentStage === 8 && planComparison && (
-          <div className="space-y-1.5 pt-1">
-            <div className="text-[10px] font-mono text-slate-400 uppercase">
-              Response Harm Comparison
+          <div className="space-y-2 pt-1">
+            <div className="text-[12px] font-semibold text-[#94A3B8] dark:text-[#71717A] uppercase tracking-wide">
+              Municipal Response Comparison
             </div>
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="grid grid-cols-2 gap-2">
               {planComparison.map((p) => (
                 <div
                   key={p.id}
-                  className={`p-2 rounded-lg border text-xs font-mono flex flex-col justify-between ${
+                  className={`p-2.5 rounded-lg border text-xs flex flex-col justify-between transition-all ${
                     p.isBest
-                      ? "bg-emerald-500/15 border-emerald-400/40 text-emerald-300"
-                      : "bg-white/5 border-white/10 text-slate-400"
+                      ? "bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 border-[#2563EB]/40 dark:border-[#3B82F6]/40 text-[#2563EB] dark:text-[#3B82F6]"
+                      : "bg-[#F7F8FA] dark:bg-[#181B22] border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA]"
                   }`}
                 >
-                  <span className="font-semibold text-[11px] truncate">{p.name}</span>
-                  <span className="text-[10px] opacity-80 mt-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-semibold text-[13px] truncate text-[#111827] dark:text-[#FAFAFA]">{p.name}</span>
+                    {p.isBest && <Check className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6] shrink-0" />}
+                  </div>
+                  <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A] mt-1">
                     Harm: {Math.round(p.harm).toLocaleString()}
                   </span>
                 </div>
@@ -264,8 +338,8 @@ export const GlassPanel: React.FC<GlassPanelProps> = ({
 
         {/* Subtext footer */}
         {stage.subtext && (
-          <div className="pt-2 border-t border-white/10 text-[11px] font-mono text-slate-400 flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+          <div className="pt-3 border-t border-[#E5E7EB] dark:border-[#27272A] text-[13px] text-[#94A3B8] dark:text-[#71717A] flex items-center gap-2 font-normal">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] dark:bg-[#3B82F6]" />
             <span>{stage.subtext}</span>
           </div>
         )}

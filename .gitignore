@@ -18,7 +18,6 @@ dist-ssr
 *.local
 .env*
 !.env.example
-public/cesium/
 
 # Wrangler / Cloudflare
 .wrangler/

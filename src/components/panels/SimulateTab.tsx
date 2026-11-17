@@ -71,21 +71,21 @@ export const SimulateTab: React.FC = () => {
     switch (id) {
       case "pipeline":
       case "pipeline_burst":
-        return <Droplets className="w-4 h-4 text-cyan-400" />;
+        return <Droplets className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />;
       case "monsoon":
       case "monsoon_flood":
-        return <Globe className="w-4 h-4 text-blue-400" />;
+        return <Globe className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />;
       case "heatwave":
       case "heatwave_overload":
-        return <Flame className="w-4 h-4 text-orange-400" />;
+        return <Flame className="w-4 h-4 text-amber-600 dark:text-amber-500" />;
       case "cyber":
       case "cyberattack":
-        return <Zap className="w-4 h-4 text-yellow-400" />;
+        return <Zap className="w-4 h-4 text-amber-600 dark:text-amber-500" />;
       case "quake":
       case "earthquake":
-        return <Shield className="w-4 h-4 text-red-400" />;
+        return <Shield className="w-4 h-4 text-rose-600 dark:text-rose-500" />;
       default:
-        return <Layers className="w-4 h-4 text-cyan-400" />;
+        return <Layers className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />;
     }
   };
 
@@ -108,13 +108,13 @@ export const SimulateTab: React.FC = () => {
     (presetId === "quake" && s.id === "earthquake");
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-[#111827] dark:text-[#FAFAFA] font-sans">
       {/* Disaster Presets */}
       <div>
-        <h3 className="text-xs uppercase font-mono tracking-wider text-muted-foreground mb-3">
+        <h3 className="text-[12px] uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold mb-3">
           1. Select Disaster Scenario
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {scenariosList.map((s) => {
             const isActive = isScenarioActive(s);
             const triggerNodes = s.triggers.map((t: any) => t.node || t);
@@ -122,27 +122,27 @@ export const SimulateTab: React.FC = () => {
               <button
                 key={s.id}
                 onClick={() => selectScenario(s)}
-                className={`flex flex-col text-left p-3 rounded border transition-all ${
+                className={`flex flex-col text-left p-3.5 rounded-lg transition-all cursor-pointer ${
                   isActive
-                    ? "bg-[#252e35] border-[#9BAA76] shadow-sm"
-                    : "bg-[#191F24] hover:bg-[#222a31] border-[#303941]"
+                    ? "bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 border border-[#2563EB] dark:border-[#3B82F6] shadow-xs"
+                    : "bg-white dark:bg-[#181B22] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] hover:border-[#CBD5E1] dark:hover:border-[#3F3F46] shadow-2xs"
                 }`}
               >
                 <div className="flex items-center justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-2">
                     {getPresetIcon(s.id)}
-                    <span className="font-semibold text-sm text-[#e5e9ec]">
+                    <span className="font-semibold text-[14px] text-[#111827] dark:text-[#FAFAFA]">
                       {s.name || s.label}
                     </span>
                   </div>
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#242c33] text-[#8a96a1]">
+                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#111318] border border-[#E5E7EB] dark:border-[#27272A] text-[#94A3B8] dark:text-[#71717A] font-medium">
                     {triggerNodes.length} {triggerNodes.length === 1 ? "trigger" : "triggers"}
                   </span>
                 </div>
-                <p className="text-xs text-[#8a96a1] line-clamp-2">
+                <p className="text-[12px] text-[#475569] dark:text-[#A1A1AA] line-clamp-2 leading-relaxed">
                   {s.summary || s.blurb}
                 </p>
-                <div className="mt-2 text-[10px] font-mono text-[#9BAA76] truncate">
+                <div className="mt-2.5 text-[11px] font-medium text-[#2563EB] dark:text-[#3B82F6] truncate">
                   Triggers: {triggerNodes.map((id: string) => getAssetName(id)).join(", ")}
                 </div>
               </button>
@@ -156,22 +156,22 @@ export const SimulateTab: React.FC = () => {
 
       {/* Manual Triggers Picker */}
       <div>
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xs uppercase font-mono tracking-wider text-muted-foreground">
+        <div className="flex items-center justify-between mb-2.5">
+          <h3 className="text-[12px] uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold">
             2. Or Break Any Individual Node ({triggers.length} currently failed at T+0)
           </h3>
         </div>
-        <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2 bg-muted/20 rounded-xl border border-border">
+        <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2.5 bg-[#F7F8FA] dark:bg-[#111318] rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
           {city.nodes.map((n) => {
             const isTrig = triggers.includes(n.id);
             return (
               <button
                 key={n.id}
                 onClick={() => toggleTrigger(n.id)}
-                className={`text-xs px-2.5 py-1 rounded-lg border font-mono transition-colors ${
+                className={`text-[12px] px-2.5 py-1 rounded-md border transition-colors cursor-pointer ${
                   isTrig
-                    ? "bg-red-500/20 border-red-500 text-red-300 font-bold"
-                    : "bg-card border-border text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300 font-semibold"
+                    : "bg-white dark:bg-[#181B22] border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D]"
                 }`}
               >
                 {n.name}
@@ -181,41 +181,41 @@ export const SimulateTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Requirement 6: Cascade Event Log (T+0 to T+{t}, newest first) */}
+      {/* Cascade Event Log (T+0 to T+{t}, newest first) */}
       {result && Array.isArray(result.events) && (
         <div>
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs uppercase font-mono tracking-wider text-muted-foreground">
+          <div className="flex items-center justify-between mb-2.5">
+            <h3 className="text-[12px] uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold">
               3. Cascade Event Log (T+0 to T+{t}h — {result.events.filter((e) => e.t <= t).length} events)
             </h3>
-            <span className="text-[10px] font-mono text-[#8a96a1]">Newest first</span>
+            <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A]">Newest first</span>
           </div>
-          <div className="max-h-48 overflow-y-auto space-y-1 bg-[#14191d] p-2.5 rounded-lg border border-[#303941]">
+          <div className="max-h-48 overflow-y-auto space-y-1.5 bg-[#F7F8FA] dark:bg-[#111318] p-3 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
             {result.events.filter((e) => e.t <= t).length === 0 ? (
-              <div className="text-xs font-mono text-[#8a96a1] text-center py-2">
+              <div className="text-[12px] text-[#94A3B8] dark:text-[#71717A] text-center py-2">
                 No events recorded up to T+{t}h
               </div>
             ) : (
               [...result.events.filter((e) => e.t <= t)].reverse().map((e, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-2 text-xs font-mono py-1 px-1.5 rounded hover:bg-[#1f272e] transition-colors"
+                  className="flex items-start gap-2.5 text-[12px] py-1 px-2 rounded-md bg-white dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] hover:border-[#CBD5E1] dark:hover:border-[#3F3F46] transition-colors"
                 >
-                  <span className="text-[#9BAA76] shrink-0 font-bold">
+                  <span className="text-[#2563EB] dark:text-[#3B82F6] shrink-0 font-semibold tabular-nums">
                     T+{String(e.t).padStart(2, "0")}h
                   </span>
                   <span
-                    className={`text-[9px] uppercase px-1 py-0.5 rounded font-bold shrink-0 ${
+                    className={`text-[10px] uppercase px-1.5 py-0.2 rounded font-semibold shrink-0 ${
                       e.kind === "trigger"
-                        ? "bg-[#401c1c] text-[#ff8f8f] border border-[#d9534f]/50"
+                        ? "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
                         : e.kind === "cascade"
-                        ? "bg-[#3d2d14] text-[#f6be73] border border-[#e09f3e]/50"
-                        : "bg-[#1f2e1a] text-[#8fae70] border border-[#8fae70]/50"
+                        ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
+                        : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
                     }`}
                   >
                     {e.kind}
                   </span>
-                  <span className="text-[#e5e9ec]">{e.text}</span>
+                  <span className="text-[#475569] dark:text-[#A1A1AA]">{e.text}</span>
                 </div>
               ))
             )}

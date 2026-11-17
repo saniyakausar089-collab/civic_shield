@@ -80,49 +80,50 @@ export const PlansTab: React.FC = () => {
       const match = evaluations.find((e) => e.plan.id === selectedPlanId);
       if (match) return match;
     }
-    return evaluations.find((e) => e.rank === 1) || evaluations[0];
+    // Default to rank 1 actionable plan or first
+    const topActionable = evaluations.find((e) => e.plan.id !== "no_action");
+    return topActionable || evaluations[0];
   }, [evaluations, selectedPlanId]);
 
-  // Chart data: affected_pop over time (0..24) for activeEval vs Baseline
+  // Build 24-hour chart comparison dataset
   const chartData = useMemo(() => {
     if (!activeEval || !baselineEval) return [];
-    const hours = Array.from({ length: 25 }, (_, i) => i);
-    return hours.map((hour) => {
-      const planPop = activeEval.result.frames[hour]?.affected_pop ?? 0;
-      const basePop = baselineEval.result.frames[hour]?.affected_pop ?? 0;
+
+    return Array.from({ length: 25 }, (_, hour) => {
+      const activeFrame = activeEval.simResult.frames[hour];
+      const baselineFrame = baselineEval.simResult.frames[hour];
+
       return {
         hour: `T+${hour}h`,
-        t: hour,
-        [activeEval.plan.name]: planPop,
-        "No action (baseline)": basePop,
+        [activeEval.plan.name]: activeFrame ? activeFrame.affected_pop : 0,
+        "No action (baseline)": baselineFrame ? baselineFrame.affected_pop : 0,
       };
     });
   }, [activeEval, baselineEval]);
 
-  if (!scenario || evaluations.length === 0) {
+  if (!scenario) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center text-xs font-mono text-[#8a96a1] gap-2">
-        <Activity className="w-5 h-5 text-[#9BAA76] animate-pulse" />
-        <span>Evaluating scenario response strategies...</span>
+      <div className="text-center py-12 text-[#94A3B8] dark:text-[#71717A] text-xs">
+        No active disaster scenario selected. Please pick a scenario in the Simulate tab.
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 select-none">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 text-[#111827] dark:text-[#FAFAFA] font-sans">
+      {/* Header Info */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E5E7EB] dark:border-[#27272A] pb-3">
         <div>
-          <h3 className="text-xs uppercase font-mono tracking-wider text-[#8a96a1]">
-            Response Strategy Triage & Optimization
+          <h3 className="text-xs uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold">
+            Municipal Emergency Response Plans
           </h3>
-          <div className="text-[11px] text-[#e5e9ec] font-mono mt-0.5">
-            Scenario: <span className="text-[#9BAA76] font-semibold">{scenario.name}</span>
+          <div className="text-sm text-[#475569] dark:text-[#A1A1AA] mt-0.5">
+            Scenario: <span className="text-[#2563EB] dark:text-[#3B82F6] font-semibold">{scenario.name}</span>
           </div>
         </div>
 
         {appliedPlan && (
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#17252a] border border-[#38bdf8]/60 text-[#38bdf8] text-xs font-mono">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 border border-[#2563EB]/30 dark:border-[#3B82F6]/40 text-[#2563EB] dark:text-[#3B82F6] text-xs font-semibold">
             <Check className="w-3.5 h-3.5" />
             <span>Active: {appliedPlan.name}</span>
           </div>
@@ -142,13 +143,13 @@ export const PlansTab: React.FC = () => {
               onClick={() => setSelectedPlanId(e.plan.id)}
               className={`relative flex flex-col justify-between p-3.5 rounded-xl border transition-all cursor-pointer ${
                 isCardSelected
-                  ? "bg-[#252e35] border-[#9BAA76] shadow-lg ring-1 ring-[#9BAA76]/50"
-                  : "bg-[#191F24] hover:bg-[#20282f] border-[#303941]"
+                  ? "bg-white dark:bg-[#181B22] border-[#2563EB] dark:border-[#3B82F6] shadow-md ring-2 ring-[#2563EB]/20"
+                  : "bg-white dark:bg-[#111318] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] border-[#E5E7EB] dark:border-[#27272A] shadow-xs"
               }`}
             >
               {/* RECOMMENDED badge on Rank 1 */}
               {isRank1 && (
-                <div className="absolute -top-2.5 right-3 bg-gradient-to-r from-[#9BAA76] to-[#b3c58d] text-[#101418] text-[9px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-md">
+                <div className="absolute -top-2.5 right-3 bg-[#2563EB] dark:bg-[#3B82F6] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
                   <Award className="w-3 h-3" />
                   RECOMMENDED
                 </div>
@@ -159,36 +160,36 @@ export const PlansTab: React.FC = () => {
                 <div className="flex items-start justify-between gap-2 mb-1.5">
                   <div className="flex items-center gap-1.5">
                     <span
-                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-mono font-bold ${
+                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold ${
                         isRank1
-                          ? "bg-[#9BAA76] text-[#101418]"
+                          ? "bg-[#2563EB] text-white"
                           : e.plan.id === "no_action"
-                          ? "bg-[#242c33] text-[#8a96a1] border border-[#303941]"
-                          : "bg-[#2c363f] text-[#f1f4f6]"
+                          ? "bg-[#F7F8FA] dark:bg-[#181B22] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A]"
+                          : "bg-[#F7F8FA] dark:bg-[#181B22] text-[#111827] dark:text-[#FAFAFA] border border-[#E5E7EB] dark:border-[#27272A]"
                       }`}
                     >
                       #{e.rank}
                     </span>
-                    <h4 className="font-bold text-xs text-[#f1f4f6] line-clamp-1">
+                    <h4 className="font-semibold text-xs text-[#111827] dark:text-[#FAFAFA] line-clamp-1">
                       {e.plan.name}
                     </h4>
                   </div>
                 </div>
 
                 {/* Summary */}
-                <p className="text-[11px] text-[#8a96a1] line-clamp-2 min-h-[32px] mb-3">
+                <p className="text-[11px] text-[#94A3B8] dark:text-[#71717A] line-clamp-2 min-h-[32px] mb-3">
                   {e.plan.summary}
                 </p>
 
                 {/* Metrics Grid */}
-                <div className="grid grid-cols-3 gap-1.5 text-[10px] font-mono mb-3">
-                  <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33] flex flex-col">
-                    <span className="text-[#8a96a1] text-[9px]">Saved Pop-Hrs</span>
+                <div className="grid grid-cols-3 gap-1.5 text-[10px] mb-3">
+                  <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] flex flex-col">
+                    <span className="text-[#94A3B8] dark:text-[#71717A] text-[9px]">Saved Pop-Hrs</span>
                     <span
-                      className={`font-bold text-xs mt-0.5 ${
+                      className={`font-semibold text-xs mt-0.5 tabular-nums ${
                         e.affected_pop_hours_saved_pct > 0
-                          ? "text-[#9BAA76]"
-                          : "text-[#8a96a1]"
+                          ? "text-[#2563EB] dark:text-[#3B82F6]"
+                          : "text-[#94A3B8] dark:text-[#71717A]"
                       }`}
                     >
                       {e.affected_pop_hours_saved_pct > 0
@@ -197,20 +198,20 @@ export const PlansTab: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33] flex flex-col">
-                    <span className="text-[#8a96a1] text-[9px]">Hosp. Avoided</span>
+                  <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] flex flex-col">
+                    <span className="text-[#94A3B8] dark:text-[#71717A] text-[9px]">Hosp. Avoided</span>
                     <span
-                      className={`font-bold text-xs mt-0.5 ${
-                        e.hospital_hours_saved > 0 ? "text-[#38bdf8]" : "text-[#8a96a1]"
+                      className={`font-semibold text-xs mt-0.5 tabular-nums ${
+                        e.hospital_hours_saved > 0 ? "text-[#2563EB] dark:text-[#3B82F6]" : "text-[#94A3B8] dark:text-[#71717A]"
                       }`}
                     >
                       {e.hospital_hours_saved > 0 ? `+${e.hospital_hours_saved}h` : "0h"}
                     </span>
                   </div>
 
-                  <div className="bg-[#14191d] p-1.5 rounded border border-[#242c33] flex flex-col">
-                    <span className="text-[#8a96a1] text-[9px]">Resources</span>
-                    <span className="font-bold text-xs mt-0.5 text-[#e5e9ec]">
+                  <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] flex flex-col">
+                    <span className="text-[#94A3B8] dark:text-[#71717A] text-[9px]">Resources</span>
+                    <span className="font-semibold text-xs mt-0.5 text-[#111827] dark:text-[#FAFAFA] tabular-nums">
                       {e.resources}
                     </span>
                   </div>
@@ -220,7 +221,7 @@ export const PlansTab: React.FC = () => {
               {/* Action Buttons */}
               <div className="pt-1">
                 {e.plan.id === "no_action" ? (
-                  <div className="w-full py-1.5 text-center text-[11px] font-mono text-[#8a96a1] bg-[#14191d] rounded border border-[#242c33]">
+                  <div className="w-full py-1.5 text-center text-[11px] font-medium text-[#94A3B8] dark:text-[#71717A] bg-[#F7F8FA] dark:bg-[#181B22] rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
                     Baseline Comparison
                   </div>
                 ) : (
@@ -229,15 +230,15 @@ export const PlansTab: React.FC = () => {
                       evt.stopPropagation();
                       applyPlan(e);
                     }}
-                    className={`w-full py-1.5 px-2 rounded text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors ${
+                    className={`w-full py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                       isPlanApplied
-                        ? "bg-[#1f2b23] border border-[#9BAA76]/50 text-[#9BAA76] cursor-default font-mono"
-                        : "bg-[#9BAA76] hover:bg-[#8fa06b] text-[#101418] font-bold shadow"
+                        ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 cursor-default"
+                        : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-xs active:scale-[0.98]"
                     }`}
                   >
                     {isPlanApplied ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-[#9BAA76]" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>Plan Applied</span>
                       </>
                     ) : (
@@ -256,27 +257,27 @@ export const PlansTab: React.FC = () => {
 
       {/* 2. Plan Comparison Chart (selected plan vs No action baseline) */}
       {activeEval && baselineEval && (
-        <div className="bg-[#191F24] p-4 rounded-xl border border-[#303941] space-y-3">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#303941] pb-2">
+        <div className="bg-white dark:bg-[#111318] p-4 rounded-xl border border-[#E5E7EB] dark:border-[#27272A] shadow-xs space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E5E7EB] dark:border-[#27272A] pb-2.5">
             <div>
-              <h4 className="text-xs font-semibold text-[#f1f4f6] flex items-center gap-2">
+              <h4 className="text-xs font-semibold text-[#111827] dark:text-[#FAFAFA] flex items-center gap-2">
                 <span>Impact Trajectory:</span>
-                <span className="text-[#38bdf8] font-mono">{activeEval.plan.name}</span>
-                <span className="text-[#8a96a1] font-normal">vs</span>
-                <span className="text-[#ef4444] font-mono">No Action (Baseline)</span>
+                <span className="text-[#2563EB] dark:text-[#3B82F6]">{activeEval.plan.name}</span>
+                <span className="text-[#94A3B8] dark:text-[#71717A] font-normal">vs</span>
+                <span className="text-rose-600 dark:text-rose-400">No Action (Baseline)</span>
               </h4>
-              <p className="text-[10px] text-[#8a96a1] font-mono mt-0.5">
+              <p className="text-[11px] text-[#94A3B8] dark:text-[#71717A] mt-0.5">
                 Metric: Hourly affected population across 24-hour simulation horizon
               </p>
             </div>
 
-            <div className="text-[11px] font-mono text-[#8a96a1] flex items-center gap-3">
+            <div className="text-[11px] text-[#94A3B8] dark:text-[#71717A] flex items-center gap-3">
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#38bdf8]" />
-                <span className="text-[#e5e9ec]">{activeEval.plan.name}</span>
+                <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB] dark:bg-[#3B82F6]" />
+                <span className="text-[#111827] dark:text-[#FAFAFA] font-semibold">{activeEval.plan.name}</span>
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-0.5 bg-[#ef4444]" />
+                <span className="w-2.5 h-0.5 bg-rose-600 dark:bg-rose-400" />
                 <span>No Action</span>
               </span>
             </div>
@@ -285,30 +286,30 @@ export const PlansTab: React.FC = () => {
           <div className="h-56 w-full pt-1">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#242c33" vertical={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" vertical={false} />
                 <XAxis
                   dataKey="hour"
-                  stroke="#8a96a1"
+                  stroke="#94A3B8"
                   fontSize={10}
                   tickLine={false}
-                  axisLine={{ stroke: "#303941" }}
+                  axisLine={{ stroke: "#E5E7EB" }}
                   interval={3}
                 />
                 <YAxis
-                  stroke="#8a96a1"
+                  stroke="#94A3B8"
                   fontSize={10}
                   tickLine={false}
-                  axisLine={{ stroke: "#303941" }}
+                  axisLine={{ stroke: "#E5E7EB" }}
                   tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
                 />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#14191d",
-                    borderColor: "#303941",
+                    backgroundColor: "#FFFFFF",
+                    borderColor: "#E5E7EB",
                     borderRadius: "8px",
-                    color: "#f1f4f6",
+                    color: "#111827",
                     fontSize: "11px",
-                    fontFamily: "monospace",
+                    boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
                   }}
                   formatter={(value: any, name: any) => [
                     `${Number(value).toLocaleString("en-IN")} affected`,
@@ -318,19 +319,19 @@ export const PlansTab: React.FC = () => {
                 <Line
                   type="monotone"
                   dataKey={activeEval.plan.name}
-                  stroke="#38bdf8"
+                  stroke="#2563EB"
                   strokeWidth={2.5}
                   dot={false}
-                  activeDot={{ r: 5, fill: "#38bdf8" }}
+                  activeDot={{ r: 5, fill: "#2563EB" }}
                 />
                 <Line
                   type="monotone"
                   dataKey="No action (baseline)"
-                  stroke="#ef4444"
+                  stroke="#DC2626"
                   strokeWidth={2}
                   strokeDasharray="4 4"
                   dot={false}
-                  activeDot={{ r: 4, fill: "#ef4444" }}
+                  activeDot={{ r: 4, fill: "#DC2626" }}
                 />
               </LineChart>
             </ResponsiveContainer>

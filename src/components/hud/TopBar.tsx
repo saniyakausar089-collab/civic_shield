@@ -9,7 +9,6 @@ import {
   RotateCcw,
   LogIn,
   LogOut,
-  User as UserIcon,
 } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { PRESETS } from "@/engine/plans";
@@ -29,6 +28,8 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
   const presetId = useAppStore((s) => s.presetId);
   const scenariosData = useAppStore((s) => s.scenariosData);
   const dayNight = useAppStore((s) => s.dayNight);
+  const theme = useAppStore((s) => s.theme);
+  const toggleTheme = useAppStore((s) => s.toggleTheme);
   const activeEngine = useAppStore((s) => s.activeEngine);
   const engineDurationMs = useAppStore((s) => s.engineDurationMs);
   const set = useAppStore((s) => s.set);
@@ -37,7 +38,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
   // Supabase Auth hook
   const { user, profile, isAuthenticated, signOut } = useAuth();
 
-  // Requirement 5: Top bar counters from frame. Before any run, show zeros.
+  // Top bar counters from frame. Before any run, show zeros.
   const frame = result && Array.isArray(result.frames) ? result.frames[t] : null;
 
   const affectedStr = frame ? frame.affected_pop.toLocaleString("en-IN") : "0";
@@ -60,85 +61,87 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
     "Custom Outage";
 
   return (
-    <header className="h-12 w-full bg-[#191F24] border-b border-[#303941] px-3 flex items-center justify-between text-xs text-[#e5e9ec] select-none shrink-0 z-40">
+    <header className="h-14 w-full bg-white dark:bg-[#111318] border-b border-[#E5E7EB] dark:border-[#27272A] px-4 flex items-center justify-between text-xs text-[#111827] dark:text-[#FAFAFA] select-none shrink-0 z-40 shadow-xs font-sans">
       {/* Brand & Scenario info */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3.5">
         <button
           onClick={() => set({ view: "landing" })}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 hover:opacity-85 transition-opacity cursor-pointer"
           title="CIVICSHIELD Digital Twin - Return to Landing"
         >
-          <div className="w-5 h-5 rounded bg-[#9BAA76] flex items-center justify-center text-[#101418] font-bold text-xs">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#2563EB] to-[#1D4ED8] flex items-center justify-center text-white font-semibold text-xs shadow-xs">
             C
           </div>
-          <div className="flex items-center gap-1.5">
-            <span className="font-bold tracking-wider text-sm text-[#f1f4f6]">
-              CIVIC<span className="text-[#9BAA76]">SHIELD</span>
+          <div className="flex items-center gap-2">
+            <span className="font-semibold tracking-tight text-[15px] text-[#111827] dark:text-[#FAFAFA]">
+              Civic<span className="text-[#2563EB] dark:text-[#3B82F6]">Shield</span>
             </span>
-            <span className="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-[#242c33] text-[#8a96a1] border border-[#303941]">
-              SYNTHETIC TWIN
+            <span className="text-[11px] font-normal uppercase px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#181B22] text-[#475569] dark:text-[#A1A1AA] border border-[#E5E7EB] dark:border-[#27272A]">
+              Synthetic Twin
             </span>
           </div>
         </button>
 
-        <div className="h-4 w-px bg-[#303941]" />
+        <div className="h-4 w-px bg-[#E5E7EB] dark:bg-[#27272A]" />
 
         {/* Current Active Scenario */}
-        <div className="hidden md:flex items-center gap-2 bg-[#14191d] px-2.5 py-1 rounded border border-[#303941]">
-          <span className="text-[10px] uppercase font-mono text-[#8a96a1]">Scenario:</span>
-          <span className="font-medium text-[#e5e9ec] truncate max-w-[160px]">
+        <div className="hidden md:flex items-center gap-2 bg-[#F7F8FA] dark:bg-[#181B22] px-3 py-1 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+          <span className="text-[11px] font-medium text-[#475569] dark:text-[#A1A1AA]">Scenario:</span>
+          <span className="font-semibold text-[#111827] dark:text-[#FAFAFA] truncate max-w-[160px]">
             {scenarioTitle}
           </span>
         </div>
 
-        {/* Applied Plan Chip (Phase 4a) */}
+        {/* Applied Plan Chip */}
         {appliedPlan && (
-          <div className="hidden md:flex items-center gap-1.5 bg-[#142328] border border-[#38bdf8]/60 px-2.5 py-1 rounded text-[10px] font-mono shadow-sm animate-in fade-in">
-            <span className="text-[#8a96a1] uppercase">PLAN:</span>
-            <span className="font-semibold text-[#38bdf8] truncate max-w-[160px]">
+          <div className="hidden md:flex items-center gap-1.5 bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 border border-[#2563EB]/30 dark:border-[#3B82F6]/40 px-3 py-1 rounded-lg text-[11px] shadow-2xs animate-in fade-in">
+            <span className="text-[#475569] dark:text-[#A1A1AA] font-medium">PLAN:</span>
+            <span className="font-semibold text-[#2563EB] dark:text-[#3B82F6] truncate max-w-[160px]">
               {appliedPlan.name}
             </span>
           </div>
         )}
 
-        {/* Active Engine Badge (Phase 4C) */}
+        {/* Active Engine Badge */}
         {activeEngine === "cpp" && (
           <div
-            className="hidden sm:flex items-center gap-1.5 bg-[#0f2316] border border-[#22c55e]/60 px-2 py-1 rounded text-[10px] font-mono shadow-sm animate-in fade-in text-[#4ade80]"
+            className="hidden sm:flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg text-[11px] shadow-2xs animate-in fade-in text-emerald-700 dark:text-emerald-400"
             title={`Native C++ Cascade Engine Execution (${engineDurationMs != null ? `${engineDurationMs.toFixed(1)}ms` : "sub-millisecond"})`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] animate-pulse" />
-            <span className="font-bold tracking-tight">ENGINE: C++ NATIVE</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="font-semibold tracking-tight">ENGINE: C++ NATIVE</span>
             {engineDurationMs != null && (
-              <span className="text-[#86efac]/80 font-semibold">{engineDurationMs.toFixed(1)}ms</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-mono text-[10px]">
+                {engineDurationMs < 0.1 ? "<0.1ms" : `${engineDurationMs.toFixed(1)}ms`}
+              </span>
             )}
           </div>
         )}
         {activeEngine === "ts" && (
           <div
-            className="hidden sm:flex items-center gap-1.5 bg-[#1e252d] border border-[#9BAA76]/60 px-2 py-1 rounded text-[10px] font-mono shadow-sm animate-in fade-in text-[#9BAA76]"
+            className="hidden sm:flex items-center gap-1.5 bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] px-2.5 py-1 rounded-lg text-[11px] shadow-2xs animate-in fade-in text-[#475569] dark:text-[#A1A1AA]"
             title="TypeScript Fallback Cascade Engine"
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[#9BAA76]" />
-            <span className="font-bold tracking-tight">ENGINE: TS</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB] dark:bg-[#3B82F6]" />
+            <span className="font-semibold tracking-tight">ENGINE: TS</span>
           </div>
         )}
 
         {/* Current Simulated Time: T+hh:00 / 24h */}
-        <div className="flex items-center gap-1.5 font-mono text-[11px] bg-[#14191d] px-2 py-1 rounded border border-[#303941]">
-          <span className="text-[#9BAA76] font-bold">T+{String(t).padStart(2, "0")}:00</span>
-          <span className="text-[#8a96a1]">/ 24h</span>
+        <div className="flex items-center gap-1.5 text-[12px] bg-[#F7F8FA] dark:bg-[#181B22] px-2.5 py-1 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+          <span className="text-[#2563EB] dark:text-[#3B82F6] font-semibold">T+{String(t).padStart(2, "0")}:00</span>
+          <span className="text-[#94A3B8] dark:text-[#71717A]">/ 24h</span>
         </div>
       </div>
 
-      {/* Center Operational Impact Counters (Requirement 5) */}
-      <div className="flex items-center gap-2 sm:gap-4">
+      {/* Center Operational Impact Counters */}
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
         {/* Affected Population */}
-        <div className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#14191d] border border-[#303941]">
-          <Users className="w-3.5 h-3.5 text-[#8a96a1]" />
+        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] shrink-0 whitespace-nowrap">
+          <Users className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
           <div className="flex items-center gap-1">
-            <span className="hidden sm:inline text-[10px] text-[#8a96a1] uppercase font-mono">Affected:</span>
-            <span className="font-mono font-bold text-[#f1f4f6] tabular-nums">
+            <span className="hidden sm:inline text-[11px] text-[#94A3B8] dark:text-[#71717A] font-medium">Affected:</span>
+            <span className="font-semibold text-[#111827] dark:text-[#FAFAFA] tabular-nums">
               {affectedStr}
             </span>
           </div>
@@ -146,34 +149,34 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
 
         {/* Hospitals Impacted */}
         <div
-          className={`flex items-center gap-1.5 px-2 py-1 rounded border transition-colors ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border shrink-0 whitespace-nowrap transition-colors ${
             hospitalsCount > 0
-              ? "bg-[#401c1c] border-[#d9534f]/60 text-[#ff8f8f]"
-              : "bg-[#14191d] border-[#303941] text-[#e5e9ec]"
+              ? "bg-rose-500/10 border-rose-500/20 text-rose-700 dark:text-rose-400"
+              : "bg-[#F7F8FA] dark:bg-[#181B22] border-[#E5E7EB] dark:border-[#27272A] text-[#111827] dark:text-[#FAFAFA]"
           }`}
         >
-          <Building2 className={`w-3.5 h-3.5 ${hospitalsCount > 0 ? "text-[#d9534f]" : "text-[#8a96a1]"}`} />
+          <Building2 className={`w-3.5 h-3.5 ${hospitalsCount > 0 ? "text-rose-600 dark:text-rose-400" : "text-[#94A3B8] dark:text-[#71717A]"}`} />
           <div className="flex items-center gap-1">
-            <span className="hidden sm:inline text-[10px] text-[#8a96a1] uppercase font-mono">Hospitals:</span>
-            <span className="font-mono font-bold tabular-nums">
-              {hospitalsCount} <span className="text-[10px] text-[#8a96a1] font-normal">/ 2</span>
+            <span className="hidden sm:inline text-[11px] text-[#94A3B8] dark:text-[#71717A] font-medium">Hospitals:</span>
+            <span className="font-semibold tabular-nums whitespace-nowrap">
+              {hospitalsCount} <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A] font-normal">/ 2</span>
             </span>
           </div>
         </div>
 
         {/* Systems Failed */}
         <div
-          className={`flex items-center gap-1.5 px-2 py-1 rounded border transition-colors ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border shrink-0 whitespace-nowrap transition-colors ${
             failedCount > 0
-              ? "bg-[#3d2d14] border-[#e09f3e]/60 text-[#f6be73]"
-              : "bg-[#14191d] border-[#303941] text-[#e5e9ec]"
+              ? "bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400"
+              : "bg-[#F7F8FA] dark:bg-[#181B22] border-[#E5E7EB] dark:border-[#27272A] text-[#111827] dark:text-[#FAFAFA]"
           }`}
         >
-          <AlertTriangle className={`w-3.5 h-3.5 ${failedCount > 0 ? "text-[#e09f3e]" : "text-[#8a96a1]"}`} />
+          <AlertTriangle className={`w-3.5 h-3.5 ${failedCount > 0 ? "text-amber-600 dark:text-amber-400" : "text-[#94A3B8] dark:text-[#71717A]"}`} />
           <div className="flex items-center gap-1">
-            <span className="hidden sm:inline text-[10px] text-[#8a96a1] uppercase font-mono">Failed:</span>
-            <span className="font-mono font-bold tabular-nums">
-              {failedCount} <span className="text-[10px] text-[#8a96a1] font-normal">/ 26</span>
+            <span className="hidden sm:inline text-[11px] text-[#94A3B8] dark:text-[#71717A] font-medium">Failed:</span>
+            <span className="font-semibold tabular-nums whitespace-nowrap">
+              {failedCount} <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A] font-normal">/ 26</span>
             </span>
           </div>
         </div>
@@ -181,24 +184,24 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
 
       {/* Right Controls */}
       <div className="flex items-center gap-2">
-        {/* Real-time Clock & Hyderabad Environmental Factors */}
+        {/* Real-time Clock */}
         <LiveEnvironmentClock />
 
-        <div className="h-4 w-px bg-[#303941] hidden sm:block" />
+        <div className="h-4 w-px bg-[#E5E7EB] dark:bg-[#27272A] hidden sm:block" />
 
         {/* Supabase Authentication Widget */}
         {isAuthenticated && user ? (
           <div className="flex items-center gap-1.5">
             <Link
               to="/login"
-              className="flex items-center gap-1.5 px-2 py-1 rounded bg-[#1e262d] hover:bg-[#28323b] border border-[#303941] text-xs font-mono transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB]/70 dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] text-xs transition-colors"
               title={`Logged in as ${profile?.full_name || user.email}`}
             >
-              <div className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span className="text-[#9BAA76] font-semibold max-w-[80px] sm:max-w-[100px] truncate">
+              <div className="w-2 h-2 rounded-full bg-emerald-500" />
+              <span className="text-[#2563EB] dark:text-[#3B82F6] font-semibold max-w-[80px] sm:max-w-[100px] truncate">
                 {profile?.full_name?.split(" ")[0] || "Operator"}
               </span>
-              <span className="hidden lg:inline text-[9px] px-1 py-0.2 rounded bg-[#2c363f] text-[#8a96a1] uppercase">
+              <span className="hidden lg:inline text-[10px] px-1.5 py-0.2 rounded bg-white dark:bg-[#111318] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A] uppercase">
                 {profile?.role?.replace("_", " ") || "Analyst"}
               </span>
             </Link>
@@ -207,7 +210,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
                 await signOut();
                 window.location.replace("/login");
               }}
-              className="p-1.5 rounded bg-[#242c33] border border-[#303941] text-[#8a96a1] hover:text-rose-400 hover:bg-[#2c363f] transition-colors"
+              className="p-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] text-[#94A3B8] dark:text-[#71717A] hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
               title="Sign Out (Supabase Session)"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -216,7 +219,7 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
         ) : (
           <Link
             to="/login"
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#242c33] hover:bg-[#2e3740] border border-[#303941] text-[#9BAA76] hover:text-[#b4c38d] transition-colors text-xs font-mono"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white transition-colors text-xs font-semibold shadow-xs"
             title="Authenticate with Supabase"
           >
             <LogIn className="w-3.5 h-3.5" />
@@ -224,21 +227,25 @@ export const TopBar: React.FC<TopBarProps> = ({ onToggleLeftPanel, isLeftPanelOp
           </Link>
         )}
 
-        <div className="h-4 w-px bg-[#303941] hidden sm:block" />
+        <div className="h-4 w-px bg-[#E5E7EB] dark:bg-[#27272A] hidden sm:block" />
 
-        {/* Day/Night Basemap Mode */}
+        {/* Dark/Light & Day/Night Mode Toggle */}
         <button
-          onClick={() => set({ dayNight: dayNight === "day" ? "night" : "day" })}
-          className="p-1.5 rounded bg-[#242c33] border border-[#303941] text-[#8a96a1] hover:text-[#f1f4f6] hover:bg-[#2c363f] transition-colors"
-          title="Toggle Day/Night GIS Map Style"
+          onClick={() => toggleTheme()}
+          className="p-1.5 rounded-lg bg-white dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D] transition-colors cursor-pointer"
+          title={theme === "dark" || dayNight === "night" ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
-          {dayNight === "day" ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
+          {theme === "dark" || dayNight === "night" ? (
+            <Sun className="w-3.5 h-3.5 text-amber-400" />
+          ) : (
+            <Moon className="w-3.5 h-3.5 text-[#475569]" />
+          )}
         </button>
 
         {/* Reset Simulation to Hour 0 (Reset T+0) */}
         <button
           onClick={() => resetSim()}
-          className="p-1.5 rounded bg-[#242c33] border border-[#303941] text-[#8a96a1] hover:text-[#f1f4f6] hover:bg-[#2c363f] transition-colors"
+          className="p-1.5 rounded-lg bg-white dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D] transition-colors cursor-pointer"
           title="Reset Simulation (Reset T+0)"
         >
           <RotateCcw className="w-3.5 h-3.5" />

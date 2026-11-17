@@ -501,13 +501,20 @@ export const useAppStore = create<AppStore>((set, get) => ({
   toggleTheme: () =>
     set((s) => {
       const theme = s.theme === "dark" ? "light" : "dark";
+      const dayNight = theme === "dark" ? "night" : "day";
       if (typeof document !== "undefined") {
         document.documentElement.classList.toggle("dark", theme === "dark");
         document.documentElement.classList.toggle("light", theme === "light");
       }
-      return { theme };
+      return { theme, dayNight };
     }),
 }));
+
+if (typeof document !== "undefined") {
+  const initialTheme = useAppStore.getState().theme || "dark";
+  document.documentElement.classList.toggle("dark", initialTheme === "dark");
+  document.documentElement.classList.toggle("light", initialTheme === "light");
+}
 
 if (typeof window !== "undefined") {
   (window as any).__CIVIC_STORE__ = useAppStore;

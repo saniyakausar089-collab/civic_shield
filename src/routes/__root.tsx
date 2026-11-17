@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
 import { AuthProvider } from "@/context/AuthContext";
+import { useAppStore } from "@/store/appStore";
 
 import appCss from "../styles.css?url";
 
@@ -102,6 +103,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 });
 
 function RootShell({ children }: { children: ReactNode }) {
+  const theme = useAppStore((s) => s.theme);
+
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      document.documentElement.classList.toggle("dark", theme === "dark");
+      document.documentElement.classList.toggle("light", theme === "light");
+    }
+  }, [theme]);
+
   useEffect(() => {
     // Register PWA service worker if supported
     if (typeof navigator !== "undefined" && "serviceWorker" in navigator && import.meta.env.PROD) {
@@ -112,7 +122,7 @@ function RootShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className={theme === "light" ? "light" : "dark"}>
       <head>
         <HeadContent />
       </head>

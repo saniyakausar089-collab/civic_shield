@@ -270,22 +270,22 @@ export const ReportTab: React.FC = () => {
     }
   }, [effectiveBaselineResult, scenario, reportFacts, loading]);
 
-  // 1. If no simulation result exists, show prompt (Requirement C)
+  // 1. If no simulation result exists, show prompt
   if (!effectiveBaselineResult) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-center select-none bg-[#14191d]">
-        <div className="w-12 h-12 rounded-full bg-[#242c33] border border-[#303941] flex items-center justify-center mb-3 text-[#9BAA76]">
+      <div className="h-full flex flex-col items-center justify-center p-8 text-center select-none bg-white font-sans">
+        <div className="w-12 h-12 rounded-full bg-[#F7F8F5] border border-[#E5E7EB] flex items-center justify-center mb-3 text-[#0078D4]">
           <FileText className="w-6 h-6" />
         </div>
-        <h3 className="text-sm font-semibold text-[#f1f4f6] mb-1">
+        <h3 className="text-sm font-semibold text-[#111827] mb-1">
           No Simulation Result for {scenario?.name || "Selected Scenario"}
         </h3>
-        <p className="text-xs text-[#8a96a1] max-w-sm mb-4 leading-relaxed font-mono">
+        <p className="text-xs text-[#64748B] max-w-sm mb-4 leading-relaxed">
           Run the cascade simulation first to generate empirical failure facts, impact statistics, and response plan assessments.
         </p>
         <button
           onClick={() => runSim()}
-          className="px-4 py-2 rounded-lg bg-[#9BAA76] hover:bg-[#8fa06b] text-[#101418] font-semibold text-xs flex items-center gap-2 shadow-lg transition-colors font-mono"
+          className="px-4 py-2 rounded-[6px] bg-[#0078D4] hover:bg-[#006CBD] text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
         >
           <Play className="w-3.5 h-3.5 fill-current" />
           <span>Run Simulation First</span>
@@ -295,7 +295,7 @@ export const ReportTab: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-[#14191d] text-[#e5e9ec] select-none text-xs font-sans overflow-hidden">
+    <div className="h-full flex flex-col bg-white text-[#111827] select-none text-xs font-sans overflow-hidden">
       {/* Print Stylesheet: prints ONLY #printable-report on pure white with dark text */}
       <style>{`
         @media print {
@@ -345,21 +345,21 @@ export const ReportTab: React.FC = () => {
       `}</style>
 
       {/* Control Header (no-print) */}
-      <div className="p-3 border-b border-[#303941] bg-[#191F24] flex items-center justify-between gap-3 shrink-0 no-print flex-wrap">
+      <div className="p-3 border-b border-[#E5E7EB] dark:border-[#27272A] bg-white dark:bg-[#111318] flex items-center justify-between gap-3 shrink-0 no-print flex-wrap font-sans">
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 font-semibold text-sm text-[#f1f4f6]">
-            <FileText className="w-4 h-4 text-[#9BAA76]" />
+          <div className="flex items-center gap-1.5 font-semibold text-sm text-[#111827] dark:text-[#FAFAFA]">
+            <FileText className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />
             <span>Incident Report</span>
-            <span className="text-xs text-[#8a96a1] font-mono">({scenario?.name})</span>
+            <span className="text-xs text-[#94A3B8] dark:text-[#71717A] font-normal">({scenario?.name})</span>
           </div>
 
-          {/* Source Badge (Requirement C) */}
+          {/* Source Badge */}
           {narrativeResult && (
             <div className="flex items-center gap-1.5">
               {narrativeResult.source === "claude" ? (
                 narrativeResult.verified ? (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium border bg-emerald-500/20 text-emerald-300 border-emerald-500/40 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                     <span>AI narrative · figures checked</span>
                   </span>
                 ) : (
@@ -370,8 +370,8 @@ export const ReportTab: React.FC = () => {
                         ...(narrativeResult.unverified_terms || []),
                       ];
                       return (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium border bg-amber-500/20 text-amber-300 border-amber-500/40 flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3 text-amber-400" />
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
                           <span>
                             AI narrative · unsupported: {unsupported.join(", ")}
                           </span>
@@ -380,7 +380,7 @@ export const ReportTab: React.FC = () => {
                     })()}
                     <button
                       onClick={handleUseTemplate}
-                      className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#242c33] hover:bg-[#2c363f] text-[#38bdf8] border border-[#3e4a54] transition-colors"
+                      className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] text-[#2563EB] dark:text-[#3B82F6] border border-[#E5E7EB] dark:border-[#27272A] transition-colors cursor-pointer"
                       title="Switch to deterministic template narrative"
                     >
                       Use template instead
@@ -388,8 +388,8 @@ export const ReportTab: React.FC = () => {
                   </div>
                 )
               ) : (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-medium border bg-[#242c33] text-[#8a96a1] border-[#303941] flex items-center gap-1">
-                  <Sparkles className="w-2.5 h-2.5 text-[#9BAA76]" />
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-[#F7F8FA] dark:bg-[#181B22] text-[#94A3B8] dark:text-[#71717A] border-[#E5E7EB] dark:border-[#27272A] flex items-center gap-1">
+                  <Sparkles className="w-2.5 h-2.5 text-[#2563EB] dark:text-[#3B82F6]" />
                   <span>Template narrative</span>
                 </span>
               )}
@@ -397,87 +397,87 @@ export const ReportTab: React.FC = () => {
           )}
 
           {narrativeResult?.error && (
-            <span className="text-[10px] font-mono text-[#e09f3e] italic truncate max-w-xs">
+            <span className="text-[11px] text-amber-600 dark:text-amber-400 italic truncate max-w-xs">
               {narrativeResult.error}
             </span>
           )}
         </div>
 
-        {/* Action Buttons (Requirement C) */}
+        {/* Action Buttons */}
         <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={() => handleGenerateReport(true)}
             disabled={loading}
-            className="px-2.5 py-1.5 rounded bg-[#242c33] hover:bg-[#2c363f] border border-[#303941] text-[#e5e9ec] hover:text-[#f1f4f6] text-xs font-mono flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-[0.98]"
             title="Re-run facts compilation and narrative synthesis"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[#9BAA76]" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[#2563EB] dark:text-[#3B82F6]" : ""}`} />
             <span>{loading ? "Generating..." : "Regenerate"}</span>
           </button>
 
           <button
             onClick={handleCopy}
             disabled={!reportMarkdown}
-            className="px-2.5 py-1.5 rounded bg-[#242c33] hover:bg-[#2c363f] border border-[#303941] text-[#e5e9ec] hover:text-[#f1f4f6] text-xs font-mono flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-[0.98]"
             title="Copy Report as Markdown"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />}
             <span>{copied ? "Copied" : "Copy Markdown"}</span>
           </button>
 
           <button
             onClick={handleDownload}
             disabled={!reportMarkdown}
-            className="px-2.5 py-1.5 rounded bg-[#242c33] hover:bg-[#2c363f] border border-[#303941] text-[#e5e9ec] hover:text-[#f1f4f6] text-xs font-mono flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-[0.98]"
             title="Download .md file"
           >
-            <Download className="w-3.5 h-3.5 text-[#38bdf8]" />
+            <Download className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
             <span className="hidden sm:inline">Download .md</span>
           </button>
 
           <button
             onClick={handlePrint}
             disabled={!reportMarkdown}
-            className="px-2.5 py-1.5 rounded bg-[#242c33] hover:bg-[#2c363f] border border-[#303941] text-[#e5e9ec] hover:text-[#f1f4f6] text-xs font-mono flex items-center gap-1.5 transition-colors disabled:opacity-50"
+            className="px-3.5 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-180 disabled:opacity-50 cursor-pointer shadow-xs active:scale-[0.98]"
             title="Print or Save as PDF"
           >
-            <Printer className="w-3.5 h-3.5 text-[#9BAA76]" />
+            <Printer className="w-3.5 h-3.5" />
             <span>Print / PDF</span>
           </button>
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar font-sans">
         {loading && !reportFacts ? (
-          <div className="h-64 flex flex-col items-center justify-center gap-3 text-center text-[#8a96a1] font-mono">
-            <RefreshCw className="w-6 h-6 animate-spin text-[#9BAA76]" />
+          <div className="h-64 flex flex-col items-center justify-center gap-3 text-center text-[#64748B]">
+            <RefreshCw className="w-6 h-6 animate-spin text-[#0078D4]" />
             <p className="text-xs">Compiling simulation facts and synthesizing incident narrative...</p>
           </div>
         ) : reportFacts && narrativeResult ? (
           <div
             id="printable-report"
-            className="max-w-4xl mx-auto bg-[#191F24] border border-[#303941] rounded-xl p-6 sm:p-8 shadow-xl text-xs space-y-6"
+            className="max-w-4xl mx-auto bg-white dark:bg-[#161a20] border border-[#E5E7EB] dark:border-[#303941] rounded-[8px] p-6 sm:p-8 shadow-xs text-xs space-y-6"
           >
             {/* Report Header */}
-            <div className="border-b border-[#303941] pb-4">
-              <h1 className="text-xl sm:text-2xl font-bold text-[#f1f4f6] tracking-tight">
+            <div className="border-b border-[#E5E7EB] dark:border-[#303941] pb-4">
+              <h1 className="text-xl sm:text-2xl font-semibold text-[#111827] dark:text-[#f1f4f6] tracking-tight">
                 CIVICSHIELD Incident Brief: {reportFacts.scenario.name}
               </h1>
-              <p className="text-xs text-[#8a96a1] font-mono italic mt-1">
+              <p className="text-xs text-[#64748B] dark:text-[#8a96a1] italic mt-1">
                 {reportFacts.testbed}. Narrative:{" "}
                 {narrativeResult.source === "claude" ? "AI-written from engine facts" : "template from engine facts"}.
               </p>
             </div>
 
             {/* Narrative Paragraphs */}
-            <div className="space-y-3 text-xs leading-relaxed text-[#c5cdd4] bg-[#14191d] p-4 rounded-lg border border-[#242c33]">
+            <div className="space-y-3 text-xs leading-relaxed text-[#334155] dark:text-[#d2d8de] bg-[#F7F8F5] dark:bg-[#14191d] p-4 rounded-[6px] border border-[#E5E7EB] dark:border-[#303941]">
               {narrativeResult.narrative.split("\n\n").map((para, idx) => {
                 const match = para.match(/^\*\*([^*]+)\*\*(.*)/s);
                 if (match) {
                   return (
                     <p key={idx}>
-                      <strong className="text-[#f1f4f6] font-semibold">{match[1]}</strong>
+                      <strong className="text-[#111827] dark:text-[#f1f4f6] font-semibold">{match[1]}</strong>
                       <span>{match[2]}</span>
                     </p>
                   );
@@ -488,39 +488,39 @@ export const ReportTab: React.FC = () => {
 
             {/* Key Figures Grid */}
             <div>
-              <h2 className="text-sm font-mono font-semibold text-[#9BAA76] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#303941]">
+              <h2 className="text-xs font-semibold text-[#0078D4] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#E5E7EB]">
                 Key Figures
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div className="bg-[#14191d] p-3 rounded-lg border border-[#242c33]">
-                  <div className="text-[10px] text-[#8a96a1] font-mono uppercase">Peak Affected Residents</div>
-                  <div className="text-base font-bold text-[#f1f4f6] mt-0.5">
+                <div className="bg-[#F7F8F5] p-3.5 rounded-[6px] border border-[#E5E7EB]">
+                  <div className="text-[10px] text-[#64748B] uppercase font-medium">Peak Affected Residents</div>
+                  <div className="text-base font-semibold text-[#111827] mt-0.5 tabular-nums">
                     {reportFacts.display.peak_affected_pop}{" "}
-                    <span className="text-xs font-normal text-[#8a96a1]">
+                    <span className="text-xs font-normal text-[#64748B]">
                       ({reportFacts.headline.peak_affected_pct}%)
                     </span>
                   </div>
-                  <div className="text-[10px] text-[#9BAA76] font-mono mt-1">
+                  <div className="text-[11px] text-[#2563EB] dark:text-[#3B82F6] mt-1 font-medium">
                     Occurs at {reportFacts.display.peak_t}
                   </div>
                 </div>
 
-                <div className="bg-[#14191d] p-3 rounded-lg border border-[#242c33]">
-                  <div className="text-[10px] text-[#8a96a1] font-mono uppercase">Assets Failed by T+{reportFacts.horizon_h}h</div>
-                  <div className="text-base font-bold text-[#f1f4f6] mt-0.5">
+                <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-3.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+                  <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A] uppercase font-medium">Assets Failed by T+{reportFacts.horizon_h}h</div>
+                  <div className="text-base font-semibold text-[#111827] dark:text-[#FAFAFA] mt-0.5 tabular-nums">
                     {reportFacts.display.assets_failed}
                   </div>
-                  <div className="text-[10px] text-[#e09f3e] font-mono mt-1">
+                  <div className="text-[11px] text-amber-600 dark:text-amber-400 mt-1 font-medium">
                     Out of {reportFacts.headline.assets_total} network assets
                   </div>
                 </div>
 
-                <div className="bg-[#14191d] p-3 rounded-lg border border-[#242c33]">
-                  <div className="text-[10px] text-[#8a96a1] font-mono uppercase">Hospitals Offline at Peak</div>
-                  <div className="text-base font-bold text-[#f1f4f6] mt-0.5">
+                <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-3.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+                  <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A] uppercase font-medium">Hospitals Offline at Peak</div>
+                  <div className="text-base font-semibold text-[#111827] dark:text-[#FAFAFA] mt-0.5 tabular-nums">
                     {reportFacts.display.hospitals}
                   </div>
-                  <div className="text-[10px] text-[#d9534f] font-mono mt-1">
+                  <div className="text-[11px] text-rose-600 dark:text-rose-400 mt-1 font-medium">
                     First down: {reportFacts.display.first_hospital_down}
                   </div>
                 </div>
@@ -530,16 +530,16 @@ export const ReportTab: React.FC = () => {
             {/* Timeline Milestones */}
             {reportFacts.timeline.length > 0 && (
               <div>
-                <h2 className="text-sm font-mono font-semibold text-[#9BAA76] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#303941]">
+                <h2 className="text-xs font-semibold text-[#2563EB] dark:text-[#3B82F6] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#E5E7EB] dark:border-[#27272A]">
                   Timeline Milestones
                 </h2>
-                <div className="bg-[#14191d] rounded-lg border border-[#242c33] divide-y divide-[#242c33]">
+                <div className="bg-[#F7F8FA] dark:bg-[#181B22] rounded-lg border border-[#E5E7EB] dark:border-[#27272A] divide-y divide-[#E5E7EB] dark:divide-[#27272A]">
                   {reportFacts.timeline.map((event, idx) => (
-                    <div key={idx} className="p-2.5 flex items-start gap-2.5 font-mono text-xs">
-                      <span className="px-1.5 py-0.5 rounded bg-[#242c33] text-[#38bdf8] border border-[#3e4a54] font-semibold text-[10px] shrink-0">
+                    <div key={idx} className="p-2.5 flex items-start gap-2.5 text-xs">
+                      <span className="px-2 py-0.5 rounded-md bg-white dark:bg-[#111318] text-[#2563EB] dark:text-[#3B82F6] border border-[#E5E7EB] dark:border-[#27272A] font-semibold text-[10px] shrink-0 shadow-2xs">
                         {event.label}
                       </span>
-                      <span className="text-[#c5cdd4] leading-snug">{event.text}</span>
+                      <span className="text-[#475569] dark:text-[#A1A1AA] leading-snug">{event.text}</span>
                     </div>
                   ))}
                 </div>
@@ -549,17 +549,17 @@ export const ReportTab: React.FC = () => {
             {/* Most Affected Neighborhoods */}
             {reportFacts.most_affected_neighborhoods.length > 0 && (
               <div>
-                <h2 className="text-sm font-mono font-semibold text-[#9BAA76] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#303941]">
+                <h2 className="text-xs font-semibold text-[#2563EB] dark:text-[#3B82F6] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#E5E7EB] dark:border-[#27272A]">
                   Most Affected Neighborhoods
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   {reportFacts.most_affected_neighborhoods.map((n, idx) => (
-                    <div key={idx} className="bg-[#14191d] p-3 rounded-lg border border-[#242c33]">
-                      <div className="font-semibold text-sm text-[#f1f4f6] truncate">{n.name}</div>
-                      <div className="mt-1 text-[11px] font-mono text-[#e09f3e]">
+                    <div key={idx} className="bg-[#F7F8FA] dark:bg-[#181B22] p-3.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+                      <div className="font-semibold text-sm text-[#111827] dark:text-[#FAFAFA] truncate">{n.name}</div>
+                      <div className="mt-1 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
                         Peak loss: {n.peak_impact_pct}%
                       </div>
-                      <div className="text-[10px] font-mono text-[#8a96a1] mt-0.5">
+                      <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A] mt-0.5">
                         Pop: {n.population.toLocaleString("en-IN")} · {n.hours_affected}h affected
                       </div>
                     </div>
@@ -571,22 +571,22 @@ export const ReportTab: React.FC = () => {
             {/* Response Plans Compared */}
             {(reportFacts.recommended_plan || reportFacts.other_plans.length > 0) && (
               <div>
-                <h2 className="text-sm font-mono font-semibold text-[#9BAA76] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#303941]">
+                <h2 className="text-xs font-semibold text-[#2563EB] dark:text-[#3B82F6] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#E5E7EB] dark:border-[#27272A]">
                   Response Plans Compared
                 </h2>
                 <div className="space-y-2">
                   {reportFacts.recommended_plan && (
-                    <div className="bg-[#1b261b] border border-[#8fae70]/40 rounded-lg p-3">
+                    <div className="bg-emerald-50/60 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 rounded-lg p-3.5">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="px-2 py-0.5 rounded bg-[#253320] text-[#9BAA76] border border-[#9BAA76]/50 font-mono text-[10px] font-bold">
+                        <span className="px-2 py-0.5 rounded-md bg-[#2563EB] text-white text-[10px] font-semibold">
                           RECOMMENDED
                         </span>
-                        <span className="font-semibold text-sm text-[#f1f4f6]">
+                        <span className="font-semibold text-sm text-[#111827] dark:text-[#FAFAFA]">
                           {reportFacts.recommended_plan.name}
                         </span>
                       </div>
-                      <p className="mt-1 text-xs text-[#c5cdd4]">{reportFacts.recommended_plan.summary}</p>
-                      <div className="mt-2 flex items-center gap-4 text-xs font-mono text-[#8fae70]">
+                      <p className="mt-1 text-xs text-[#475569] dark:text-[#A1A1AA]">{reportFacts.recommended_plan.summary}</p>
+                      <div className="mt-2 flex items-center gap-4 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
                         <span>{reportFacts.recommended_plan.affected_pop_hours_saved_pct}% population-hours saved</span>
                         <span>{reportFacts.recommended_plan.hospital_hours_saved} hospital hours avoided</span>
                       </div>
@@ -594,9 +594,9 @@ export const ReportTab: React.FC = () => {
                   )}
 
                   {reportFacts.other_plans.map((p, idx) => (
-                    <div key={idx} className="bg-[#14191d] border border-[#242c33] rounded-lg p-2.5 flex items-center justify-between gap-3 text-xs flex-wrap">
-                      <span className="font-medium text-[#e5e9ec]">{p.name}</span>
-                      <div className="flex items-center gap-3 font-mono text-[11px] text-[#8a96a1]">
+                    <div key={idx} className="bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] rounded-lg p-2.5 flex items-center justify-between gap-3 text-xs flex-wrap">
+                      <span className="font-semibold text-[#111827] dark:text-[#FAFAFA]">{p.name}</span>
+                      <div className="flex items-center gap-3 text-[11px] text-[#94A3B8] dark:text-[#71717A]">
                         <span>{p.affected_pop_hours_saved_pct}% pop-hours saved</span>
                         <span>{p.hospital_hours_saved}h hospital downtime avoided</span>
                       </div>
@@ -609,17 +609,17 @@ export const ReportTab: React.FC = () => {
             {/* Vulnerability Context */}
             {reportFacts.weak_link_context.trigger_assets.length > 0 && (
               <div>
-                <h2 className="text-sm font-mono font-semibold text-[#9BAA76] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#303941]">
+                <h2 className="text-xs font-semibold text-[#2563EB] dark:text-[#3B82F6] uppercase tracking-wider mb-2.5 pb-1 border-b border-[#E5E7EB] dark:border-[#27272A]">
                   Vulnerability Context
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
                   {reportFacts.weak_link_context.trigger_assets.map((w, idx) => (
-                    <div key={idx} className="bg-[#14191d] p-2.5 rounded-lg border border-[#242c33] font-mono text-xs">
-                      <div className="font-semibold text-[#f1f4f6] truncate">{w.name}</div>
-                      <div className="mt-1 text-[11px] text-[#38bdf8]">
+                    <div key={idx} className="bg-[#F7F8FA] dark:bg-[#181B22] p-3 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-xs">
+                      <div className="font-semibold text-[#111827] dark:text-[#FAFAFA] truncate">{w.name}</div>
+                      <div className="mt-1 text-[11px] font-medium text-[#2563EB] dark:text-[#3B82F6]">
                         Weak-Link Rank #{w.rank} of {reportFacts.headline.assets_total}
                       </div>
-                      <div className="text-[10px] text-[#8a96a1]">Criticality Score: {w.score}</div>
+                      <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A]">Criticality Score: {w.score}</div>
                     </div>
                   ))}
                 </div>
@@ -628,10 +628,10 @@ export const ReportTab: React.FC = () => {
 
             {/* Limitations & Caveats */}
             <div>
-              <h2 className="text-sm font-mono font-semibold text-[#9BAA76] uppercase tracking-wider mb-2 pb-1 border-b border-[#303941]">
-                Limitations & Simulation Caveats
+              <h2 className="text-xs font-semibold text-[#2563EB] dark:text-[#3B82F6] uppercase tracking-wider mb-2 pb-1 border-b border-[#E5E7EB] dark:border-[#27272A]">
+                Limitations &amp; Simulation Caveats
               </h2>
-              <ul className="list-disc list-inside space-y-1 text-xs text-[#8a96a1] leading-relaxed">
+              <ul className="list-disc list-inside space-y-1 text-xs text-[#94A3B8] dark:text-[#71717A] leading-relaxed">
                 {reportFacts.caveats.map((c, idx) => (
                   <li key={idx}>{c}</li>
                 ))}

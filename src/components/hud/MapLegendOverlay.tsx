@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, Layers, ChevronDown, ChevronUp } from "lucide-react";
+import { Layers, ChevronDown, ChevronUp } from "lucide-react";
 import { useAppStore } from "@/store/appStore";
 import { STYLE_LEGEND_CONFIGS } from "../scene/cesiumLegendConfigs";
 
@@ -20,14 +20,14 @@ export const MapLegendOverlay: React.FC = () => {
       <button
         data-testid="gis-legend-collapsed-btn"
         onClick={() => setCollapsed(false)}
-        className="absolute bottom-3 left-3 z-10 bg-[#191F24]/90 hover:bg-[#20282f] backdrop-blur-md border border-[#303941] rounded px-2.5 py-1.5 text-[11px] text-[#e5e9ec] select-none pointer-events-auto shadow-lg flex items-center gap-2 transition-colors font-mono"
+        className="absolute bottom-3 left-3 z-10 bg-white/95 dark:bg-[#111318]/95 hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] rounded-lg px-3 py-1.5 text-[12px] text-[#111827] dark:text-[#FAFAFA] select-none pointer-events-auto shadow-xs flex items-center gap-2 transition-colors cursor-pointer font-sans"
         title="Click to expand GIS Legend"
       >
-        <Layers className="w-3.5 h-3.5 text-[#9BAA76]" />
-        <span className="font-semibold text-[10px] uppercase tracking-wider text-[#8a96a1]">
+        <Layers className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
+        <span className="font-semibold text-[11px] uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A]">
           GIS Legend
         </span>
-        <ChevronUp className="w-3.5 h-3.5 text-[#8a96a1]" />
+        <ChevronUp className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
       </button>
     );
   }
@@ -35,24 +35,24 @@ export const MapLegendOverlay: React.FC = () => {
   return (
     <div
       data-testid="gis-legend-expanded"
-      className="absolute bottom-3 left-3 z-10 bg-[#191F24]/90 backdrop-blur-md border border-[#303941] rounded p-2.5 text-[11px] text-[#e5e9ec] select-none pointer-events-auto shadow-lg max-w-xs space-y-2"
+      className="absolute bottom-3 left-3 z-10 bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] rounded-lg p-3 text-[12px] text-[#111827] dark:text-[#FAFAFA] select-none pointer-events-auto shadow-md max-w-xs space-y-2.5 font-sans"
     >
       {/* Legend Title */}
-      <div className="flex items-center justify-between border-b border-[#303941] pb-1 gap-2">
+      <div className="flex items-center justify-between border-b border-[#E5E7EB] dark:border-[#27272A] pb-2 gap-2">
         <div className="flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-[#9BAA76]" />
-          <span className="font-semibold text-[10px] uppercase font-mono tracking-wider text-[#8a96a1]">
+          <Layers className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
+          <span className="font-semibold text-[11px] uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A]">
             GIS Legend
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[9px] font-mono text-[#9BAA76]">
+          <span className="text-[10px] text-[#2563EB] dark:text-[#3B82F6] font-medium">
             {viewportMode === "cesium" ? "Cesium 3D" : "Twin"}
           </span>
           <button
             data-testid="gis-legend-collapse-btn"
             onClick={() => setCollapsed(true)}
-            className="p-0.5 hover:bg-[#252e35] rounded text-[#8a96a1] hover:text-[#e5e9ec] transition-colors"
+            className="p-0.5 hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] rounded text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] transition-colors cursor-pointer"
             title="Collapse GIS Legend"
           >
             <ChevronDown className="w-3.5 h-3.5" />
@@ -60,111 +60,83 @@ export const MapLegendOverlay: React.FC = () => {
         </div>
       </div>
 
-      {/* Dynamic 3D Tiles Legend (when Cesium is active) */}
+      {/* Network Layers */}
+      <div className="space-y-1.5">
+        <div className="text-[10px] uppercase font-semibold text-[#94A3B8] dark:text-[#71717A]">
+          Network Lifelines
+        </div>
+        <div className="grid grid-cols-2 gap-1 text-[11px]">
+          {[
+            { label: "Power", color: "#d4a359", key: "power" },
+            { label: "Water", color: "#2563EB", key: "water" },
+            { label: "Roads", color: "#94A3B8", key: "roads" },
+            { label: "Telecom", color: "#8b5cf6", key: "telecom" },
+            { label: "Hospitals", color: "#e11d48", key: "hospitals" },
+          ].map((l) => (
+            <button
+              key={l.key}
+              onClick={() => toggleLayer(l.key as any)}
+              className="flex items-center gap-1.5 px-1.5 py-0.5 rounded hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] transition-colors text-left cursor-pointer"
+            >
+              <div
+                className="w-2 h-2 rounded-full shrink-0"
+                style={{
+                  backgroundColor: layers[l.key as keyof typeof layers]
+                    ? l.color
+                    : "#71717A",
+                }}
+              />
+              <span
+                className={
+                  layers[l.key as keyof typeof layers]
+                    ? "text-[#111827] dark:text-[#FAFAFA] font-medium"
+                    : "text-[#94A3B8] dark:text-[#71717A]"
+                }
+              >
+                {l.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Cesium 3D Tile Thematic Legend */}
       {activeCesiumLegend && (
-        <div className="space-y-1.5 pb-2 border-b border-[#303941]">
-          <div className="flex items-center gap-1.5 text-[9px] uppercase font-mono text-[#38bdf8]">
-            <Sparkles className="w-3 h-3" />
-            <span>3D Tiles: {activeCesiumLegend.title}</span>
+        <div className="space-y-1.5 border-t border-[#E5E7EB] dark:border-[#27272A] pt-2">
+          <div className="text-[10px] uppercase font-semibold text-[#94A3B8] dark:text-[#71717A] flex items-center justify-between">
+            <span>{activeCesiumLegend.title}</span>
           </div>
-          <div className="grid grid-cols-2 gap-x-2 gap-y-1 text-[10px]">
-            {activeCesiumLegend.items.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-1.5 truncate">
-                <span
-                  className="w-2.5 h-2.5 rounded-sm shrink-0 border border-white/20"
-                  style={{ backgroundColor: item.color }}
+          <div className="space-y-1 text-[11px]">
+            {activeCesiumLegend.items.map((it, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <div
+                  className="w-3 h-2 rounded-xs shrink-0"
+                  style={{ backgroundColor: it.color }}
                 />
-                <span className="truncate text-[#d2d8de]">{item.label}</span>
+                <span className="text-[#475569] dark:text-[#A1A1AA]">{it.label}</span>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      {/* Infrastructure Asset Status */}
-      <div className="space-y-1">
-        <div className="text-[9px] uppercase font-mono text-[#8a96a1]">Asset Status</div>
-        <div className="grid grid-cols-3 gap-1 text-[10px]">
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-sm bg-[#5c7356] border border-[#7a9a7a]" />
-            <span className="text-[#8fae70]">Normal</span>
+      {/* Node Status Legend */}
+      <div className="space-y-1 border-t border-[#E5E7EB] dark:border-[#27272A] pt-2 text-[10px]">
+        <div className="font-semibold text-[#94A3B8] dark:text-[#71717A] uppercase">Node Status</div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-emerald-500" />
+            <span className="text-[#475569] dark:text-[#A1A1AA]">Normal</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-sm bg-[#e09f3e] border border-[#f6be73]" />
-            <span className="text-[#e09f3e]">Degraded</span>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-amber-500" />
+            <span className="text-[#475569] dark:text-[#A1A1AA]">Stressed</span>
           </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-sm bg-[#d9534f] border border-[#ff8f8f]" />
-            <span className="text-[#ff8f8f]">Failed</span>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 rounded-full bg-rose-500" />
+            <span className="text-[#475569] dark:text-[#A1A1AA]">Failed</span>
           </div>
         </div>
-      </div>
-
-      {/* Utility Network Lines (Interactive Toggles) */}
-      <div className="space-y-1 pt-1 border-t border-[#303941]">
-        <div className="flex items-center justify-between text-[9px] uppercase font-mono text-[#8a96a1]">
-          <span>Utility Networks</span>
-          <span className="text-[8px] text-[#616e79]">(click to toggle)</span>
-        </div>
-        <div className="grid grid-cols-2 gap-1 text-[10px]">
-          <button
-            type="button"
-            onClick={() => toggleLayer("power")}
-            className={`flex items-center gap-1.5 p-1 rounded hover:bg-[#242c33] transition-colors text-left ${
-              layers.power ? "opacity-100" : "opacity-40"
-            }`}
-            title={layers.power ? "Click to hide Power Grid" : "Click to show Power Grid"}
-          >
-            <div className="w-3 h-0.5 bg-[#f5b942]" />
-            <span className={layers.power ? "text-[#e5e9ec]" : "text-[#8a96a1] line-through"}>
-              Power Grid
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => toggleLayer("water")}
-            className={`flex items-center gap-1.5 p-1 rounded hover:bg-[#242c33] transition-colors text-left ${
-              layers.water ? "opacity-100" : "opacity-40"
-            }`}
-            title={layers.water ? "Click to hide Water Mains" : "Click to show Water Mains"}
-          >
-            <div className="w-3 h-0.5 bg-[#4fb3e8]" />
-            <span className={layers.water ? "text-[#e5e9ec]" : "text-[#8a96a1] line-through"}>
-              Water Mains
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => toggleLayer("roads")}
-            className={`flex items-center gap-1.5 p-1 rounded hover:bg-[#242c33] transition-colors text-left ${
-              layers.roads ? "opacity-100" : "opacity-40"
-            }`}
-            title={layers.roads ? "Click to hide Transport Routes" : "Click to show Transport Routes"}
-          >
-            <div className="w-3 h-0.5 bg-[#e5e7eb]" />
-            <span className={layers.roads ? "text-[#e5e9ec]" : "text-[#8a96a1] line-through"}>
-              Transport Route
-            </span>
-          </button>
-          <button
-            type="button"
-            onClick={() => toggleLayer("telecom")}
-            className={`flex items-center gap-1.5 p-1 rounded hover:bg-[#242c33] transition-colors text-left ${
-              layers.telecom ? "opacity-100" : "opacity-40"
-            }`}
-            title={layers.telecom ? "Click to hide Telecom Links" : "Click to show Telecom Links"}
-          >
-            <div className="w-3 h-0.5 bg-[#9aa7b8]" />
-            <span className={layers.telecom ? "text-[#e5e9ec]" : "text-[#8a96a1] line-through"}>
-              Telecom Link
-            </span>
-          </button>
-        </div>
-      </div>
-
-      {/* Ground Truth Label */}
-      <div className="text-[9px] text-[#616e79] pt-1 border-t border-[#303941] leading-tight">
-        Synthetic interdependent utility network over metric 3D geospatial terrain.
       </div>
     </div>
   );

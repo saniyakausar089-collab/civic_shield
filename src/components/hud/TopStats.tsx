@@ -5,7 +5,8 @@ import { useAppStore, currentSnapshot } from "@/store/appStore";
 export const TopStats: React.FC = () => {
   const result = useAppStore((s) => s.result);
   const hour = useAppStore((s) => s.hour);
-  const dayNight = useAppStore((s) => s.dayNight);
+  const toggleTheme = useAppStore((s) => s.toggleTheme);
+  const theme = useAppStore((s) => s.theme);
   const set = useAppStore((s) => s.set);
   const snap = currentSnapshot(result, hour);
 
@@ -23,12 +24,12 @@ export const TopStats: React.FC = () => {
           </span>
         </div>
         <button
-          onClick={() => set({ dayNight: dayNight === "day" ? "night" : "day" })}
+          onClick={() => toggleTheme()}
           className="p-1 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
           title="Toggle Day/Night"
           aria-label="Toggle Day/Night"
         >
-          {dayNight === "day" ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+          {theme === "dark" ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4" />}
         </button>
       </div>
 
