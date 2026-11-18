@@ -57,7 +57,7 @@ export const TopBar: React.FC<TopBarProps> = () => {
     "Custom Outage";
 
   return (
-    <header className="h-14 w-full bg-[var(--surface)]/90 backdrop-blur-md border-b border-[var(--border)] px-4 sm:px-6 flex items-center justify-between text-xs text-[var(--text)] select-none shrink-0 z-40 transition-colors">
+    <header className="h-14 w-full bg-[var(--surface-1)] border-b border-[var(--border-subtle)] px-4 sm:px-6 flex items-center justify-between text-xs text-[var(--text-primary)] select-none shrink-0 z-40 transition-colors">
       {/* Zone 1: Left — Brand + Synthetic Twin Tag */}
       <div className="flex items-center gap-3 shrink-0">
         <button
@@ -65,25 +65,25 @@ export const TopBar: React.FC<TopBarProps> = () => {
           className="flex items-center gap-2 hover:opacity-85 transition-opacity cursor-pointer group"
           title="Return to Landing"
         >
-          <div className="w-6 h-6 rounded-full bg-[var(--accent)] flex items-center justify-center text-[var(--accent-foreground)] font-semibold text-[11px] shadow-xs">
+          <div className="w-6 h-6 rounded-md bg-[var(--surface-3)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-primary)] font-semibold text-[11px]">
             C
           </div>
-          <span className="font-semibold text-[15px] tracking-tight text-[var(--text)]">
-            Civic<span className="text-[var(--accent)]">Shield</span>
+          <span className="font-semibold text-[15px] tracking-tight text-[var(--text-primary)]">
+            Civic<span className="text-[var(--text-secondary)]">Shield</span>
           </span>
         </button>
 
-        <span className="hidden sm:inline-flex items-center text-[11px] font-medium text-[var(--text-tertiary)] bg-[var(--surface-2)] border border-[var(--border)] px-2.5 py-0.5 rounded-full">
+        <span className="hidden sm:inline-flex items-center text-[11px] font-medium text-[var(--text-secondary)] bg-[var(--surface-3)] border border-[var(--border-subtle)] px-2.5 py-0.5 rounded-full">
           Synthetic Twin
         </span>
 
-        {/* Quiet Engine Chip */}
+        {/* Quiet Engine Chip (Neutral Surface-3 + Static Dot) */}
         {activeEngine === "cpp" && (
           <span
-            className="hidden lg:inline-flex items-center gap-1 text-[10.5px] font-medium text-[var(--status-success)] bg-[var(--surface-2)] border border-[var(--border)] px-2 py-0.5 rounded-full tabular-nums"
+            className="hidden lg:inline-flex items-center gap-1.5 text-[11px] font-medium text-[var(--text-secondary)] bg-[var(--surface-3)] border border-[var(--border-subtle)] px-2.5 py-0.5 rounded-full tabular-nums"
             title={`Native C++ Cascade Engine (${engineDurationMs != null ? `${engineDurationMs.toFixed(1)}ms` : "sub-ms"})`}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-success)]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-normal)] shrink-0" />
             C++
           </span>
         )}
@@ -94,15 +94,15 @@ export const TopBar: React.FC<TopBarProps> = () => {
         {/* Scenario Name */}
         <div className="flex items-center gap-1.5">
           <span className="text-[var(--text-tertiary)] text-[12px]">Scenario:</span>
-          <span className="font-semibold text-[var(--text)] truncate max-w-[170px]">
+          <span className="font-semibold text-[var(--text-primary)] truncate max-w-[170px]">
             {scenarioTitle}
           </span>
         </div>
 
         {appliedPlan && (
           <>
-            <span className="text-[var(--border)] select-none">|</span>
-            <div className="flex items-center gap-1">
+            <span className="text-[var(--border-subtle)] select-none">|</span>
+            <div className="flex items-center gap-1.5">
               <span className="text-[var(--text-tertiary)] text-[12px]">Plan:</span>
               <span className="font-medium text-[var(--accent)] truncate max-w-[140px]">
                 {appliedPlan.name}
@@ -111,43 +111,45 @@ export const TopBar: React.FC<TopBarProps> = () => {
           </>
         )}
 
-        <span className="text-[var(--border)] select-none">|</span>
+        <span className="text-[var(--border-subtle)] select-none">|</span>
 
         {/* Time */}
         <div className="flex items-center gap-1 tabular-nums">
-          <span className="font-medium text-[var(--accent)]">
+          <span className="font-semibold text-[var(--text-primary)]">
             T+{String(t).padStart(2, "0")}:00
           </span>
           <span className="text-[var(--text-tertiary)] text-[11px]">/ 24h</span>
         </div>
 
-        <span className="text-[var(--border)] select-none">|</span>
+        <span className="text-[var(--border-subtle)] select-none">|</span>
 
         {/* Affected */}
-        <div className="flex items-center gap-1 tabular-nums">
+        <div className="flex items-center gap-1.5 tabular-nums">
           <span className="text-[var(--text-tertiary)] text-[12px]">Affected:</span>
-          <span className={`font-semibold ${frame && frame.affected_pop > 0 ? "text-[var(--text)]" : "text-[var(--text-secondary)]"}`}>
+          <span className="font-semibold text-[var(--text-primary)]">
             {affectedStr}
           </span>
         </div>
 
-        <span className="text-[var(--border)] select-none">|</span>
+        <span className="text-[var(--border-subtle)] select-none">|</span>
 
         {/* Hospitals */}
-        <div className="flex items-center gap-1 tabular-nums">
+        <div className="flex items-center gap-1.5 tabular-nums">
           <span className="text-[var(--text-tertiary)] text-[12px]">Hospitals:</span>
-          <span className={`font-semibold ${hospitalsCount > 0 ? "text-[var(--status-danger)]" : "text-[var(--text-secondary)]"}`}>
+          <span className={`font-semibold flex items-center gap-1 ${hospitalsCount > 0 ? "text-[var(--status-failed)]" : "text-[var(--text-primary)]"}`}>
+            {hospitalsCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-failed)] shrink-0" />}
             {hospitalsCount}
             <span className="text-[var(--text-tertiary)] font-normal text-[11px]">/2</span>
           </span>
         </div>
 
-        <span className="text-[var(--border)] select-none">|</span>
+        <span className="text-[var(--border-subtle)] select-none">|</span>
 
         {/* Failed */}
-        <div className="flex items-center gap-1 tabular-nums">
+        <div className="flex items-center gap-1.5 tabular-nums">
           <span className="text-[var(--text-tertiary)] text-[12px]">Failed:</span>
-          <span className={`font-semibold ${failedCount > 0 ? "text-[var(--status-warning)]" : "text-[var(--text-secondary)]"}`}>
+          <span className={`font-semibold flex items-center gap-1 ${failedCount > 0 ? "text-[var(--status-degraded)]" : "text-[var(--text-primary)]"}`}>
+            {failedCount > 0 && <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-degraded)] shrink-0" />}
             {failedCount}
             <span className="text-[var(--text-tertiary)] font-normal text-[11px]">/26</span>
           </span>
@@ -159,18 +161,18 @@ export const TopBar: React.FC<TopBarProps> = () => {
         {/* Environmental Clock Telemetry */}
         <LiveEnvironmentClock />
 
-        <div className="h-4 w-px bg-[var(--border)] mx-0.5 hidden sm:block" />
+        <div className="h-4 w-px bg-[var(--border-subtle)] mx-0.5 hidden sm:block" />
 
         {/* Supabase User Pill */}
         {isAuthenticated && user ? (
           <div className="flex items-center gap-1.5">
             <Link
               to="/login"
-              className="flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] text-[12px] text-[var(--text)] transition-colors"
+              className="flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--surface-3)] hover:bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[12px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
               title={`Logged in as ${profile?.full_name || user.email}`}
             >
-              <div className="w-1.5 h-1.5 rounded-full bg-[var(--status-success)]" />
-              <span className="font-medium text-[var(--accent)] max-w-[85px] sm:max-w-[105px] truncate">
+              <div className="w-1.5 h-1.5 rounded-full bg-[var(--status-good)] shrink-0" />
+              <span className="font-medium text-[var(--text-primary)] max-w-[85px] sm:max-w-[105px] truncate">
                 {profile?.full_name?.split(" ")[0] || "Operator"}
               </span>
               <span className="hidden xl:inline text-[10px] text-[var(--text-tertiary)] uppercase font-semibold">
@@ -182,7 +184,7 @@ export const TopBar: React.FC<TopBarProps> = () => {
                 await signOut();
                 window.location.replace("/login");
               }}
-              className="w-8 h-8 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-tertiary)] hover:text-[var(--status-danger)] flex items-center justify-center transition-colors cursor-pointer"
+              className="w-8 h-8 rounded-full bg-transparent hover:bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[var(--text-tertiary)] hover:text-[var(--status-failed)] flex items-center justify-center transition-colors cursor-pointer"
               title="Sign Out"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -191,7 +193,7 @@ export const TopBar: React.FC<TopBarProps> = () => {
         ) : (
           <Link
             to="/login"
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--accent)] hover:opacity-90 text-[var(--accent-foreground)] transition-opacity text-xs font-semibold"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--surface-3)] hover:bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[var(--text-primary)] transition-colors text-xs font-medium"
             title="Authenticate with Supabase"
           >
             <LogIn className="w-3.5 h-3.5" />
@@ -202,21 +204,21 @@ export const TopBar: React.FC<TopBarProps> = () => {
         {/* Theme Toggle (Sun / Moon) */}
         <button
           onClick={() => toggleTheme()}
-          className="w-8 h-8 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text)] flex items-center justify-center transition-colors cursor-pointer"
+          className="w-8 h-8 rounded-full bg-transparent hover:bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer"
           title={theme === "dark" || dayNight === "night" ? "Switch to Light Mode" : "Switch to Dark Mode"}
           aria-label="Toggle theme"
         >
           {theme === "dark" || dayNight === "night" ? (
-            <Sun className="w-3.5 h-3.5 text-[var(--status-warning)]" />
+            <Sun className="w-3.5 h-3.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)]" />
           ) : (
-            <Moon className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
+            <Moon className="w-3.5 h-3.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)]" />
           )}
         </button>
 
         {/* Reset Simulation to Hour 0 */}
         <button
           onClick={() => resetSim()}
-          className="w-8 h-8 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text)] flex items-center justify-center transition-colors cursor-pointer"
+          className="w-8 h-8 rounded-full bg-transparent hover:bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer"
           title="Reset Simulation (Hour 0)"
           aria-label="Reset simulation"
         >

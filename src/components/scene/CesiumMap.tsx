@@ -34,8 +34,10 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const layerRef = useRef<CivicShieldLayer | null>(null);
   const tilesetRef = useRef<Cesium.Cesium3DTileset | null>(null);
+  const imageryLayerRef = useRef<Cesium.ImageryLayer | null>(null);
 
   // Zustand Store
+  const theme = useAppStore((s) => s.theme);
   const layers = useAppStore((s) => s.layers);
   const cesiumBuildingStyle = useAppStore((s) => s.cesiumBuildingStyle);
   const selectedGisNode = useAppStore((s) => s.selectedGisNode);
@@ -107,6 +109,13 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
         credit: "Esri, Maxar",
       });
       const esriImageryLayer = new Cesium.ImageryLayer(esriImageryProvider);
+
+      // Calibrate base imagery so GIS vectors stand out cleanly
+      const isDark = useAppStore.getState().theme !== "light";
+      esriImageryLayer.saturation = isDark ? 0.55 : 0.8;
+      esriImageryLayer.brightness = isDark ? 0.8 : 0.95;
+      esriImageryLayer.contrast = isDark ? 1.05 : 1.0;
+      imageryLayerRef.current = esriImageryLayer;
 
       esriImageryLayer.errorEvent.addEventListener((err: any) => {
         console.warn("[CIVICSHIELD] Base imagery tile loading error:", err);
@@ -300,7 +309,17 @@ export const CesiumMap: React.FC<CesiumMapProps> = ({ resetSignal }) => {
     };
   }, [flyToHyderabad]);
 
-  // 2. React to resetSignal
+  // 2. React to theme changes for satellite imagery calibration
+  useEffect(() => {
+    if (imageryLayerRef.current) {
+      const isDark = theme !== "light";
+      imageryLayerRef.current.saturation = isDark ? 0.55 : 0.8;
+      imageryLayerRef.current.brightness = isDark ? 0.8 : 0.95;
+      imageryLayerRef.current.contrast = isDark ? 1.05 : 1.0;
+    }
+  }, [theme]);
+
+  // 3. React to resetSignal
   useEffect(() => {
     if (layerRef.current) {
       layerRef.current.resetAll();

@@ -9,6 +9,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
+    "verify": "node scripts/validate-data.mjs && node scripts/test-engine.mjs && node scripts/test-plans.mjs && node scripts/test-weaklinks.mjs && node scripts/test-surrogate.mjs && node scripts/test-report.mjs && vitest run",
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",

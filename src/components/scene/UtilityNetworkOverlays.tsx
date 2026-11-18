@@ -25,18 +25,18 @@ interface UtilityNetworkProps {
  * - Failed connection: Distinct muted red (#d9534f)
  */
 function getUtilityColor(layer: SystemLayer, isFailed: boolean): string {
-  if (isFailed) return "#d9534f";
+  if (isFailed) return "#F0524A";
   switch (layer) {
     case "power":
-      return "#d4a359";
+      return "#C9B27A";
     case "water":
-      return "#5c8ca3";
+      return "#6FA8B8";
     case "transport":
-      return "#6f7881";
+      return "#BFC3CB";
     case "telecom":
-      return "#837d99";
+      return "#8A90A0";
     default:
-      return "#718096";
+      return "#BFC3CB";
   }
 }
 

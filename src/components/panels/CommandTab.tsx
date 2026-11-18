@@ -5,12 +5,10 @@ import {
   applyMods,
   resilienceScore,
   optimizeBudget,
-  UPGRADES,
   type CityMod,
 } from "@/engine/analysis";
-import { runSim } from "@/engine/sim";
 import { useAppStore } from "@/store/appStore";
-import { ShieldCheck, Plus, Trash2, Cpu, Wrench, Sparkles, Check } from "lucide-react";
+import { ShieldCheck, Plus, Trash2, Wrench, Sparkles } from "lucide-react";
 
 export const CommandTab: React.FC = () => {
   const actionIds = useAppStore((s) => s.actionIds);
@@ -62,15 +60,15 @@ export const CommandTab: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-[var(--text-primary)] font-sans">
       {/* Top Banner: Resilience Gauge */}
-      <div className="apple-card p-5 rounded-[20px] flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="p-4 rounded-[12px] bg-[var(--surface-1)] border border-[var(--border-subtle)] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           {/* Radial Circular Gauge */}
           <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
               <path
-                className="text-[var(--border)]"
+                className="text-[var(--border-subtle)]"
                 strokeWidth="3.5"
                 stroke="currentColor"
                 fill="none"
@@ -87,7 +85,7 @@ export const CommandTab: React.FC = () => {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xl font-bold tabular-nums text-[var(--text)] leading-none">
+              <span className="text-xl font-bold tabular-nums text-[var(--text-primary)] leading-none">
                 {currentScore}
               </span>
               <span className="text-[9px] uppercase font-semibold text-[var(--text-tertiary)]">/ 100</span>
@@ -97,9 +95,10 @@ export const CommandTab: React.FC = () => {
           <div>
             <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[var(--accent)]" />
-              <h3 className="font-semibold text-[var(--text)] text-sm">City Resilience Score</h3>
+              <h3 className="font-semibold text-[var(--text-primary)] text-sm">City Resilience Score</h3>
               {currentScore > baseScore && (
-                <span className="text-[10.5px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-[var(--status-success)] border border-emerald-500/20 font-semibold tabular-nums">
+                <span className="ops-chip text-[10.5px] text-[var(--status-good)] font-semibold tabular-nums">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-good)]" />
                   +{currentScore - baseScore} from baseline
                 </span>
               )}
@@ -115,45 +114,41 @@ export const CommandTab: React.FC = () => {
       {/* Emergency Command Panel */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <div className="apple-eyebrow">
+          <div className="ops-eyebrow">
             Emergency Command Actions
           </div>
           <span className="text-xs text-[var(--text-tertiary)]">
-            Active: <span className="font-semibold text-[var(--accent)]">{actionIds.length} deployed</span>
+            Active: <span className="font-semibold text-[var(--accent)] tabular-nums">{actionIds.length} deployed</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {COMMAND_ACTIONS.map((action) => {
             const isDeployed = actionIds.includes(action.id);
             return (
               <button
                 key={action.id}
                 onClick={() => toggleAction(action.id)}
-                className={`p-4 rounded-[20px] border text-left flex items-start gap-3.5 transition-all duration-200 cursor-pointer ${
+                className={`p-3.5 rounded-[12px] border text-left flex items-start gap-3 transition-colors cursor-pointer ${
                   isDeployed
-                    ? "bg-[var(--accent-tint)] border-[var(--accent)] shadow-xs"
-                    : "bg-[var(--surface)] hover:bg-[var(--surface-2)] border-[var(--border)] hover:-translate-y-0.5"
+                    ? "bg-[var(--surface-2)] border-[var(--accent)]"
+                    : "bg-[var(--surface-1)] hover:bg-[var(--surface-2)] border-[var(--border-subtle)]"
                 }`}
               >
-                <div
-                  className={`text-xl p-2 rounded-lg shrink-0 ${
-                    isDeployed ? "bg-[#2563EB]/15 dark:bg-[#3B82F6]/20" : "bg-[#F7F8FA] dark:bg-[#111318]"
-                  }`}
-                >
+                <div className="text-xl p-2 rounded-[8px] bg-[var(--surface-3)] shrink-0">
                   {action.icon}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="font-semibold text-xs text-[#111827] dark:text-[#FAFAFA]">{action.label}</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#111318] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A]">
+                    <span className="font-semibold text-xs text-[var(--text-primary)]">{action.label}</span>
+                    <span className="ops-chip text-[10px]">
                       Cost: {action.cost} crew
                     </span>
                   </div>
-                  <p className="text-xs text-[#475569] dark:text-[#A1A1AA]">{action.effect}</p>
-                  <div className="mt-2 text-[10px] text-[#2563EB] dark:text-[#3B82F6] flex items-center justify-between">
+                  <p className="text-xs text-[var(--text-secondary)] leading-relaxed">{action.effect}</p>
+                  <div className="mt-2 text-[10px] text-[var(--text-tertiary)] flex items-center justify-between">
                     <span>Delay: T+{action.delayHours}h</span>
-                    <span className={isDeployed ? "text-[#2563EB] dark:text-[#3B82F6] font-semibold" : "text-[#94A3B8] dark:text-[#71717A]"}>
+                    <span className={isDeployed ? "text-[var(--accent)] font-semibold" : "text-[var(--text-tertiary)]"}>
                       {isDeployed ? "● DEPLOYED" : "○ STANDBY"}
                     </span>
                   </div>
@@ -165,11 +160,11 @@ export const CommandTab: React.FC = () => {
       </div>
 
       {/* What-If Infrastructure Builder */}
-      <div className="p-4 rounded-lg bg-white dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A]">
+      <div className="p-4 rounded-[12px] bg-[var(--surface-1)] border border-[var(--border-subtle)]">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Wrench className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />
-            <h3 className="text-xs uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold">
+            <Wrench className="w-4 h-4 text-[var(--accent)]" />
+            <h3 className="text-xs uppercase tracking-wider text-[var(--text-tertiary)] font-semibold">
               What-If Infrastructure Builder
             </h3>
           </div>
@@ -178,14 +173,14 @@ export const CommandTab: React.FC = () => {
               onClick={() => {
                 cityMods.forEach((m) => removeMod(m.label));
               }}
-              className="text-xs text-red-400 hover:text-red-300 underline font-mono"
+              className="text-xs text-[var(--status-failed)] hover:underline font-mono"
             >
               Reset all mods
             </button>
           )}
         </div>
 
-        <p className="text-xs text-muted-foreground mb-3">
+        <p className="text-xs text-[var(--text-secondary)] mb-3 leading-relaxed">
           Simulate hardening the city with physical redundancy and backup systems before a disaster strikes.
         </p>
 
@@ -195,15 +190,15 @@ export const CommandTab: React.FC = () => {
             return (
               <div
                 key={opt.label}
-                className={`p-3 rounded-xl border flex items-center justify-between gap-2 transition-all ${
+                className={`p-3 rounded-[12px] border flex items-center justify-between gap-2 transition-colors ${
                   isInstalled
-                    ? "bg-emerald-950/20 border-emerald-500/50"
-                    : "bg-muted/20 border-border"
+                    ? "bg-[var(--surface-2)] border-[var(--accent)]"
+                    : "bg-[var(--surface-2)] border-[var(--border-subtle)]"
                 }`}
               >
                 <div>
-                  <div className="font-semibold text-xs text-foreground">{opt.label}</div>
-                  <div className="text-[11px] text-muted-foreground">{opt.description}</div>
+                  <div className="font-semibold text-xs text-[var(--text-primary)]">{opt.label}</div>
+                  <div className="text-[11px] text-[var(--text-secondary)]">{opt.description}</div>
                 </div>
                 <button
                   onClick={() => {
@@ -213,10 +208,10 @@ export const CommandTab: React.FC = () => {
                       addMod(opt.mod);
                     }
                   }}
-                  className={`p-2 rounded-xl text-xs font-semibold shrink-0 transition-colors ${
+                  className={`p-1.5 rounded-[6px] text-xs font-semibold shrink-0 transition-colors ${
                     isInstalled
-                      ? "bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30"
-                      : "bg-secondary text-secondary-foreground hover:bg-muted"
+                      ? "bg-[var(--surface-3)] text-[var(--status-failed)] hover:bg-[var(--surface-1)]"
+                      : "ops-btn-secondary"
                   }`}
                 >
                   {isInstalled ? <Trash2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
@@ -228,17 +223,17 @@ export const CommandTab: React.FC = () => {
       </div>
 
       {/* Budget Optimizer */}
-      <div className="p-4 rounded-2xl bg-muted/20 border border-border">
+      <div className="p-4 rounded-[12px] bg-[var(--surface-1)] border border-[var(--border-subtle)]">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <h3 className="text-xs uppercase font-mono tracking-wider text-muted-foreground">
+            <Sparkles className="w-4 h-4 text-[var(--accent)]" />
+            <h3 className="text-xs uppercase font-mono tracking-wider text-[var(--text-tertiary)]">
               Automated Budget Optimizer
             </h3>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-muted-foreground">
-              Budget: <strong className="text-foreground">{budget} units</strong>
+            <span className="text-xs font-mono text-[var(--text-secondary)]">
+              Budget: <strong className="text-[var(--text-primary)]">{budget} units</strong>
             </span>
             <input
               type="range"
@@ -246,12 +241,12 @@ export const CommandTab: React.FC = () => {
               max={8}
               value={budget}
               onChange={(e) => setBudget(parseInt(e.target.value, 10))}
-              className="w-24 sm:w-32 accent-amber-400"
+              className="w-24 sm:w-32 accent-[var(--accent)]"
             />
           </div>
         </div>
 
-        <p className="text-xs text-muted-foreground mb-3">
+        <p className="text-xs text-[var(--text-secondary)] mb-3 leading-relaxed">
           Evaluates all 256 capital upgrade combinations against the active scenario and selects the highest harm-reduction combos within budget.
         </p>
 
@@ -265,25 +260,26 @@ export const CommandTab: React.FC = () => {
             return (
               <div
                 key={idx}
-                className="p-3 rounded-xl bg-card border border-border flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                className="p-3 rounded-[12px] bg-[var(--surface-2)] border border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-2"
               >
                 <div>
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="text-xs font-mono font-bold text-amber-400">
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <span className="text-xs font-mono font-bold text-[var(--accent)]">
                       Option #{idx + 1}
                     </span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                    <span className="ops-chip text-[10px]">
                       Cost: {cost} / {budget} units
                     </span>
-                    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span className="ops-chip text-[10px] text-[var(--status-good)]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-good)]" />
                       Saves {Math.round(saved).toLocaleString()} person-hours
                     </span>
                   </div>
-                  <div className="text-xs text-muted-foreground flex flex-wrap gap-1">
+                  <div className="text-xs text-[var(--text-secondary)] flex flex-wrap gap-1">
                     {combo.upgrades.map((u) => (
                       <span
                         key={u.id}
-                        className="bg-muted px-2 py-0.5 rounded text-[11px] text-foreground"
+                        className="bg-[var(--surface-3)] px-2 py-0.5 rounded-[4px] text-[11px] text-[var(--text-primary)]"
                       >
                         {u.label}
                       </span>
@@ -295,7 +291,7 @@ export const CommandTab: React.FC = () => {
                   onClick={() => {
                     combo.upgrades.forEach((u) => addMod(u.mod));
                   }}
-                  className="self-start sm:self-auto px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+                  className="ops-btn-primary self-start sm:self-auto px-3 py-1.5 text-xs font-semibold"
                 >
                   Deploy All {combo.upgrades.length}
                 </button>

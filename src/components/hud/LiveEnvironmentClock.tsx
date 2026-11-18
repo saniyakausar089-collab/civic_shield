@@ -53,7 +53,6 @@ function getWeatherDescription(code: number): string {
 // Diurnal model for Hyderabad (October average)
 function getDiurnalHyderabadWeather(date: Date): WeatherData {
   const hour = date.getHours() + date.getMinutes() / 60;
-  // Diurnal sinusoidal temperature curve peaking around 14:00 (31°C) and min around 05:30 (22°C)
   const tempWave = Math.sin(((hour - 9) / 24) * 2 * Math.PI);
   const temp = Math.round((26.5 + 4.5 * tempWave) * 10) / 10;
   const humidity = Math.round(62 - 18 * tempWave);
@@ -127,7 +126,7 @@ export const LiveEnvironmentClock: React.FC = () => {
             pressure: Math.round(cur.surface_pressure),
             weatherCode: cur.weather_code,
             weatherDesc: getWeatherDescription(cur.weather_code),
-            aqi: 64, // Hyderabad nominal urban background
+            aqi: 64,
             dewPoint: Math.round((temp - (100 - hum) / 5) * 10) / 10,
             isLive: true,
             lastUpdated: new Date().toLocaleTimeString("en-IN", { hour12: false }),
@@ -137,7 +136,7 @@ export const LiveEnvironmentClock: React.FC = () => {
         }
       }
     } catch {
-      // Offline or network unavailable: use realistic diurnal Hyderabad model
+      // Diurnal fallback
     }
     setWeather(getDiurnalHyderabadWeather(new Date()));
     setIsRefreshing(false);
@@ -145,7 +144,7 @@ export const LiveEnvironmentClock: React.FC = () => {
 
   useEffect(() => {
     fetchWeather();
-    const weatherTimer = setInterval(fetchWeather, 60000); // 60s auto refresh
+    const weatherTimer = setInterval(fetchWeather, 60000);
     return () => clearInterval(weatherTimer);
   }, []);
 
@@ -179,11 +178,11 @@ export const LiveEnvironmentClock: React.FC = () => {
 
   // Weather icon selector
   const renderWeatherIcon = (sizeClass = "w-3.5 h-3.5") => {
-    if (weather.weatherCode >= 51) return <CloudRain className={`${sizeClass} text-[#38bdf8]`} />;
-    if (weather.weatherCode === 3) return <Cloud className={`${sizeClass} text-[#94a3b8]`} />;
-    if (isNight) return <Moon className={`${sizeClass} text-[#e2e8f0]`} />;
-    if (weather.weatherCode > 0) return <CloudSun className={`${sizeClass} text-[#f6be73]`} />;
-    return <Sun className={`${sizeClass} text-[#fbbf24]`} />;
+    if (weather.weatherCode >= 51) return <CloudRain className={`${sizeClass} text-[var(--accent)]`} />;
+    if (weather.weatherCode === 3) return <Cloud className={`${sizeClass} text-[var(--text-secondary)]`} />;
+    if (isNight) return <Moon className={`${sizeClass} text-[var(--text-secondary)]`} />;
+    if (weather.weatherCode > 0) return <CloudSun className={`${sizeClass} text-[var(--text-secondary)]`} />;
+    return <Sun className={`${sizeClass} text-[var(--text-secondary)]`} />;
   };
 
   return (
@@ -195,13 +194,13 @@ export const LiveEnvironmentClock: React.FC = () => {
           e.stopPropagation();
           setIsOpen((prev) => !prev);
         }}
-        className="flex items-center gap-2 bg-[var(--surface-2)] hover:bg-[var(--surface)] px-3 py-1 rounded-full border border-[var(--border)] text-[var(--text)] transition-colors group cursor-pointer"
+        className="flex items-center gap-2 bg-[var(--surface-2)] hover:bg-[var(--surface-3)] px-3 py-1 rounded-full border border-[var(--border-subtle)] text-[var(--text-primary)] transition-colors group cursor-pointer"
         title="Live Real-Time Clock & Hyderabad Environmental Telemetry (Click for details)"
       >
         {/* Real-Time Live Clock */}
         <div className="flex items-center gap-1.5 text-[11px]">
-          <Clock className="w-3.5 h-3.5 text-[var(--text-tertiary)] group-hover:text-[var(--accent)] transition-colors" />
-          <span className="font-semibold text-[var(--text)] tracking-tight tabular-nums">
+          <Clock className="w-3.5 h-3.5 text-[var(--text-tertiary)] group-hover:text-[var(--text-primary)] transition-colors" />
+          <span className="font-semibold text-[var(--text-primary)] tracking-tight tabular-nums">
             {hours}:{minutes}
             <span className="text-[var(--accent)] animate-pulse">:{seconds}</span>
           </span>
@@ -210,30 +209,30 @@ export const LiveEnvironmentClock: React.FC = () => {
           </span>
         </div>
 
-        <div className="h-3 w-px bg-[var(--border)] hidden sm:block" />
+        <div className="h-3 w-px bg-[var(--border-subtle)] hidden sm:block" />
 
         {/* Temperature Factor */}
         <div className="hidden sm:flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
-          <Thermometer className="w-3.5 h-3.5 text-[var(--status-warning)]" />
-          <span className="tabular-nums font-medium text-[var(--text)]">{weather.temp}°C</span>
+          <Thermometer className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+          <span className="tabular-nums font-medium text-[var(--text-primary)]">{weather.temp}°C</span>
         </div>
 
         {/* Humidity Factor */}
         <div className="hidden md:flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
-          <Droplets className="w-3.5 h-3.5 text-[var(--accent)]" />
-          <span className="tabular-nums font-medium text-[var(--text)]">{weather.humidity}%</span>
+          <Droplets className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+          <span className="tabular-nums font-medium text-[var(--text-primary)]">{weather.humidity}%</span>
         </div>
 
         {/* Wind Factor */}
         <div className="hidden lg:flex items-center gap-1 text-[11px] text-[var(--text-tertiary)]">
-          <Wind className="w-3 h-3 text-[var(--text-tertiary)]" />
-          <span className="tabular-nums font-medium">{weather.windSpeed} km/h</span>
+          <Wind className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
+          <span className="tabular-nums font-medium text-[var(--text-secondary)]">{weather.windSpeed} km/h</span>
         </div>
 
         {/* Live Pulse Dot */}
         <span
           className={`w-1.5 h-1.5 rounded-full ${
-            weather.isLive ? "bg-[var(--status-success)] animate-pulse" : "bg-[var(--accent)]"
+            weather.isLive ? "bg-[var(--status-good)]" : "bg-[var(--accent)]"
           }`}
           title={weather.isLive ? "Live API Feed Connected" : "Local Telemetry Synced"}
         />
@@ -249,14 +248,14 @@ export const LiveEnvironmentClock: React.FC = () => {
       {isOpen && (
         <div
           data-testid="live-clock-dropdown"
-          className="absolute right-0 top-full mt-2 w-72 bg-[var(--surface)] border border-[var(--border)] rounded-[20px] shadow-[var(--shadow-soft)] p-4 text-xs text-[var(--text)] z-50 animate-in fade-in zoom-in-95 duration-150"
+          className="absolute right-0 top-full mt-2 w-72 bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-[12px] shadow-[0_8px_24px_rgba(0,0,0,0.35)] p-4 text-xs text-[var(--text-primary)] z-50 animate-in fade-in zoom-in-95 duration-150"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[var(--border)]">
+          <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[var(--border-subtle)]">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-[var(--accent)]" />
               <div>
-                <div className="font-semibold text-sm text-[var(--text)] leading-tight">Hyderabad Metro</div>
+                <div className="font-semibold text-sm text-[var(--text-primary)] leading-tight">Hyderabad Metro</div>
                 <div className="text-[11px] text-[var(--text-tertiary)]">17.3850° N, 78.4867° E</div>
               </div>
             </div>
@@ -265,7 +264,7 @@ export const LiveEnvironmentClock: React.FC = () => {
                 e.stopPropagation();
                 fetchWeather();
               }}
-              className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[var(--surface-2)] text-[var(--text-tertiary)] hover:text-[var(--text)] transition-colors cursor-pointer"
+              className="w-7 h-7 rounded-[6px] flex items-center justify-center hover:bg-[var(--surface-2)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
               title="Refresh environmental sensors"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[var(--accent)]" : ""}`} />
@@ -273,30 +272,30 @@ export const LiveEnvironmentClock: React.FC = () => {
           </div>
 
           {/* Real Time Clock Details */}
-          <div className="bg-[var(--surface-2)] rounded-[14px] p-3 mb-2.5 border border-[var(--border)] flex items-center justify-between">
+          <div className="bg-[var(--surface-2)] rounded-[8px] p-3 mb-2.5 border border-[var(--border-subtle)] flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <Clock className="w-4 h-4 text-[var(--accent)]" />
               <div>
                 <div className="text-[10px] uppercase text-[var(--text-tertiary)] font-semibold tracking-wider">Local Real Time</div>
-                <div className="text-sm font-semibold text-[var(--text)] tabular-nums">
+                <div className="text-sm font-semibold text-[var(--text-primary)] tabular-nums">
                   {hours}:{minutes}:{seconds} <span className="text-[11px] font-medium text-[var(--accent)]">IST</span>
                 </div>
               </div>
             </div>
             <div className="text-right">
               <div className="text-[10px] text-[var(--text-tertiary)] uppercase font-semibold tracking-wider">Date</div>
-              <div className="text-xs font-semibold text-[var(--text)]">{dateStr}</div>
+              <div className="text-xs font-semibold text-[var(--text-primary)]">{dateStr}</div>
             </div>
           </div>
 
           {/* Current Weather Overview */}
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-[12px] bg-[var(--surface-2)] border border-[var(--border)]">
+              <div className="p-2 rounded-[8px] bg-[var(--surface-2)] border border-[var(--border-subtle)]">
                 {renderWeatherIcon("w-5 h-5")}
               </div>
               <div>
-                <div className="text-base font-semibold text-[var(--text)] leading-none">
+                <div className="text-base font-semibold text-[var(--text-primary)] leading-none tabular-nums">
                   {weather.temp}°C
                 </div>
                 <div className="text-[11px] text-[var(--text-secondary)] mt-1">{weather.weatherDesc}</div>
@@ -304,55 +303,55 @@ export const LiveEnvironmentClock: React.FC = () => {
             </div>
             <div className="text-right text-[11px]">
               <span className="text-[var(--text-tertiary)]">Feels like </span>
-              <span className="font-semibold text-[var(--text)]">{weather.feelsLike}°C</span>
+              <span className="font-semibold text-[var(--text-primary)] tabular-nums">{weather.feelsLike}°C</span>
             </div>
           </div>
 
           {/* Environmental Sensor Matrix */}
           <div className="grid grid-cols-2 gap-2 text-[11px] mb-2.5">
             {/* Humidity */}
-            <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)]">
+            <div className="bg-[var(--surface-2)] p-2.5 rounded-[8px] border border-[var(--border-subtle)]">
               <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-[10px] uppercase font-semibold">
                 <Droplets className="w-3 h-3 text-[var(--accent)]" />
                 <span>Relative Humidity</span>
               </div>
-              <div className="font-semibold text-sm text-[var(--text)] mt-0.5 tabular-nums">
+              <div className="font-semibold text-sm text-[var(--text-primary)] mt-0.5 tabular-nums">
                 {weather.humidity}%
               </div>
-              <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A]">Dew Point: {weather.dewPoint}°C</div>
+              <div className="text-[10px] text-[var(--text-tertiary)]">Dew Point: {weather.dewPoint}°C</div>
             </div>
 
             {/* Wind */}
-            <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)]">
+            <div className="bg-[var(--surface-2)] p-2.5 rounded-[8px] border border-[var(--border-subtle)]">
               <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-[10px] uppercase font-semibold">
                 <Wind className="w-3 h-3 text-[var(--text-tertiary)]" />
                 <span>Wind Velocity</span>
               </div>
-              <div className="font-semibold text-sm text-[var(--text)] mt-0.5 tabular-nums">
+              <div className="font-semibold text-sm text-[var(--text-primary)] mt-0.5 tabular-nums">
                 {weather.windSpeed} <span className="text-[10px] font-normal text-[var(--text-tertiary)]">km/h</span>
               </div>
               <div className="text-[10px] text-[var(--text-tertiary)]">Heading: {weather.windDirection}</div>
             </div>
 
             {/* Pressure */}
-            <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)]">
+            <div className="bg-[var(--surface-2)] p-2.5 rounded-[8px] border border-[var(--border-subtle)]">
               <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-[10px] uppercase font-semibold">
                 <Gauge className="w-3 h-3 text-[var(--text-tertiary)]" />
                 <span>Pressure</span>
               </div>
-              <div className="font-semibold text-sm text-[var(--text)] mt-0.5 tabular-nums">
+              <div className="font-semibold text-sm text-[var(--text-primary)] mt-0.5 tabular-nums">
                 {weather.pressure} <span className="text-[10px] font-normal text-[var(--text-tertiary)]">hPa</span>
               </div>
               <div className="text-[10px] text-[var(--text-tertiary)]">Barometric: Normal</div>
             </div>
 
             {/* Air Quality */}
-            <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)]">
+            <div className="bg-[var(--surface-2)] p-2.5 rounded-[8px] border border-[var(--border-subtle)]">
               <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-[10px] uppercase font-semibold">
-                <Activity className="w-3 h-3 text-[var(--status-success)]" />
+                <Activity className="w-3 h-3 text-[var(--status-good)]" />
                 <span>Air Quality</span>
               </div>
-              <div className="font-semibold text-sm text-[var(--status-success)] mt-0.5 tabular-nums">
+              <div className="font-semibold text-sm text-[var(--status-good)] mt-0.5 tabular-nums">
                 AQI {weather.aqi}
               </div>
               <div className="text-[10px] text-[var(--text-secondary)]">Moderate / Fair</div>
@@ -360,11 +359,11 @@ export const LiveEnvironmentClock: React.FC = () => {
           </div>
 
           {/* Footer Metadata */}
-          <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between text-[10px] text-[var(--text-tertiary)]">
+          <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-[10px] text-[var(--text-tertiary)]">
             <div className="flex items-center gap-1.5">
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  weather.isLive ? "bg-[var(--status-success)]" : "bg-[var(--accent)]"
+                  weather.isLive ? "bg-[var(--status-good)]" : "bg-[var(--accent)]"
                 }`}
               />
               <span>{weather.isLive ? "Live Open-Meteo Feed" : "Diurnal Testbed Model"}</span>

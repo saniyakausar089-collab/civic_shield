@@ -2,17 +2,17 @@ import * as Cesium from "cesium";
 import { HYDERABAD_COLLEGES_AND_PLACES } from "../data/hyderabadPlaces";
 
 export const STATUS_COLOR = {
-  normal: "#30d158",
-  degraded: "#ff9f0a",
-  failed: "#ff453a",
+  normal: "#8FA39A",
+  degraded: "#F0A23B",
+  failed: "#F0524A",
 };
 
 export const NETWORK_COLOR = {
-  water: "#0071e3",
-  power: "#f59e0b",
-  telecom: "#8b5cf6",
-  road: "#94a3b8",
-  hazard: "#ff453a",
+  power: "#C9B27A",
+  water: "#6FA8B8",
+  telecom: "#8A90A0",
+  road: "#BFC3CB",
+  hazard: "#F0524A",
 };
 
 const NODE_SIZE = {
@@ -88,7 +88,7 @@ export class CivicShieldLayer {
           hierarchy: Cesium.Cartesian3.fromDegreesArray(ring),
           material: this._impactColor(0),
           outline: true,
-          outlineColor: css("#ffffff", 0.18),
+          outlineColor: css("#ffffff", 0.12),
           height: 0,
         },
       });
@@ -149,7 +149,7 @@ export class CivicShieldLayer {
     for (const p of HYDERABAD_COLLEGES_AND_PLACES) {
       const isCollege = p.category === "college" || p.category === "university";
       const icon = isCollege ? "🎓 " : p.category === "hospital" ? "🏥 " : p.category === "research" ? "🔬 " : "📍 ";
-      const pinColor = isCollege ? "#a855f7" : p.category === "hospital" ? "#ec4899" : "#38bdf8";
+      const pinColor = isCollege ? "#8A90A0" : p.category === "hospital" ? "#F0524A" : "#8B9DFF";
 
       const e = this.poiDs.entities.add({
         id: `poi:${p.id}`,
@@ -248,7 +248,7 @@ export class CivicShieldLayer {
   _edgeMaterial(edge, sourceStatus) {
     if (sourceStatus === "failed") return css(STATUS_COLOR.failed, 0.85);
     if (sourceStatus === "degraded") return css(STATUS_COLOR.degraded, 0.8);
-    const base = NETWORK_COLOR[edge.type] ?? "#94a3b8";
+    const base = NETWORK_COLOR[edge.type] ?? "#8A90A0";
     if (edge.type === "telecom") {
       return new Cesium.PolylineDashMaterialProperty({ color: css(base, 0.45), dashLength: 12 });
     }
@@ -256,9 +256,9 @@ export class CivicShieldLayer {
   }
 
   _impactColor(v) {
-    if (v <= 0) return css("#ffffff", 0.04);
-    const c = Cesium.Color.lerp(css("#f59e0b"), css("#ef4444"), Math.min(1, v), new Cesium.Color());
-    return c.withAlpha(0.15 + 0.45 * Math.min(1, v));
+    if (v <= 0) return css("#000000", 0.0);
+    const c = Cesium.Color.lerp(css("#F0A23B"), css("#F0524A"), Math.min(1, v), new Cesium.Color());
+    return c.withAlpha(0.38 * Math.min(1, v));
   }
 
   // ---------- public API (Phase 3 drives these from engine output) ----------
@@ -298,9 +298,9 @@ export class CivicShieldLayer {
       const pulse = this.ds.entities.add({
         position: Cesium.Cartesian3.fromDegrees(n.lon, n.lat, NODE_HEIGHT_M),
         point: {
-          pixelSize: new Cesium.CallbackProperty(() => 14 + 14 * ((Date.now() % 1200) / 1200), false),
+          pixelSize: new Cesium.CallbackProperty(() => 12 + 16 * ((Date.now() % 1600) / 1600), false),
           color: new Cesium.CallbackProperty(
-            () => css(STATUS_COLOR.failed, 0.5 * (1 - (Date.now() % 1200) / 1200)),
+            () => css(STATUS_COLOR.failed, 0.35 * (1 - (Date.now() % 1600) / 1600)),
             false
           ),
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
@@ -401,10 +401,10 @@ export class CivicShieldLayer {
           return 120 + ((diff * 2) % 3) * 150;
         }, false),
         material: new Cesium.ColorMaterialProperty(
-          Cesium.Color.fromCssColorString("#38bdf8").withAlpha(0.6)
+          Cesium.Color.fromCssColorString("#8B9DFF").withAlpha(0.6)
         ),
         outline: true,
-        outlineColor: Cesium.Color.fromCssColorString("#38bdf8"),
+        outlineColor: Cesium.Color.fromCssColorString("#8B9DFF"),
         outlineWidth: 2,
         height: 20,
       },

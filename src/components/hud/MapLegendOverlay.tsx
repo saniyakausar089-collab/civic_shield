@@ -35,24 +35,24 @@ export const MapLegendOverlay: React.FC = () => {
   return (
     <div
       data-testid="gis-legend-expanded"
-      className="absolute bottom-3 left-3 z-10 bg-[var(--surface)]/95 backdrop-blur-xl border border-[var(--border)] rounded-[20px] p-4 text-xs text-[var(--text)] select-none pointer-events-auto shadow-[var(--shadow-elevated)] max-w-xs space-y-3 font-sans"
+      className="absolute bottom-3 left-3 z-10 bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-[12px] p-3.5 text-xs text-[var(--text-primary)] select-none pointer-events-auto shadow-[var(--shadow-floating)] max-w-xs space-y-3 font-sans"
     >
       {/* Legend Title */}
-      <div className="flex items-center justify-between border-b border-[var(--border)] pb-2.5 gap-2">
+      <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2 gap-2">
         <div className="flex items-center gap-1.5">
-          <Layers className="w-3.5 h-3.5 text-[var(--accent)]" />
+          <Layers className="w-3.5 h-3.5 text-[var(--text-secondary)]" />
           <span className="font-semibold text-[11px] uppercase tracking-wider text-[var(--text-tertiary)]">
             GIS Legend
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-[10px] text-[var(--accent)] font-medium">
+          <span className="text-[10px] text-[var(--text-tertiary)] font-medium">
             {viewportMode === "cesium" ? "Cesium 3D" : "Twin"}
           </span>
           <button
             data-testid="gis-legend-collapse-btn"
             onClick={() => setCollapsed(true)}
-            className="p-1 hover:bg-[var(--surface-2)] rounded-full text-[var(--text-tertiary)] hover:text-[var(--text)] transition-colors cursor-pointer"
+            className="p-1 hover:bg-[var(--surface-2)] rounded-full text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
             title="Collapse GIS Legend"
           >
             <ChevronDown className="w-3.5 h-3.5" />
@@ -67,11 +67,11 @@ export const MapLegendOverlay: React.FC = () => {
         </div>
         <div className="grid grid-cols-2 gap-1 text-[11px]">
           {[
-            { label: "Power", color: "#f59e0b", key: "power" },
-            { label: "Water", color: "var(--accent)", key: "water" },
-            { label: "Roads", color: "var(--text-tertiary)", key: "roads" },
-            { label: "Telecom", color: "#8b5cf6", key: "telecom" },
-            { label: "Hospitals", color: "#ff453a", key: "hospitals" },
+            { label: "Power", color: "#C9B27A", key: "power" },
+            { label: "Water", color: "#6FA8B8", key: "water" },
+            { label: "Roads", color: "#BFC3CB", key: "roads" },
+            { label: "Telecom", color: "#8A90A0", key: "telecom" },
+            { label: "Hospitals", color: "var(--status-failed)", key: "hospitals" },
           ].map((l) => (
             <button
               key={l.key}
@@ -89,7 +89,7 @@ export const MapLegendOverlay: React.FC = () => {
               <span
                 className={
                   layers[l.key as keyof typeof layers]
-                    ? "text-[var(--text)] font-medium"
+                    ? "text-[var(--text-primary)] font-medium"
                     : "text-[var(--text-tertiary)]"
                 }
               >
@@ -102,7 +102,7 @@ export const MapLegendOverlay: React.FC = () => {
 
       {/* Cesium 3D Tile Thematic Legend */}
       {activeCesiumLegend && (
-        <div className="space-y-1.5 border-t border-[var(--border)] pt-2.5">
+        <div className="space-y-1.5 border-t border-[var(--border-subtle)] pt-2.5">
           <div className="text-[10px] uppercase font-semibold text-[var(--text-tertiary)] flex items-center justify-between tracking-wider">
             <span>{activeCesiumLegend.title}</span>
           </div>
@@ -121,19 +121,19 @@ export const MapLegendOverlay: React.FC = () => {
       )}
 
       {/* Node Status Legend */}
-      <div className="space-y-1.5 border-t border-[var(--border)] pt-2.5 text-[10px]">
+      <div className="space-y-1.5 border-t border-[var(--border-subtle)] pt-2.5 text-[10px]">
         <div className="font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">Node Status</div>
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#30d158]" />
+            <div className="w-2 h-2 rounded-full bg-[var(--status-normal)]" />
             <span className="text-[var(--text-secondary)]">Normal</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#ff9f0a]" />
+            <div className="w-2 h-2 rounded-full bg-[var(--status-degraded)]" />
             <span className="text-[var(--text-secondary)]">Stressed</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-2 h-2 rounded-full bg-[#ff453a]" />
+            <div className="w-2 h-2 rounded-full bg-[var(--status-failed)]" />
             <span className="text-[var(--text-secondary)]">Failed</span>
           </div>
         </div>

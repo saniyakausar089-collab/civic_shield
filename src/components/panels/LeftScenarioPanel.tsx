@@ -66,16 +66,16 @@ export const LeftScenarioPanel: React.FC = () => {
     (presetId === "quake" && s.id === "earthquake");
 
   return (
-    <div className="w-80 h-full flex flex-col bg-[var(--surface)] border-r border-[var(--border)] text-[var(--text)] select-none text-xs font-sans shadow-xs transition-colors">
+    <div className="w-80 h-full flex flex-col bg-[var(--surface-1)] border-r border-[var(--border-subtle)] text-[var(--text-primary)] select-none text-xs font-sans shadow-none transition-colors">
       {/* Header */}
-      <div className="p-4 border-b border-[var(--border)] bg-[var(--surface-2)] flex items-center justify-between">
+      <div className="p-4 border-b border-[var(--border-subtle)] bg-[var(--surface-2)] flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Sliders className="w-4 h-4 text-[var(--accent)]" />
-          <span className="font-semibold text-sm tracking-tight text-[var(--text)]">
+          <Sliders className="w-4 h-4 text-[var(--text-secondary)]" />
+          <span className="font-semibold text-sm tracking-tight text-[var(--text-primary)]">
             Scenario Control
           </span>
         </div>
-        <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[var(--surface)] text-[var(--text-tertiary)] border border-[var(--border)]">
+        <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[var(--surface-3)] text-[var(--text-secondary)] border border-[var(--border-subtle)]">
           GIS Engine
         </span>
       </div>
@@ -84,7 +84,7 @@ export const LeftScenarioPanel: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-4 space-y-5">
         {/* 1. Simulation Actions */}
         <div className="space-y-2">
-          <div className="apple-eyebrow">
+          <div className="ops-eyebrow">
             Simulation State
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -98,14 +98,14 @@ export const LeftScenarioPanel: React.FC = () => {
                   play();
                 }
               }}
-              className="apple-btn-primary py-2 px-3 text-xs w-full shadow-xs active:scale-[0.98]"
+              className="ops-btn-primary py-2 px-3 text-xs w-full active:scale-[0.98]"
             >
               {playing ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
               <span>{playing ? "Pause" : "Run Sim"}</span>
             </button>
             <button
               onClick={() => resetSim()}
-              className="apple-btn-secondary py-2 px-3 text-xs w-full active:scale-[0.98]"
+              className="ops-btn-secondary py-2 px-3 text-xs w-full active:scale-[0.98]"
               title="Reset simulation and return all nodes to normal (Reset T+0)"
             >
               <RotateCcw className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
@@ -114,11 +114,11 @@ export const LeftScenarioPanel: React.FC = () => {
           </div>
         </div>
 
-        <div className="h-px bg-[var(--border)]" />
+        <div className="h-px bg-[var(--border-subtle)]" />
 
         {/* 2. Failure Scenarios wired to scenarios.json */}
         <div className="space-y-2">
-          <div className="apple-eyebrow">
+          <div className="ops-eyebrow">
             Failure Scenario Presets
           </div>
           <div className="space-y-2">
@@ -128,17 +128,17 @@ export const LeftScenarioPanel: React.FC = () => {
                 <button
                   key={s.id}
                   onClick={() => selectScenario(s)}
-                  className={`w-full text-left p-3 rounded-[16px] border transition-all duration-200 cursor-pointer flex flex-col gap-1.5 ${
+                  className={`w-full text-left p-3 rounded-[12px] border transition-all duration-150 cursor-pointer flex flex-col gap-1.5 ${
                     isActive
-                      ? "bg-[var(--accent-tint)] border-[var(--accent)] text-[var(--text)] shadow-xs"
-                      : "bg-[var(--surface)] hover:bg-[var(--surface-2)] border-[var(--border)] text-[var(--text-secondary)] hover:-translate-y-0.5"
+                      ? "bg-[var(--surface-2)] border-[var(--accent)] text-[var(--text-primary)]"
+                      : "bg-[var(--surface-1)] hover:bg-[var(--surface-2)] border-[var(--border-subtle)] text-[var(--text-secondary)]"
                   }`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-xs text-[var(--text)]">
+                    <span className="font-semibold text-xs text-[var(--text-primary)]">
                       {s.name || s.label}
                     </span>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-tertiary)] font-medium">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface-3)] border border-[var(--border-subtle)] text-[var(--text-secondary)] font-medium">
                       {s.triggers.length} {s.triggers.length === 1 ? "node" : "nodes"}
                     </span>
                   </div>
@@ -151,22 +151,22 @@ export const LeftScenarioPanel: React.FC = () => {
           </div>
         </div>
 
-        <div className="h-px bg-[var(--border)]" />
+        <div className="h-px bg-[var(--border-subtle)]" />
 
         {/* 3. Target Asset Trigger Selector */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="apple-eyebrow">
+            <span className="ops-eyebrow">
               Target Failures ({triggers.length})
             </span>
             <button
               onClick={() => resetAllLayers()}
-              className="apple-link text-[11px]"
+              className="text-[11px] text-[var(--accent)] hover:underline cursor-pointer font-medium"
             >
               Reset default
             </button>
           </div>
-          <div className="max-h-44 overflow-y-auto space-y-1 p-2 bg-[var(--surface-2)] rounded-[16px] border border-[var(--border)]">
+          <div className="max-h-44 overflow-y-auto space-y-1 p-2 bg-[var(--surface-2)] rounded-[12px] border border-[var(--border-subtle)]">
             {city.nodes.map((n) => {
               const isTrigger = triggers.includes(n.id);
               return (
@@ -175,13 +175,13 @@ export const LeftScenarioPanel: React.FC = () => {
                   onClick={() => toggleTrigger(n.id)}
                   className={`flex items-center justify-between px-2.5 py-1.5 rounded-full cursor-pointer transition-colors text-[11px] ${
                     isTrigger
-                      ? "bg-rose-500/10 text-[var(--status-danger)] font-medium"
-                      : "hover:bg-[var(--surface)] text-[var(--text-secondary)]"
+                      ? "bg-[var(--status-failed)]/15 text-[var(--status-failed)] font-medium"
+                      : "hover:bg-[var(--surface-1)] text-[var(--text-secondary)]"
                   }`}
                 >
                   <div className="flex items-center gap-2 truncate">
                     {isTrigger ? (
-                      <CheckSquare className="w-3.5 h-3.5 text-[var(--status-danger)] shrink-0" />
+                      <CheckSquare className="w-3.5 h-3.5 text-[var(--status-failed)] shrink-0" />
                     ) : (
                       <Square className="w-3.5 h-3.5 text-[var(--text-tertiary)] shrink-0" />
                     )}
@@ -194,21 +194,21 @@ export const LeftScenarioPanel: React.FC = () => {
           </div>
         </div>
 
-        <div className="h-px bg-[var(--border)]" />
+        <div className="h-px bg-[var(--border-subtle)]" />
 
         {/* 4. GIS Network Layers */}
         <div className="space-y-2">
-          <div className="apple-eyebrow">
+          <div className="ops-eyebrow">
             GIS Overlay Layers
           </div>
           <div className="grid grid-cols-2 gap-1.5">
             {(
               [
-                { key: "power", label: "Power Network", color: "#ff9f0a" },
-                { key: "water", label: "Water Distribution", color: "#0071e3" },
-                { key: "roads", label: "Roadways & Bridges", color: "#6e6e73" },
-                { key: "telecom", label: "Telecom Links", color: "#86868b" },
-                { key: "hospitals", label: "Critical Facilities", color: "#ff453a" },
+                { key: "power", label: "Power Network", color: "#C9B27A" },
+                { key: "water", label: "Water Distribution", color: "#6FA8B8" },
+                { key: "roads", label: "Roadways & Bridges", color: "#BFC3CB" },
+                { key: "telecom", label: "Telecom Links", color: "#8A90A0" },
+                { key: "hospitals", label: "Critical Facilities", color: "var(--status-failed)" },
               ] as const
             ).map((l) => (
               <button
@@ -216,8 +216,8 @@ export const LeftScenarioPanel: React.FC = () => {
                 onClick={() => toggleLayer(l.key)}
                 className={`p-2 rounded-full border text-left flex items-center justify-between text-[11px] transition-colors cursor-pointer ${
                   layers[l.key]
-                    ? "bg-[var(--surface-2)] border-[var(--accent)] text-[var(--text)] font-medium"
-                    : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-tertiary)]"
+                    ? "bg-[var(--surface-2)] border-[var(--border-strong)] text-[var(--text-primary)] font-medium"
+                    : "bg-[var(--surface-1)] border-[var(--border-subtle)] text-[var(--text-tertiary)]"
                 }`}
               >
                 <div className="flex items-center gap-1.5 truncate">
@@ -233,15 +233,15 @@ export const LeftScenarioPanel: React.FC = () => {
         </div>
       </div>
 
-      {/* Footer Info (Google style tiny muted footer) */}
-      <div className="p-3.5 border-t border-[var(--border)] bg-[var(--surface-2)] text-[11px] text-[var(--text-tertiary)] space-y-1">
+      {/* Footer Info */}
+      <div className="p-3.5 border-t border-[var(--border-subtle)] bg-[var(--surface-2)] text-[11px] text-[var(--text-tertiary)] space-y-1">
         <div className="flex justify-between">
           <span>Active Testbed:</span>
-          <span className="text-[var(--text)] font-medium">HYD-METRO-01</span>
+          <span className="text-[var(--text-primary)] font-medium">HYD-METRO-01</span>
         </div>
         <div className="flex justify-between">
           <span>Asset Grid:</span>
-          <span className="text-[var(--accent)] font-medium">26 Critical Nodes</span>
+          <span className="text-[var(--text-secondary)] font-medium">26 Critical Nodes</span>
         </div>
       </div>
     </div>

@@ -101,22 +101,21 @@ export const AiRiskEstimateCard: React.FC = () => {
     }
   }, [model]);
 
-  // Robust asset name lookup
+  // Asset name lookup with fallback
   const getAssetName = useCallback(
-    (id: string): string => {
-      if (STATIC_ASSET_NAMES[id]) return STATIC_ASSET_NAMES[id]!;
-      const fromStore = networkData?.nodes.find((n) => n.id === id);
-      if (fromStore?.name) return fromStore.name;
-      return id;
+    (id: string) => {
+      if (STATIC_ASSET_NAMES[id]) return STATIC_ASSET_NAMES[id];
+      const fromNet = networkData?.nodes.find((n) => n.id === id);
+      return fromNet?.name || id;
     },
     [networkData]
   );
 
-  // Determine active scenario and trigger nodes
+  // Determine active scenario triggers
   const activeScenario = useMemo(() => {
-    if (selectedScenario) return selectedScenario;
-    if (scenariosData && scenariosData.length > 0) {
-      const match = scenariosData.find(
+    return (
+      selectedScenario ||
+      scenariosData.find(
         (s) =>
           s.id === presetId ||
           (presetId === "pipeline" && s.id === "pipeline_burst") ||
@@ -124,86 +123,67 @@ export const AiRiskEstimateCard: React.FC = () => {
           (presetId === "heatwave" && s.id === "heatwave_overload") ||
           (presetId === "cyber" && s.id === "cyberattack") ||
           (presetId === "quake" && s.id === "earthquake")
-      );
-      if (match) return match;
-    }
-    const presetMatch = PRESETS.find((p) => p.id === presetId);
-    if (presetMatch) {
-      return {
-        id: presetMatch.id,
-        name: presetMatch.label,
-        summary: presetMatch.blurb,
-        triggers: presetMatch.triggers.map((node) => ({ node })),
-      };
-    }
-    return null;
+      ) ||
+      PRESETS.find((p) => p.id === presetId) ||
+      null
+    );
   }, [selectedScenario, scenariosData, presetId]);
 
-  const triggerIds = useMemo<string[]>(() => {
+  const triggerIds: string[] = useMemo(() => {
     if (!activeScenario) return [];
-    return activeScenario.triggers.map((t: any) =>
-      typeof t === "string" ? t : t.node
-    );
+    const raw = (activeScenario as any).triggers || [];
+    return raw
+      .map((t: any) => (typeof t === "string" ? t : t?.node || t?.id))
+      .filter(Boolean);
   }, [activeScenario]);
 
-  // Compute surrogate prediction
-  const prediction = useMemo<SurrogatePrediction | null>(() => {
+  // Compute ML prediction
+  const prediction: SurrogatePrediction | null = useMemo(() => {
     if (!model || triggerIds.length === 0) return null;
-    return predictSurrogate(model, triggerIds);
-  }, [model, triggerIds]);
-
-  // Engine actuals after simulation has run
-  const engineActual = useMemo(() => {
-    if (!result || !Array.isArray(result.frames) || result.frames.length === 0) {
+    try {
+      return predictSurrogate(model, triggerIds);
+    } catch {
       return null;
     }
-    const finalFrame = result.frames[result.frames.length - 1]!;
-    let affectedPopHours = 0;
-    for (const f of result.frames) {
-      affectedPopHours += f.affected_pop;
-    }
+  }, [model, triggerIds]);
 
-    let hospitalDowntimeH = 0;
-    const h1Down = result.frames.some(
-      (f) => Array.isArray(f.failed) && f.failed.includes("H1")
-    );
-    const h2Down = result.frames.some(
-      (f) => Array.isArray(f.failed) && f.failed.includes("H2")
-    );
-    if (h1Down) hospitalDowntimeH += 16;
-    if (h2Down) hospitalDowntimeH += 16;
-
-    const finalFailed = finalFrame.failed ? finalFrame.failed.length : 0;
-
+  // Ground truth actuals from engine (if available)
+  const engineActual = useMemo(() => {
+    if (!result || !result.metrics) return null;
     return {
-      affected_pop_hours: affectedPopHours,
-      hospital_downtime_h: hospitalDowntimeH,
-      final_failed: finalFailed,
+      affected_pop_hours: Math.round(result.metrics.personHoursLost || 0),
+      hospital_downtime_h: Math.round(result.metrics.hospitalHoursLost || 0),
+      final_failed: result.metrics.finalFailed || 0,
     };
   }, [result]);
 
-  // Handle clicking an asset to select and fly to it on the globe
+  // Handle locating node on map
   const handleSelectNode = (nodeId: string) => {
-    setSelectedGisNode(nodeId);
-    if (civicShieldLayer && typeof civicShieldLayer.flyToNode === "function") {
-      civicShieldLayer.flyToNode(nodeId);
+    const node = networkData?.nodes.find((n) => n.id === nodeId);
+    if (node) {
+      setSelectedGisNode(node);
+    }
+    if (civicShieldLayer && typeof (civicShieldLayer as any).flyToNode === "function") {
+      (civicShieldLayer as any).flyToNode(nodeId);
     }
   };
 
-  // Helper to render diff between surrogate estimate and engine actual
-  const renderDiff = (est: number, act: number) => {
-    if (act === 0 && est === 0) return null;
-    const diffPct = act !== 0 ? ((est - act) / act) * 100 : 0;
-    const isNeg = diffPct < 0;
-    const sign = diffPct > 0 ? "+" : "";
+  // Helper to render difference vs engine
+  const renderDiff = (predVal: number, actualVal: number) => {
+    if (actualVal === 0 && predVal === 0) return null;
+    const diff = predVal - actualVal;
+    const denom = actualVal === 0 ? 1 : actualVal;
+    const diffPct = (diff / denom) * 100;
+    const sign = diff >= 0 ? "+" : "";
+
     return (
       <span
         className={`text-[10px] ml-1.5 font-medium ${
           Math.abs(diffPct) <= 15
-            ? "text-emerald-700"
+            ? "text-[var(--status-good)]"
             : Math.abs(diffPct) <= 30
-            ? "text-amber-700"
-            : "text-rose-700"
+            ? "text-[var(--status-degraded)]"
+            : "text-[var(--status-failed)]"
         }`}
       >
         ({sign}
@@ -232,33 +212,31 @@ export const AiRiskEstimateCard: React.FC = () => {
     return { likelyToFail: likely, atRisk: risk };
   }, [prediction, triggerIds, getAssetName]);
 
-  // 1. Loading Skeleton
+  // Loading Skeleton
   if (loading) {
     return (
-      <div className="bg-white border border-[#E5E7EB] rounded-xl p-4 space-y-3 animate-pulse font-sans">
+      <div className="bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-[12px] p-4 space-y-3 animate-pulse font-sans">
         <div className="flex items-center justify-between">
-          <div className="h-4 w-40 bg-[#E5E7EB] rounded" />
-          <div className="h-4 w-20 bg-[#E5E7EB] rounded" />
+          <div className="h-4 w-40 bg-[var(--surface-3)] rounded" />
+          <div className="h-4 w-20 bg-[var(--surface-3)] rounded" />
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-          <div className="h-16 bg-[#F7F8F5] rounded-[8px] border border-[#E5E7EB]" />
-          <div className="h-16 bg-[#F7F8F5] rounded-[8px] border border-[#E5E7EB]" />
-          <div className="h-16 bg-[#F7F8F5] rounded-[8px] border border-[#E5E7EB]" />
+          <div className="h-16 bg-[var(--surface-2)] rounded-[8px] border border-[var(--border-subtle)]" />
+          <div className="h-16 bg-[var(--surface-2)] rounded-[8px] border border-[var(--border-subtle)]" />
+          <div className="h-16 bg-[var(--surface-2)] rounded-[8px] border border-[var(--border-subtle)]" />
         </div>
-        <div className="h-24 bg-[#F7F8F5] rounded-[8px] border border-[#E5E7EB]" />
-        <div className="h-3 w-3/4 bg-[#E5E7EB] rounded" />
       </div>
     );
   }
 
-  // 2. Error State
+  // Error State
   if (error) {
     return (
-      <div className="bg-rose-50 border border-rose-200 rounded-xl p-4 flex items-start gap-3 text-rose-800 text-xs font-sans">
-        <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+      <div className="bg-[var(--surface-2)] border border-[var(--status-failed)]/30 rounded-[12px] p-4 flex items-start gap-3 text-xs font-sans">
+        <AlertTriangle className="w-4 h-4 text-[var(--status-failed)] shrink-0 mt-0.5" />
         <div className="flex-1">
-          <div className="font-semibold text-rose-900 mb-0.5">Surrogate Model Unavailable</div>
-          <div className="text-[11px] text-rose-700 mb-2">{error}</div>
+          <div className="font-semibold text-[var(--text-primary)] mb-0.5">Surrogate Model Unavailable</div>
+          <div className="text-[11px] text-[var(--text-secondary)] mb-2">{error}</div>
           <button
             onClick={() => {
               setError(null);
@@ -273,7 +251,7 @@ export const AiRiskEstimateCard: React.FC = () => {
                   setLoading(false);
                 });
             }}
-            className="px-2.5 py-1 rounded-[6px] bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300 flex items-center gap-1.5 transition-colors text-[11px] cursor-pointer"
+            className="ops-btn-secondary px-2.5 py-1 text-[11px]"
           >
             <RefreshCw className="w-3 h-3" />
             <span>Retry Loading</span>
@@ -295,18 +273,18 @@ export const AiRiskEstimateCard: React.FC = () => {
   return (
     <div
       data-testid="ai-risk-estimate-card"
-      className="apple-card p-5 space-y-4 text-[var(--text)] select-none font-sans shadow-xs"
+      className="p-4 rounded-[12px] bg-[var(--surface-1)] border border-[var(--border-subtle)] space-y-4 text-[var(--text-primary)] select-none font-sans"
     >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-3.5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border-subtle)] pb-3">
         <div className="flex items-start sm:items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center text-[var(--accent)] shrink-0">
+          <div className="w-7 h-7 rounded-[8px] bg-[var(--surface-3)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent)] shrink-0">
             <Cpu className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-[14px] font-semibold text-[var(--text)] flex items-center gap-1.5">
+            <h4 className="text-[13px] font-semibold text-[var(--text-primary)] flex items-center gap-1.5">
               <span>AI Risk Estimate</span>
-              <span className="text-[11.5px] text-[var(--text-tertiary)] font-normal">
+              <span className="text-[11px] text-[var(--text-tertiary)] font-normal">
                 ({activeScenario?.name || "Scenario"})
               </span>
             </h4>
@@ -318,7 +296,7 @@ export const AiRiskEstimateCard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 self-start sm:self-center">
-          <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--border)] flex items-center gap-1.5">
+          <span className="ops-chip text-[11px]">
             <Cpu className="w-3 h-3 text-[var(--accent)]" />
             <span>Surrogate ML</span>
           </span>
@@ -327,8 +305,8 @@ export const AiRiskEstimateCard: React.FC = () => {
 
       {/* Out of Distribution Notice OR Metric Tiles */}
       {!prediction.in_distribution ? (
-        <div className="p-4 rounded-[16px] bg-amber-500/10 border border-amber-500/20 text-center space-y-1">
-          <div className="text-xs font-semibold text-[var(--status-warning)] uppercase tracking-wide">
+        <div className="p-3.5 rounded-[8px] bg-[var(--surface-2)] border border-[var(--status-degraded)]/30 text-center space-y-1">
+          <div className="text-xs font-semibold text-[var(--status-degraded)] uppercase tracking-wide">
             outside training range
           </div>
           <div className="text-[12px] text-[var(--text-secondary)]">
@@ -339,18 +317,18 @@ export const AiRiskEstimateCard: React.FC = () => {
       ) : (
         <>
           {/* Key Metrics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {/* 1. Estimated affected population-hours */}
-            <div className="bg-[var(--surface-2)] p-3.5 rounded-[16px] border border-[var(--border)] flex flex-col justify-between">
-              <span className="text-[11.5px] text-[var(--text-tertiary)] font-medium leading-tight mb-1">
+            <div className="bg-[var(--surface-2)] p-3 rounded-[8px] border border-[var(--border-subtle)] flex flex-col justify-between">
+              <span className="text-[11px] text-[var(--text-tertiary)] font-medium leading-tight mb-1">
                 Estimated affected population-hours
               </span>
               <div>
-                <div className="text-base font-semibold text-[var(--text)] tabular-nums">
+                <div className="text-base font-semibold text-[var(--text-primary)] tabular-nums">
                   {fmt(prediction.affected_pop_hours)}
                 </div>
                 {engineActual && (
-                  <div className="text-[11px] mt-1 text-[var(--text-tertiary)] pt-1.5 border-t border-[var(--border)] flex items-center justify-between tabular-nums">
+                  <div className="text-[11px] mt-1 text-[var(--text-tertiary)] pt-1 border-t border-[var(--border-subtle)] flex items-center justify-between tabular-nums">
                     <span>Engine: {fmt(engineActual.affected_pop_hours)}</span>
                     {renderDiff(prediction.affected_pop_hours, engineActual.affected_pop_hours)}
                   </div>
@@ -359,21 +337,21 @@ export const AiRiskEstimateCard: React.FC = () => {
             </div>
 
             {/* 2. Estimated hospital downtime */}
-            <div className="bg-[var(--surface-2)] p-3.5 rounded-[16px] border border-[var(--border)] flex flex-col justify-between">
+            <div className="bg-[var(--surface-2)] p-3 rounded-[8px] border border-[var(--border-subtle)] flex flex-col justify-between">
               <div className="flex flex-col mb-1">
-                <span className="text-[11.5px] text-[var(--text-tertiary)] font-medium leading-tight">
+                <span className="text-[11px] text-[var(--text-tertiary)] font-medium leading-tight">
                   Estimated hospital downtime
                 </span>
-                <span className="text-[10px] text-[var(--status-warning)] font-medium">
+                <span className="text-[10px] text-[var(--status-degraded)] font-medium">
                   low confidence (R2 0.72)
                 </span>
               </div>
               <div>
-                <div className="text-base font-semibold text-[var(--text)] tabular-nums">
+                <div className="text-base font-semibold text-[var(--text-primary)] tabular-nums">
                   {prediction.hospital_downtime_h}h
                 </div>
                 {engineActual && (
-                  <div className="text-[11px] mt-1 text-[var(--text-tertiary)] pt-1.5 border-t border-[var(--border)] flex items-center justify-between tabular-nums">
+                  <div className="text-[11px] mt-1 text-[var(--text-tertiary)] pt-1 border-t border-[var(--border-subtle)] flex items-center justify-between tabular-nums">
                     <span>Engine: {engineActual.hospital_downtime_h}h</span>
                     {renderDiff(prediction.hospital_downtime_h, engineActual.hospital_downtime_h)}
                   </div>
@@ -382,17 +360,17 @@ export const AiRiskEstimateCard: React.FC = () => {
             </div>
 
             {/* 3. Estimated failed assets */}
-            <div className="bg-[var(--surface-2)] p-3.5 rounded-[16px] border border-[var(--border)] flex flex-col justify-between">
-              <span className="text-[11.5px] text-[var(--text-tertiary)] font-medium leading-tight mb-1">
+            <div className="bg-[var(--surface-2)] p-3 rounded-[8px] border border-[var(--border-subtle)] flex flex-col justify-between">
+              <span className="text-[11px] text-[var(--text-tertiary)] font-medium leading-tight mb-1">
                 Estimated failed assets
               </span>
               <div>
-                <div className="text-base font-semibold text-[var(--text)] tabular-nums">
+                <div className="text-base font-semibold text-[var(--text-primary)] tabular-nums">
                   {prediction.final_failed}{" "}
                   <span className="text-[11px] text-[var(--text-tertiary)] font-normal">of 26</span>
                 </div>
                 {engineActual && (
-                  <div className="text-[11px] mt-1 text-[var(--text-tertiary)] pt-1.5 border-t border-[var(--border)] flex items-center justify-between tabular-nums">
+                  <div className="text-[11px] mt-1 text-[var(--text-tertiary)] pt-1 border-t border-[var(--border-subtle)] flex items-center justify-between tabular-nums">
                     <span>Engine: {engineActual.final_failed}</span>
                     {renderDiff(prediction.final_failed, engineActual.final_failed)}
                   </div>
@@ -402,17 +380,17 @@ export const AiRiskEstimateCard: React.FC = () => {
           </div>
 
           {/* Section A: Likely to fail (probability >= 0.5) */}
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <h5 className="apple-eyebrow flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
+              <div className="ops-eyebrow flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
                 <span>Likely to fail (≥ 50% probability)</span>
-              </h5>
+              </div>
               <span className="text-[11px] text-[var(--text-tertiary)]">Click to locate</span>
             </div>
 
             {likelyToFail.length === 0 ? (
-              <div className="text-xs text-[var(--text-tertiary)] bg-[var(--surface-2)] p-3 rounded-[16px] border border-[var(--border)] italic">
+              <div className="text-xs text-[var(--text-tertiary)] bg-[var(--surface-2)] p-2.5 rounded-[8px] border border-[var(--border-subtle)] italic">
                 No non-trigger assets reach the 50% failure threshold.
               </div>
             ) : (
@@ -421,15 +399,15 @@ export const AiRiskEstimateCard: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={() => handleSelectNode(item.id)}
-                    className="p-3 rounded-[16px] bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent)] text-left transition-all group flex flex-col justify-between cursor-pointer"
+                    className="p-2.5 rounded-[8px] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border-subtle)] text-left transition-colors flex flex-col justify-between cursor-pointer"
                     title={`Locate ${item.name} (${item.id}) on map`}
                   >
-                    <div className="flex items-center justify-between gap-1 w-full mb-2">
+                    <div className="flex items-center justify-between gap-1 w-full mb-1.5">
                       <div className="flex items-center gap-1.5 truncate">
-                        <span className="text-xs font-semibold text-[var(--text)] group-hover:text-[var(--accent)] transition-colors truncate">
+                        <span className="text-xs font-semibold text-[var(--text-primary)] truncate">
                           {item.name}
                         </span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[var(--surface)] text-[var(--text-tertiary)] border border-[var(--border)] shrink-0 font-medium">
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-[var(--surface-3)] text-[var(--text-tertiary)] border border-[var(--border-subtle)] shrink-0 font-medium">
                           {item.id}
                         </span>
                       </div>
@@ -438,9 +416,9 @@ export const AiRiskEstimateCard: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
+                    <div className="w-full h-1 bg-[var(--surface-3)] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[var(--accent)] transition-all duration-300 rounded-full"
+                        className="h-full bg-[var(--accent)] rounded-full"
                         style={{ width: `${Math.max(item.pct, 3)}%` }}
                       />
                     </div>
@@ -452,12 +430,12 @@ export const AiRiskEstimateCard: React.FC = () => {
 
           {/* Section B: At risk (0.2 <= probability < 0.5) */}
           {atRisk.length > 0 && (
-            <div className="space-y-2.5 pt-1">
+            <div className="space-y-2 pt-1">
               <div className="flex items-center justify-between">
-                <h5 className="apple-eyebrow flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-[var(--status-warning)]" />
+                <div className="ops-eyebrow flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-degraded)]" />
                   <span>At risk (20% – 50% probability)</span>
-                </h5>
+                </div>
                 <span className="text-[11px] text-[var(--text-tertiary)]">Click to locate</span>
               </div>
 
@@ -466,26 +444,26 @@ export const AiRiskEstimateCard: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={() => handleSelectNode(item.id)}
-                    className="p-3 rounded-[16px] bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--border)] text-left transition-all group flex flex-col justify-between cursor-pointer"
+                    className="p-2.5 rounded-[8px] bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border-subtle)] text-left transition-colors flex flex-col justify-between cursor-pointer"
                     title={`Locate ${item.name} (${item.id}) on map`}
                   >
-                    <div className="flex items-center justify-between gap-1 w-full mb-2">
+                    <div className="flex items-center justify-between gap-1 w-full mb-1.5">
                       <div className="flex items-center gap-1.5 truncate">
-                        <span className="text-xs font-medium text-[var(--text-secondary)] group-hover:text-[var(--text)] transition-colors truncate">
+                        <span className="text-xs font-medium text-[var(--text-secondary)] truncate">
                           {item.name}
                         </span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[var(--surface)] text-[var(--text-tertiary)] border border-[var(--border)] shrink-0 font-medium">
+                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-[var(--surface-3)] text-[var(--text-tertiary)] border border-[var(--border-subtle)] shrink-0 font-medium">
                           {item.id}
                         </span>
                       </div>
-                      <span className="text-xs font-semibold text-[var(--status-warning)] shrink-0 tabular-nums">
+                      <span className="text-xs font-semibold text-[var(--status-degraded)] shrink-0 tabular-nums">
                         {item.pct}%
                       </span>
                     </div>
 
-                    <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
+                    <div className="w-full h-1 bg-[var(--surface-3)] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[var(--status-warning)] transition-all duration-300 rounded-full"
+                        className="h-full bg-[var(--status-degraded)] rounded-full"
                         style={{ width: `${Math.max(item.pct, 3)}%` }}
                       />
                     </div>
@@ -498,7 +476,7 @@ export const AiRiskEstimateCard: React.FC = () => {
       )}
 
       {/* Footer */}
-      <div className="pt-2.5 border-t border-[var(--border)] text-[11px] text-[var(--text-tertiary)] leading-relaxed">
+      <div className="pt-2 border-t border-[var(--border-subtle)] text-[11px] text-[var(--text-tertiary)] leading-relaxed">
         Surrogate ML model trained on {model.trained_on} simulated cascades; held-out R2{" "}
         {r2PopHours} on population impact. Synthetic data. The simulator is the source of truth.
       </div>

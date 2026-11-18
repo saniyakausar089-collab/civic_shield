@@ -53,7 +53,7 @@ export function SimulatorPage() {
 
   return (
     <AuthGuard>
-      <div className="relative w-screen h-screen overflow-hidden bg-[#F7F8FA] dark:bg-[#09090B] select-none flex flex-col font-sans">
+      <div className="relative w-screen h-screen overflow-hidden bg-[var(--bg-base)] text-[var(--text-primary)] select-none flex flex-col font-sans">
       {/* 1. Engineering Top Bar */}
       <TopBar />
 
@@ -64,13 +64,13 @@ export function SimulatorPage() {
 
         {/* Central GIS Viewport Container */}
         <div
-          className="flex-1 relative h-full min-w-0 bg-[#09090B]"
+          className="flex-1 relative h-full min-w-0 bg-[var(--bg-base)]"
           style={{ height: "100%", minHeight: "400px" }}
         >
           {/* 3D GIS Canvas (CesiumJS 3D Globe or ThreeJS Synthetic Twin) */}
           <ClientOnly
             fallback={
-              <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#94A3B8] dark:text-[#A1A1AA] bg-[#09090B]">
+              <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[var(--text-tertiary)] bg-[var(--bg-base)]">
                 Initializing 3D Viewport...
               </div>
             }
@@ -78,7 +78,7 @@ export function SimulatorPage() {
             <ErrorBoundary fallbackTitle="Geospatial 3D Viewport Error">
               <Suspense
                 fallback={
-                  <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[#94A3B8] dark:text-[#A1A1AA] bg-[#09090B]">
+                  <div className="w-full h-full flex items-center justify-center font-mono text-xs text-[var(--text-tertiary)] bg-[var(--bg-base)]">
                     Loading 3D Viewport...
                   </div>
                 }
@@ -100,12 +100,12 @@ export function SimulatorPage() {
             </ErrorBoundary>
           </ClientOnly>
 
-          {/* Unified Floating Glass Map Toolbar (Apple / Google Style) */}
-          <div className="absolute top-3 left-3 z-10 flex items-center gap-2 p-1.5 bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--border)] rounded-full shadow-[var(--shadow-soft)] max-w-[calc(100%-24px)] flex-wrap">
+          {/* Unified Floating Glass Map Toolbar (Minimalist Ops Console) */}
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-2 p-1.5 bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-full shadow-[var(--shadow-floating)] max-w-[calc(100%-24px)] flex-wrap">
             {/* Toggle Left Scenario Panel */}
             <button
               onClick={() => setShowLeftPanel(!showLeftPanel)}
-              className="w-8 h-8 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              className="w-8 h-8 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               title={showLeftPanel ? "Hide Scenario Panel" : "Show Scenario Panel"}
               aria-label={showLeftPanel ? "Hide Scenario Panel" : "Show Scenario Panel"}
             >
@@ -113,13 +113,13 @@ export function SimulatorPage() {
             </button>
 
             {/* Segmented Control: Cesium 3D | Synthetic Twin */}
-            <div className="flex items-center bg-[var(--surface-2)] border border-[var(--border)] rounded-full p-0.5 shrink-0">
+            <div className="flex items-center bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-full p-0.5 shrink-0">
               <button
                 onClick={() => setStore({ viewportMode: "cesium" })}
                 className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
                   viewportMode === "cesium"
-                    ? "bg-[var(--surface)] text-[var(--text)] font-semibold shadow-xs"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text)]"
+                    ? "bg-[var(--surface-1)] text-[var(--text-primary)] font-semibold shadow-none"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
                 title="Cesium 3D Globe + Satellite Imagery"
               >
@@ -130,8 +130,8 @@ export function SimulatorPage() {
                 onClick={() => setStore({ viewportMode: "three" })}
                 className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
                   viewportMode === "three"
-                    ? "bg-[var(--surface)] text-[var(--text)] font-semibold shadow-xs"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text)]"
+                    ? "bg-[var(--surface-1)] text-[var(--text-primary)] font-semibold shadow-none"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
                 title="Synthetic Topographic Twin (Three.js)"
               >
@@ -140,7 +140,7 @@ export function SimulatorPage() {
               </button>
             </div>
 
-            {/* Fast Map Area & Facility Search (Google Pill Style) */}
+            {/* Fast Map Area & Facility Search */}
             <div className="shrink-0">
               <MapAreaSearch />
             </div>
@@ -151,7 +151,7 @@ export function SimulatorPage() {
                 resetAllLayers();
                 setResetSignal((s) => s + 1);
               }}
-              className="w-8 h-8 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              className="w-8 h-8 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               title="Reset GIS Camera View"
               aria-label="Reset GIS Camera View"
             >
@@ -163,8 +163,8 @@ export function SimulatorPage() {
               onClick={togglePlaceLabels}
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
                 showPlaceLabels
-                  ? "bg-[var(--accent-tint)] text-[var(--accent)] border border-[var(--accent)]"
-                  : "bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)]"
+                  ? "bg-[var(--accent-muted)] text-[var(--accent)] border border-[var(--accent)]"
+                  : "bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
               title={showPlaceLabels ? "Hide College & Place Labels on Globe" : "Show College & Place Labels on Globe"}
               aria-label="Toggle College & Place Labels"
@@ -177,19 +177,19 @@ export function SimulatorPage() {
               onClick={toggleInspectMode}
               className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
                 inspectMode
-                  ? "bg-[var(--accent-tint)] text-[var(--accent)] border border-[var(--accent)] ring-2 ring-[var(--accent-tint-hover)]"
-                  : "bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)]"
+                  ? "bg-[var(--accent-muted)] text-[var(--accent)] border border-[var(--accent)]"
+                  : "bg-[var(--surface-2)] hover:bg-[var(--surface-3)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               }`}
               title={inspectMode ? "Inspect Mode Active (Click any building)" : "Enable Inspect Places Mode"}
               aria-label="Toggle Inspect Places Mode"
             >
-              <span className={`w-2 h-2 rounded-full ${inspectMode ? "bg-[var(--accent)] animate-pulse" : "bg-[var(--text-tertiary)]"}`} />
+              <span className={`w-2 h-2 rounded-full ${inspectMode ? "bg-[var(--accent)]" : "bg-[var(--text-tertiary)]"}`} />
             </button>
 
             {/* 3D Tiles Style Selector (when in Cesium Mode) */}
             {viewportMode === "cesium" && (
               <div
-                className="flex items-center gap-1.5 bg-[var(--surface-2)] border border-[var(--border)] rounded-full px-2.5 py-1 shrink-0 text-xs text-[var(--text-secondary)]"
+                className="flex items-center gap-1.5 bg-[var(--surface-2)] border border-[var(--border-subtle)] rounded-full px-2.5 py-1 shrink-0 text-xs text-[var(--text-secondary)]"
                 title="Cesium 3D Building Styling"
               >
                 <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
@@ -200,7 +200,7 @@ export function SimulatorPage() {
                       cesiumBuildingStyle: e.target.value as "year" | "height" | "tall" | "none",
                     })
                   }
-                  className="bg-transparent text-xs text-[var(--text)] font-medium focus:outline-none cursor-pointer"
+                  className="bg-transparent text-xs text-[var(--text-primary)] font-medium focus:outline-none cursor-pointer"
                   aria-label="Cesium 3D Building Styling"
                 >
                   <option value="year">Construction Year</option>
@@ -216,7 +216,7 @@ export function SimulatorPage() {
               className="px-2.5 py-1 rounded-full bg-[var(--surface-2)] text-[11px] font-semibold text-[var(--text-secondary)] flex items-center gap-1 shrink-0"
               title="Camera Orientation: North Up"
             >
-              <Compass className="w-3.5 h-3.5 text-[var(--accent)]" />
+              <Compass className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />
               <span>NORTH ↑</span>
             </div>
           </div>

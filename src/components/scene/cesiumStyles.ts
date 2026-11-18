@@ -11,15 +11,15 @@ export function createYearStyle(): Cesium.Cesium3DTileStyle {
       conditions: [
         [
           "Boolean(${cnstrct_yr}) === false || Number(${cnstrct_yr}) === 0 || ${cnstrct_yr} === null",
-          "color('grey', 0.65)",
+          "color('#4A4E57', 0.65)",
         ],
-        ["Number(${cnstrct_yr}) < 1900", "color('#4b0082', 0.85)"],
-        ["Number(${cnstrct_yr}) < 1940", "color('#0000cd', 0.85)"],
-        ["Number(${cnstrct_yr}) < 1970", "color('#008080', 0.85)"],
-        ["Number(${cnstrct_yr}) < 1990", "color('#228b22', 0.85)"],
-        ["Number(${cnstrct_yr}) < 2000", "color('#ffd700', 0.85)"],
-        ["Number(${cnstrct_yr}) < 2010", "color('#ff8c00', 0.85)"],
-        ["true", "color('#ff3300', 0.85)"],
+        ["Number(${cnstrct_yr}) < 1900", "color('#312E5C', 0.85)"],
+        ["Number(${cnstrct_yr}) < 1940", "color('#3F4F8C', 0.85)"],
+        ["Number(${cnstrct_yr}) < 1970", "color('#3F7D9A', 0.85)"],
+        ["Number(${cnstrct_yr}) < 1990", "color('#52A38F', 0.85)"],
+        ["Number(${cnstrct_yr}) < 2000", "color('#9CC47E', 0.85)"],
+        ["Number(${cnstrct_yr}) < 2010", "color('#E0C56B', 0.85)"],
+        ["true", "color('#F0F0D8', 0.85)"],
       ],
     },
   });

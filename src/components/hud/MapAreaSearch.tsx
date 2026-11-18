@@ -433,19 +433,19 @@ export const MapAreaSearch: React.FC = () => {
   };
 
   const getCategoryIcon = (category: string, type?: string) => {
-    if (category === "neighborhood") return <Building className="w-3.5 h-3.5 text-[#38bdf8]" />;
-    if (category === "landmark") return <MapPin className="w-3.5 h-3.5 text-[#e09f3e]" />;
-    if (category === "geocoded") return <Globe className="w-3.5 h-3.5 text-[#9BAA76]" />;
-    if (type === "power") return <Zap className="w-3.5 h-3.5 text-[#eab308]" />;
-    if (type === "water") return <Droplets className="w-3.5 h-3.5 text-[#06b6d4]" />;
-    if (type === "hospital") return <Activity className="w-3.5 h-3.5 text-[#ef4444]" />;
-    if (type === "telecom") return <Radio className="w-3.5 h-3.5 text-[#a855f7]" />;
-    return <Car className="w-3.5 h-3.5 text-[#94a3b8]" />;
+    if (category === "neighborhood") return <Building className="w-3.5 h-3.5 text-[var(--text-secondary)]" />;
+    if (category === "landmark") return <MapPin className="w-3.5 h-3.5 text-[var(--text-secondary)]" />;
+    if (category === "geocoded") return <Globe className="w-3.5 h-3.5 text-[var(--text-secondary)]" />;
+    if (type === "power") return <Zap className="w-3.5 h-3.5 text-[var(--sys-power)]" />;
+    if (type === "water") return <Droplets className="w-3.5 h-3.5 text-[var(--sys-water)]" />;
+    if (type === "hospital") return <Activity className="w-3.5 h-3.5 text-[var(--status-failed)]" />;
+    if (type === "telecom") return <Radio className="w-3.5 h-3.5 text-[var(--sys-telecom)]" />;
+    return <Car className="w-3.5 h-3.5 text-[var(--sys-road)]" />;
   };
 
   return (
     <div className="relative font-sans" ref={dropdownRef}>
-      {/* Search Input Box (Google Style Pill) */}
+      {/* Search Input Box */}
       <div className="relative flex items-center">
         <div className="absolute left-3 pointer-events-none text-[var(--text-tertiary)]">
           <Search className="w-3.5 h-3.5" />
@@ -462,7 +462,7 @@ export const MapAreaSearch: React.FC = () => {
           }}
           onKeyDown={handleKeyDown}
           placeholder="Search places or infrastructure... (/)"
-          className="w-48 sm:w-60 md:w-72 bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--text-tertiary)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-tint)] rounded-full pl-9 pr-14 py-1.5 text-xs text-[var(--text)] placeholder-[var(--text-tertiary)] transition-all outline-none"
+          className="w-48 sm:w-60 md:w-72 bg-[var(--surface-1)] border border-[var(--border-subtle)] hover:border-[var(--text-tertiary)] focus:border-[var(--accent)] rounded-full pl-9 pr-14 py-1.5 text-xs text-[var(--text-primary)] placeholder-[var(--text-tertiary)] transition-colors outline-none"
         />
 
         {/* Clear Button / Hotkey Badge */}
@@ -473,12 +473,12 @@ export const MapAreaSearch: React.FC = () => {
                 setQuery("");
                 inputRef.current?.focus();
               }}
-              className="p-0.5 rounded-full hover:text-[var(--text)] cursor-pointer"
+              className="p-0.5 rounded-full hover:text-[var(--text-primary)] cursor-pointer"
             >
               <X className="w-3 h-3" />
             </button>
           ) : (
-            <div className="hidden sm:flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[10px] font-mono text-[var(--text-tertiary)]">
+            <div className="hidden sm:flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border-subtle)] text-[10px] font-mono text-[var(--text-tertiary)]">
               <Command className="w-2.5 h-2.5" />
               <span>K</span>
             </div>
@@ -488,10 +488,10 @@ export const MapAreaSearch: React.FC = () => {
 
       {/* Autocomplete Results Dropdown */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-2 w-80 sm:w-96 bg-[var(--surface)] border border-[var(--border)] rounded-[20px] shadow-[var(--shadow-soft)] p-3 text-xs text-[var(--text)] z-50 animate-in fade-in zoom-in-95 duration-100 max-h-[380px] overflow-y-auto">
+        <div className="absolute left-0 top-full mt-2 w-80 sm:w-96 bg-[var(--surface-1)] border border-[var(--border-subtle)] rounded-[12px] shadow-[0_8px_24px_rgba(0,0,0,0.35)] p-3 text-xs text-[var(--text-primary)] z-50 animate-in fade-in zoom-in-95 duration-100 max-h-[380px] overflow-y-auto">
           {/* Quick Teleport Header Chips */}
-          <div className="pb-2.5 mb-2 border-b border-[var(--border)]">
-            <div className="text-[10px] uppercase font-semibold text-[var(--text-tertiary)] mb-1.5 flex items-center gap-1">
+          <div className="pb-2.5 mb-2 border-b border-[var(--border-subtle)]">
+            <div className="ops-eyebrow text-[10px] mb-1.5 flex items-center gap-1">
               <Sparkles className="w-3 h-3 text-[var(--accent)]" />
               <span>Quick Teleport</span>
             </div>
@@ -516,7 +516,7 @@ export const MapAreaSearch: React.FC = () => {
                     );
                     if (match) handleSelect(match);
                   }}
-                  className="px-2.5 py-0.5 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] text-[11px] text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors cursor-pointer"
+                  className="px-2.5 py-0.5 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface-3)] border border-[var(--border-subtle)] text-[11px] text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors cursor-pointer"
                 >
                   {pill.name}
                 </button>
@@ -527,7 +527,7 @@ export const MapAreaSearch: React.FC = () => {
           {/* Results List */}
           <div className="space-y-0.5">
             {allResults.length === 0 ? (
-              <div className="py-4 text-center text-[#94A3B8] dark:text-[#71717A] text-xs">
+              <div className="py-4 text-center text-[var(--text-tertiary)] text-xs">
                 {isSearchingGeocode ? (
                   <span>Searching Hyderabad region...</span>
                 ) : (
@@ -542,21 +542,21 @@ export const MapAreaSearch: React.FC = () => {
                     key={item.id}
                     onClick={() => handleSelect(item)}
                     onMouseEnter={() => setSelectedIndex(idx)}
-                    className={`flex items-start gap-2.5 p-2 rounded-md cursor-pointer transition-colors ${
+                    className={`flex items-start gap-2.5 p-2 rounded-[8px] cursor-pointer transition-colors ${
                       isSelected
-                        ? "bg-[#F7F8FA] dark:bg-[#181B22] text-[#111827] dark:text-[#FAFAFA] border border-[#2563EB]/30 dark:border-[#3B82F6]/30"
-                        : "hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] text-[#475569] dark:text-[#A1A1AA] border border-transparent"
+                        ? "bg-[var(--surface-2)] text-[var(--text-primary)] border border-[var(--accent)]"
+                        : "hover:bg-[var(--surface-2)] text-[var(--text-secondary)] border border-transparent"
                     }`}
                   >
-                    <div className="p-1 rounded-[4px] bg-[#F7F8F5] border border-[#E5E7EB] mt-0.5 shrink-0">
+                    <div className="p-1 rounded-[4px] bg-[var(--surface-3)] border border-[var(--border-subtle)] mt-0.5 shrink-0">
                       {getCategoryIcon(item.category, item.type)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-xs truncate text-[#111827]">
+                        <span className="font-semibold text-xs truncate text-[var(--text-primary)]">
                           {item.name}
                         </span>
-                        <span className="text-[10px] uppercase font-medium px-1.5 py-0.2 rounded bg-[#F7F8F5] text-[#64748B] border border-[#E5E7EB] shrink-0 ml-1">
+                        <span className="ops-chip text-[9.5px] uppercase shrink-0 ml-1">
                           {item.category === "neighborhood"
                             ? "Zone"
                             : item.category === "asset"
@@ -566,11 +566,11 @@ export const MapAreaSearch: React.FC = () => {
                             : "OSM"}
                         </span>
                       </div>
-                      <div className="text-[11px] text-[#64748B] truncate mt-0.5">
+                      <div className="text-[11px] text-[var(--text-tertiary)] truncate mt-0.5">
                         {item.subtitle}
                       </div>
                     </div>
-                    <div className="shrink-0 text-[#64748B] hover:text-[#0078D4] self-center">
+                    <div className="shrink-0 text-[var(--text-tertiary)] hover:text-[var(--accent)] self-center">
                       <Navigation className="w-3.5 h-3.5" />
                     </div>
                   </div>
@@ -580,7 +580,7 @@ export const MapAreaSearch: React.FC = () => {
           </div>
 
           {/* Footer Navigation Tip */}
-          <div className="pt-2 mt-2 border-t border-[#E5E7EB] flex items-center justify-between text-[11px] text-[#64748B]">
+          <div className="pt-2 mt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-[11px] text-[var(--text-tertiary)]">
             <span>Press ↑↓ to navigate, Enter to fly</span>
             <span className="text-[10px] font-medium">Hyderabad Testbed</span>
           </div>

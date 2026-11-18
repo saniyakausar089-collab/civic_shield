@@ -38,20 +38,20 @@ export const TimeScrubber: React.FC = () => {
   const currentMarkerX = (Math.min(24, hour) / 24) * chartWidth;
 
   return (
-    <div className="bg-card/90 backdrop-blur-md rounded-2xl border border-border shadow-xl p-3 max-w-lg w-full mx-auto">
+    <div className="bg-[var(--surface-1)] rounded-[12px] border border-[var(--border-subtle)] shadow-[0_8px_24px_rgba(0,0,0,0.35)] p-3 max-w-lg w-full mx-auto font-sans">
       {/* Top Row: Mini Chart & Current Hour Indicator */}
       <div className="flex items-center justify-between gap-3 mb-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono font-bold text-cyan-400 bg-cyan-950/40 px-2 py-0.5 rounded border border-cyan-800/50">
+          <span className="ops-chip text-xs font-mono font-semibold text-[var(--text-primary)]">
             T+{hour.toString().padStart(2, "0")}h
           </span>
-          <span className="text-[11px] text-muted-foreground font-medium">
+          <span className="text-[11px] text-[var(--text-secondary)] font-medium tabular-nums">
             {chartData[hour]?.affectedPopulation.toLocaleString()} residents affected
           </span>
         </div>
 
         {/* Mini Sparkline Chart */}
-        <div className="relative overflow-hidden rounded bg-muted/40 px-1 py-0.5">
+        <div className="relative overflow-hidden rounded-[6px] bg-[var(--surface-2)] border border-[var(--border-subtle)] px-1 py-0.5">
           <svg
             width={chartWidth}
             height={chartHeight}
@@ -59,15 +59,15 @@ export const TimeScrubber: React.FC = () => {
             viewBox={`0 0 ${chartWidth} ${chartHeight}`}
             preserveAspectRatio="none"
           >
-            <path d={pathD} fill="rgba(6, 182, 212, 0.15)" />
-            <path d={lineD} fill="none" stroke="#06b6d4" strokeWidth="1.5" />
-            {/* Current Hour Indicator Line */}
+            <path d={pathD} fill="var(--accent-muted)" />
+            <path d={lineD} fill="none" stroke="var(--text-secondary)" strokeWidth="1.5" />
+            {/* Current Hour Indicator Line in status-failed */}
             <line
               x1={currentMarkerX}
               y1={0}
               x2={currentMarkerX}
               y2={chartHeight}
-              stroke="#ef4444"
+              stroke="var(--status-failed)"
               strokeWidth="2"
             />
           </svg>
@@ -79,11 +79,11 @@ export const TimeScrubber: React.FC = () => {
         {/* Play / Pause */}
         <button
           onClick={togglePlay}
-          className="p-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm shrink-0"
+          className="ops-btn-primary p-2 rounded-[8px] shrink-0"
           title={playing ? "Pause" : "Play"}
           aria-label={playing ? "Pause simulation" : "Play simulation"}
         >
-          {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
+          {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5 fill-current" />}
         </button>
 
         {/* Reset Hour to 0 */}
@@ -91,7 +91,7 @@ export const TimeScrubber: React.FC = () => {
           onClick={() => {
             setHour(0);
           }}
-          className="p-2 rounded-xl bg-secondary text-secondary-foreground hover:bg-accent transition-colors shrink-0"
+          className="ops-btn-secondary p-2 rounded-[8px] shrink-0"
           title="Reset to Hour 0"
           aria-label="Reset to Hour 0"
         >
@@ -101,10 +101,10 @@ export const TimeScrubber: React.FC = () => {
         {/* 1x / 4x Speed */}
         <button
           onClick={() => setSpeed(speed === 1 ? 4 : 1)}
-          className={`px-2.5 py-1.5 rounded-xl text-xs font-mono font-semibold transition-colors shrink-0 flex items-center gap-1 border ${
+          className={`px-2.5 py-1.5 rounded-[8px] text-xs font-mono font-semibold transition-colors shrink-0 flex items-center gap-1 border ${
             speed === 4
-              ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
-              : "bg-secondary text-muted-foreground border-border hover:text-foreground"
+              ? "bg-[var(--surface-3)] text-[var(--text-primary)] border-[var(--border-strong)]"
+              : "ops-btn-secondary"
           }`}
           title="Playback speed"
         >
@@ -121,7 +121,7 @@ export const TimeScrubber: React.FC = () => {
             step={1}
             value={hour}
             onChange={(e) => setHour(parseInt(e.target.value, 10))}
-            className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-cyan-400 focus:outline-none"
+            className="w-full h-1.5 bg-[var(--surface-3)] rounded-full appearance-none cursor-pointer accent-[var(--accent)] focus:outline-none"
             aria-label="Simulation hour scrubber"
           />
         </div>

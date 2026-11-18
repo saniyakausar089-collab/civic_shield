@@ -8,14 +8,14 @@ export const STYLE_LEGEND_CONFIGS = {
   year: {
     title: "Construction Year",
     items: [
-      { color: "#808080", label: "Unknown / Missing data" },
-      { color: "#4b0082", label: "Before 1900" },
-      { color: "#0000cd", label: "1900–1939" },
-      { color: "#008080", label: "1940–1969" },
-      { color: "#228b22", label: "1970–1989" },
-      { color: "#ffd700", label: "1990–1999" },
-      { color: "#ff8c00", label: "2000–2009" },
-      { color: "#ff3300", label: "2010–present" },
+      { color: "#4A4E57", label: "Unknown / Missing data" },
+      { color: "#312E5C", label: "Before 1900" },
+      { color: "#3F4F8C", label: "1900–1939" },
+      { color: "#3F7D9A", label: "1940–1969" },
+      { color: "#52A38F", label: "1970–1989" },
+      { color: "#9CC47E", label: "1990–1999" },
+      { color: "#E0C56B", label: "2000–2009" },
+      { color: "#F0F0D8", label: "2010–present" },
     ],
   },
   height: {

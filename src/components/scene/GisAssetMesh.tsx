@@ -21,14 +21,14 @@ interface GisAssetMeshProps {
 export function getAssetStatusColor(status: NodeStatus): string {
   switch (status) {
     case "failed":
-      return "#d9534f";
+      return "#F0524A";
     case "stressed":
-      return "#e09f3e";
+      return "#F0A23B";
     case "recovering":
-      return "#8fae70";
+      return "#8FA39A";
     case "ok":
     default:
-      return "#5c7356"; // Restrained GIS green
+      return "#8FA39A";
   }
 }
 
@@ -92,7 +92,7 @@ export const GisAssetMesh: React.FC<GisAssetMeshProps> = ({
       <mesh position={[0, 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[fpW * 1.15, fpD * 1.15]} />
         <meshBasicMaterial
-          color={isFailed ? "#401c1c" : isStressed ? "#3d2d14" : isSelected ? "#3a462b" : "#1e262c"}
+          color={isFailed ? "#2A1818" : isStressed ? "#261D12" : isSelected ? "#1E2126" : "#17191D"}
           side={THREE.DoubleSide}
         />
       </mesh>
@@ -101,7 +101,7 @@ export const GisAssetMesh: React.FC<GisAssetMeshProps> = ({
       <lineSegments position={[0, 0.03, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <edgesGeometry args={[new THREE.PlaneGeometry(fpW * 1.15, fpD * 1.15)]} />
         <lineBasicMaterial
-          color={isSelected ? "#9BAA76" : isFailed ? "#d9534f" : "#303941"}
+          color={isSelected ? "#8B9DFF" : isFailed ? "#F0524A" : "#2F333A"}
           linewidth={isSelected ? 2 : 1}
         />
       </lineSegments>
@@ -128,7 +128,7 @@ export const GisAssetMesh: React.FC<GisAssetMeshProps> = ({
           {/* Mast top beacon */}
           <mesh position={[0, height + 0.1, 0]}>
             <sphereGeometry args={[0.08, 8, 8]} />
-            <meshBasicMaterial color={isFailed ? "#d9534f" : "#9BAA76"} />
+            <meshBasicMaterial color={isFailed ? "#F0524A" : "#8FA39A"} />
           </mesh>
         </group>
       ) : node.kind === "pipeline" ? (
@@ -174,7 +174,7 @@ export const GisAssetMesh: React.FC<GisAssetMeshProps> = ({
         <lineSegments position={[0, posY, 0]}>
           <edgesGeometry args={[new THREE.BoxGeometry(fpW, height, fpD)]} />
           <lineBasicMaterial
-            color={isSelected ? "#ffffff" : isFailed ? "#ff6b6b" : "#404c56"}
+            color={isSelected ? "#ECEDEF" : isFailed ? "#F0524A" : "#2F333A"}
           />
         </lineSegments>
       )}
@@ -193,12 +193,12 @@ export const GisAssetMesh: React.FC<GisAssetMeshProps> = ({
         </group>
       )}
 
-      {/* Subtle Asset Selection Highlight - Restrained Olive/White Ring */}
+      {/* Subtle Asset Selection Highlight - Restrained Accent Ring */}
       {isSelected && (
         <group position={[0, height + 0.35, 0]}>
           <mesh rotation={[-Math.PI / 2, 0, 0]}>
             <ringGeometry args={[0.55, 0.7, 32]} />
-            <meshBasicMaterial color="#9BAA76" side={THREE.DoubleSide} />
+            <meshBasicMaterial color="#8B9DFF" side={THREE.DoubleSide} />
           </mesh>
         </group>
       )}
@@ -208,7 +208,7 @@ export const GisAssetMesh: React.FC<GisAssetMeshProps> = ({
         <group position={[0, height + 0.5, 0]}>
           <mesh>
             <octahedronGeometry args={[0.22]} />
-            <meshBasicMaterial color="#d9534f" />
+            <meshBasicMaterial color="#F0524A" />
           </mesh>
         </group>
       )}

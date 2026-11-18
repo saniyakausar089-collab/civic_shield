@@ -31,11 +31,11 @@ export const ResizableAnalysisDrawer: React.FC = () => {
 
   return (
     <div
-      className={`w-full bg-[var(--surface)] border-t border-[var(--border)] text-[var(--text)] transition-all duration-200 ease-in-out flex flex-col z-20 shrink-0 font-sans shadow-sm ${heightClass}`}
+      className={`w-full bg-[var(--surface-1)] border-t border-[var(--border-subtle)] text-[var(--text-primary)] transition-all duration-150 ease-out flex flex-col z-20 shrink-0 font-sans shadow-none ${heightClass}`}
     >
-      {/* Drawer Control & Apple Underline Tab Bar */}
-      <div className="h-11 px-4 sm:px-6 flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-2)] shrink-0">
-        {/* Apple Underline Tab Buttons (Text Only) */}
+      {/* Drawer Control & Underline Tab Bar */}
+      <div className="h-11 px-4 sm:px-6 flex items-center justify-between border-b border-[var(--border-subtle)] bg-[var(--surface-2)] shrink-0">
+        {/* Underline Tab Buttons (Accent ONLY for active tab) */}
         <div className="flex items-center gap-1 sm:gap-4 overflow-x-auto no-scrollbar">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -46,10 +46,10 @@ export const ResizableAnalysisDrawer: React.FC = () => {
                   setActiveTab(tab.id);
                   if (drawerState === "collapsed") setDrawerState("compact");
                 }}
-                className={`relative px-3 py-2.5 text-xs sm:text-[13.5px] font-medium transition-colors cursor-pointer ${
+                className={`relative px-3 py-2.5 text-xs sm:text-[13px] font-medium transition-colors cursor-pointer ${
                   isActive
-                    ? "text-[var(--text)] font-semibold"
-                    : "text-[var(--text-secondary)] hover:text-[var(--text)]"
+                    ? "text-[var(--text-primary)] font-semibold"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
                 }`}
               >
                 <span>{tab.label}</span>
@@ -66,7 +66,7 @@ export const ResizableAnalysisDrawer: React.FC = () => {
           {drawerState !== "collapsed" && (
             <button
               onClick={() => setDrawerState(drawerState === "expanded" ? "compact" : "expanded")}
-              className="px-2.5 py-1 rounded-full text-[var(--text-tertiary)] hover:text-[var(--text)] hover:bg-[var(--surface)] text-[11px] font-medium flex items-center gap-1 border border-transparent hover:border-[var(--border)] transition-colors cursor-pointer"
+              className="px-2.5 py-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-3)] text-[11px] font-medium flex items-center gap-1 border border-transparent hover:border-[var(--border-subtle)] transition-colors cursor-pointer"
               title={drawerState === "expanded" ? "Restore drawer height" : "Expand drawer"}
             >
               {drawerState === "expanded" ? (
@@ -87,7 +87,7 @@ export const ResizableAnalysisDrawer: React.FC = () => {
             onClick={() =>
               setDrawerState(drawerState === "collapsed" ? "compact" : "collapsed")
             }
-            className="px-2.5 py-1 rounded-full text-[var(--text-tertiary)] hover:text-[var(--text)] hover:bg-[var(--surface)] text-[11px] font-medium flex items-center gap-1 border border-transparent hover:border-[var(--border)] transition-colors cursor-pointer"
+            className="px-2.5 py-1 rounded-full text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-3)] text-[11px] font-medium flex items-center gap-1 border border-transparent hover:border-[var(--border-subtle)] transition-colors cursor-pointer"
             title={drawerState === "collapsed" ? "Open drawer" : "Collapse drawer"}
           >
             {drawerState === "collapsed" ? (
@@ -107,7 +107,7 @@ export const ResizableAnalysisDrawer: React.FC = () => {
 
       {/* Drawer Content Body */}
       {drawerState !== "collapsed" && (
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[var(--surface)]">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[var(--surface-1)]">
           {activeTab === "simulate" && <SimulateTab />}
           {activeTab === "plans" && <PlansTab />}
           {activeTab === "weaklinks" && <WeakLinksTab />}
