@@ -123,21 +123,21 @@ export const WeakLinksTab: React.FC = () => {
     switch (network.toLowerCase()) {
       case "power":
         return (
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
+          <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-500/10 text-[var(--status-warning)] border border-amber-500/20">
             <Zap className="w-2.5 h-2.5" />
             Power
           </span>
         );
       case "water":
         return (
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[10px] font-medium bg-blue-500/10 text-[#2563EB] dark:text-[#3B82F6] border border-[#2563EB]/20 dark:border-[#3B82F6]/30">
+          <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-[var(--accent-tint)] text-[var(--accent)] border border-[var(--accent)]/30">
             <Droplets className="w-2.5 h-2.5" />
             Water
           </span>
         );
       case "telecom":
         return (
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[10px] font-medium bg-purple-500/10 text-purple-700 dark:text-purple-400 border border-purple-500/20">
+          <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20">
             <Wifi className="w-2.5 h-2.5" />
             Telecom
           </span>
@@ -145,7 +145,7 @@ export const WeakLinksTab: React.FC = () => {
       case "road":
       case "transport":
         return (
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[10px] font-medium bg-orange-500/10 text-orange-700 dark:text-orange-400 border border-orange-500/20">
+          <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20">
             <Navigation className="w-2.5 h-2.5" />
             Road
           </span>
@@ -153,14 +153,14 @@ export const WeakLinksTab: React.FC = () => {
       case "hospital":
       case "health":
         return (
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded-[4px] text-[10px] font-medium bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
+          <span className="flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-rose-500/10 text-[var(--status-danger)] border border-rose-500/20">
             <Cross className="w-2.5 h-2.5" />
             Hospital
           </span>
         );
       default:
         return (
-          <span className="px-2 py-0.5 rounded-[4px] text-[10px] text-[#94A3B8] dark:text-[#71717A] bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A]">
+          <span className="px-2.5 py-0.5 rounded-full text-[10px] text-[var(--text-tertiary)] bg-[var(--surface-2)] border border-[var(--border)]">
             {network}
           </span>
         );
@@ -169,25 +169,25 @@ export const WeakLinksTab: React.FC = () => {
 
   if (!networkData || !neighborhoodsData || weakLinks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center text-xs font-sans text-[#94A3B8] dark:text-[#71717A] gap-2">
-        <Activity className="w-5 h-5 text-[#2563EB] dark:text-[#3B82F6] animate-pulse" />
+      <div className="flex flex-col items-center justify-center p-8 text-center text-xs font-sans text-[var(--text-tertiary)] gap-2">
+        <Activity className="w-5 h-5 text-[var(--accent)] animate-pulse" />
         <span>Evaluating multi-network vulnerability and criticality across 26 assets...</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 select-none font-sans text-[#111827] dark:text-[#FAFAFA]">
+    <div className="space-y-4 select-none font-sans text-[var(--text)]">
       {/* Top Banner & Action Controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white dark:bg-[#111318] p-4 rounded-xl border border-[#E5E7EB] dark:border-[#27272A] shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[var(--surface)] p-5 rounded-[20px] border border-[var(--border)] shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-            <h3 className="text-xs uppercase font-semibold tracking-wider text-[#111827] dark:text-[#FAFAFA]">
+            <ShieldAlert className="w-4 h-4 text-[var(--status-danger)]" />
+            <h3 className="text-xs uppercase font-semibold tracking-wider text-[var(--text)]">
               Infrastructure Weak Links Ranking
             </h3>
           </div>
-          <p className="text-[11px] text-[#94A3B8] dark:text-[#71717A] mt-0.5">
+          <p className="text-[11.5px] text-[var(--text-secondary)] mt-1">
             Composite 0–100 vulnerability: Impact (55%) • Graph Structure (20%) • Asset Condition (25%)
           </p>
         </div>
@@ -196,10 +196,10 @@ export const WeakLinksTab: React.FC = () => {
           {/* Button: Show top 5 on globe */}
           <button
             onClick={handleToggleTop5}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors border cursor-pointer ${
+            className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-colors border cursor-pointer ${
               top5Active
-                ? "bg-rose-500/10 dark:bg-rose-950/40 border-rose-500/40 text-rose-600 dark:text-rose-400 shadow-xs"
-                : "bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA]"
+                ? "bg-rose-500/10 border-rose-500/40 text-[var(--status-danger)] shadow-xs"
+                : "bg-[var(--surface-2)] hover:bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text)]"
             }`}
             title="Pulse top 5 vulnerable single points of failure on the 3D globe"
           >
@@ -210,7 +210,7 @@ export const WeakLinksTab: React.FC = () => {
           {/* Toggle All / Top 10 */}
           <button
             onClick={() => setShowAll((v) => !v)}
-            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-[#111318] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] text-[#2563EB] dark:text-[#3B82F6] transition-colors cursor-pointer shadow-2xs"
+            className="apple-btn-secondary py-1.5 px-3 text-xs"
           >
             {showAll ? "Show Top 10" : "Show All 26 Assets"}
           </button>
@@ -236,25 +236,25 @@ export const WeakLinksTab: React.FC = () => {
               key={link.node}
               data-node-id={link.node}
               onClick={() => handleRowClick(link)}
-              className={`rounded-xl border transition-all cursor-pointer ${
+              className={`rounded-[16px] border transition-all duration-200 cursor-pointer ${
                 isExpanded
-                  ? "bg-white dark:bg-[#181B22] border-[#2563EB] dark:border-[#3B82F6] shadow-md ring-2 ring-[#2563EB]/20"
-                  : "bg-white dark:bg-[#111318] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] border-[#E5E7EB] dark:border-[#27272A] shadow-xs"
+                  ? "bg-[var(--surface)] border-[var(--accent)] shadow-[var(--shadow-soft)] ring-2 ring-[var(--accent-tint)]"
+                  : "bg-[var(--surface)] hover:bg-[var(--surface-2)] border-[var(--border)] shadow-xs hover:-translate-y-0.5"
               }`}
             >
               {/* Primary Row Summary */}
               <div
-                className="p-3 flex flex-col md:flex-row md:items-center justify-between gap-3"
+                className="p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3"
               >
                 {/* Left: Rank, Name, Node ID, Network Chip */}
-                <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex items-center gap-3 min-w-0">
                   <span
-                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 ${
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-[10.5px] font-semibold shrink-0 ${
                       link.rank <= 3
-                        ? "bg-rose-500/10 text-rose-700 dark:text-rose-400"
+                        ? "bg-rose-500/10 text-[var(--status-danger)]"
                         : link.rank <= 5
-                        ? "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                        : "bg-[#F7F8FA] dark:bg-[#181B22] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A]"
+                        ? "bg-amber-500/10 text-[var(--status-warning)]"
+                        : "bg-[var(--surface-2)] text-[var(--text-tertiary)] border border-[var(--border)]"
                     }`}
                   >
                     #{link.rank}
@@ -262,10 +262,10 @@ export const WeakLinksTab: React.FC = () => {
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-semibold text-xs text-[#111827] dark:text-[#FAFAFA] truncate">
+                      <span className="font-semibold text-xs text-[var(--text)] truncate">
                         {link.name}
                       </span>
-                      <span className="text-[10px] text-[#94A3B8] dark:text-[#71717A] px-1.5 py-0.2 rounded bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A]">
+                      <span className="text-[10px] text-[var(--text-tertiary)] px-2 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border)] font-medium">
                         {link.node}
                       </span>
                       {renderNetworkChip(link.network)}

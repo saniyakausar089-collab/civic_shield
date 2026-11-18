@@ -89,6 +89,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       {
+        rel: "preconnect",
+        href: "https://fonts.googleapis.com",
+      },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
+      },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap",
+      },
+      {
         rel: "stylesheet",
         href: appCss,
       },
@@ -109,6 +122,7 @@ function RootShell({ children }: { children: ReactNode }) {
     if (typeof document !== "undefined") {
       document.documentElement.classList.toggle("dark", theme === "dark");
       document.documentElement.classList.toggle("light", theme === "light");
+      document.documentElement.setAttribute("data-theme", theme);
     }
   }, [theme]);
 
@@ -122,7 +136,7 @@ function RootShell({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <html lang="en" className={theme === "light" ? "light" : "dark"}>
+    <html lang="en" className={theme === "light" ? "light" : "dark"} data-theme={theme}>
       <head>
         <HeadContent />
       </head>

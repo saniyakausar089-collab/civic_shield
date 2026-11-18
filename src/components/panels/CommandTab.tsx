@@ -64,20 +64,20 @@ export const CommandTab: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner: Resilience Gauge */}
-      <div className="p-4 rounded-2xl bg-card border border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="apple-card p-5 rounded-[20px] flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           {/* Radial Circular Gauge */}
           <div className="relative w-20 h-20 shrink-0 flex items-center justify-center">
             <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
               <path
-                className="text-muted/40"
+                className="text-[var(--border)]"
                 strokeWidth="3.5"
                 stroke="currentColor"
                 fill="none"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
               />
               <path
-                className="text-[#2563EB] dark:text-[#3B82F6] transition-all duration-500 ease-out"
+                className="text-[var(--accent)] transition-all duration-500 ease-out"
                 strokeDasharray={`${currentScore}, 100`}
                 strokeWidth="3.5"
                 strokeLinecap="round"
@@ -87,24 +87,24 @@ export const CommandTab: React.FC = () => {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-xl font-bold font-mono text-[#111827] dark:text-[#FAFAFA] leading-none">
+              <span className="text-xl font-bold tabular-nums text-[var(--text)] leading-none">
                 {currentScore}
               </span>
-              <span className="text-[9px] font-mono uppercase text-[#94A3B8] dark:text-[#71717A]">/ 100</span>
+              <span className="text-[9px] uppercase font-semibold text-[var(--text-tertiary)]">/ 100</span>
             </div>
           </div>
 
           <div>
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />
-              <h3 className="font-semibold text-[#111827] dark:text-[#FAFAFA] text-sm">City Resilience Score</h3>
+              <ShieldCheck className="w-4 h-4 text-[var(--accent)]" />
+              <h3 className="font-semibold text-[var(--text)] text-sm">City Resilience Score</h3>
               {currentScore > baseScore && (
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-semibold">
+                <span className="text-[10.5px] px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-[var(--status-success)] border border-emerald-500/20 font-semibold tabular-nums">
                   +{currentScore - baseScore} from baseline
                 </span>
               )}
             </div>
-            <p className="text-xs text-[#475569] dark:text-[#A1A1AA] mt-1 max-w-md">
+            <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-md leading-relaxed">
               Calculated across all disaster presets (pipeline, monsoon, heatwave, cyberattack, earthquake).
               Current upgrades: {cityMods.length} active. Baseline score: {baseScore}.
             </p>
@@ -115,25 +115,25 @@ export const CommandTab: React.FC = () => {
       {/* Emergency Command Panel */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xs uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold">
+          <div className="apple-eyebrow">
             Emergency Command Actions
-          </h3>
-          <span className="text-xs text-[#94A3B8] dark:text-[#71717A]">
-            Active: <span className="font-semibold text-[#2563EB] dark:text-[#3B82F6]">{actionIds.length} deployed</span>
+          </div>
+          <span className="text-xs text-[var(--text-tertiary)]">
+            Active: <span className="font-semibold text-[var(--accent)]">{actionIds.length} deployed</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           {COMMAND_ACTIONS.map((action) => {
             const isDeployed = actionIds.includes(action.id);
             return (
               <button
                 key={action.id}
                 onClick={() => toggleAction(action.id)}
-                className={`p-3.5 rounded-lg border text-left flex items-start gap-3 transition-all cursor-pointer ${
+                className={`p-4 rounded-[20px] border text-left flex items-start gap-3.5 transition-all duration-200 cursor-pointer ${
                   isDeployed
-                    ? "bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 border-[#2563EB] dark:border-[#3B82F6] shadow-xs"
-                    : "bg-white dark:bg-[#181B22] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D] border-[#E5E7EB] dark:border-[#27272A]"
+                    ? "bg-[var(--accent-tint)] border-[var(--accent)] shadow-xs"
+                    : "bg-[var(--surface)] hover:bg-[var(--surface-2)] border-[var(--border)] hover:-translate-y-0.5"
                 }`}
               >
                 <div

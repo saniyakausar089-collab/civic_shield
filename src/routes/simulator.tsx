@@ -16,6 +16,7 @@ import {
   Globe,
   Box,
   GraduationCap,
+  Sparkles,
 } from "lucide-react";
 
 const CityScene = lazy(() =>
@@ -40,6 +41,7 @@ export function SimulatorPage() {
   const togglePlaceLabels = useAppStore((s) => s.togglePlaceLabels);
   const inspectMode = useAppStore((s) => s.inspectMode);
   const toggleInspectMode = useAppStore((s) => s.toggleInspectMode);
+  const cesiumBuildingStyle = useAppStore((s) => s.cesiumBuildingStyle);
   const setStore = useAppStore((s) => s.set);
 
   const [resetSignal, setResetSignal] = useState(0);
@@ -98,94 +100,125 @@ export function SimulatorPage() {
             </ErrorBoundary>
           </ClientOnly>
 
-          {/* Floating Map Utility Controls */}
-          <div className="absolute top-3 left-3 z-10 flex items-center gap-2 max-w-[calc(100%-160px)]">
+          {/* Unified Floating Glass Map Toolbar (Apple / Google Style) */}
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-2 p-1.5 bg-[var(--glass-bg)] backdrop-blur-xl border border-[var(--border)] rounded-full shadow-[var(--shadow-soft)] max-w-[calc(100%-24px)] flex-wrap">
             {/* Toggle Left Scenario Panel */}
             <button
               onClick={() => setShowLeftPanel(!showLeftPanel)}
-              className="p-2 rounded-lg bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] transition-colors shadow-xs cursor-pointer"
+              className="w-8 h-8 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)] flex items-center justify-center transition-colors cursor-pointer shrink-0"
               title={showLeftPanel ? "Hide Scenario Panel" : "Show Scenario Panel"}
+              aria-label={showLeftPanel ? "Hide Scenario Panel" : "Show Scenario Panel"}
             >
               {showLeftPanel ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeftOpen className="w-4 h-4" />}
             </button>
 
-            {/* Viewport Engine Switcher: Cesium 3D Tiles vs Three.js */}
-            <div className="flex items-center bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] rounded-lg p-0.5 shadow-xs">
+            {/* Segmented Control: Cesium 3D | Synthetic Twin */}
+            <div className="flex items-center bg-[var(--surface-2)] border border-[var(--border)] rounded-full p-0.5 shrink-0">
               <button
                 onClick={() => setStore({ viewportMode: "cesium" })}
-                className={`px-3 py-1 rounded-md text-[13px] flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
                   viewportMode === "cesium"
-                    ? "bg-[#2563EB] text-white font-semibold shadow-2xs"
-                    : "text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA]"
+                    ? "bg-[var(--surface)] text-[var(--text)] font-semibold shadow-xs"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text)]"
                 }`}
-                title="Cesium 3D Globe + 3D Tileset (Asset #4854512)"
+                title="Cesium 3D Globe + Satellite Imagery"
               >
                 <Globe className="w-3.5 h-3.5" />
                 <span>Cesium 3D</span>
               </button>
               <button
                 onClick={() => setStore({ viewportMode: "three" })}
-                className={`px-3 py-1 rounded-md text-[13px] flex items-center gap-1.5 transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
                   viewportMode === "three"
-                    ? "bg-[#2563EB] text-white font-semibold shadow-2xs"
-                    : "text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA]"
+                    ? "bg-[var(--surface)] text-[var(--text)] font-semibold shadow-xs"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text)]"
                 }`}
-                title="Three.js Extruded Topographic Twin"
+                title="Synthetic Topographic Twin (Three.js)"
               >
                 <Box className="w-3.5 h-3.5" />
                 <span>Synthetic Twin</span>
               </button>
             </div>
 
-            {/* Reset Camera View Button */}
+            {/* Fast Map Area & Facility Search (Google Pill Style) */}
+            <div className="shrink-0">
+              <MapAreaSearch />
+            </div>
+
+            {/* Reset Camera View */}
             <button
               onClick={() => {
                 resetAllLayers();
                 setResetSignal((s) => s + 1);
               }}
-              className="px-3 py-1.5 rounded-lg bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] transition-colors shadow-xs flex items-center gap-1.5 text-[13px] cursor-pointer"
-              title="Reset GIS Camera View & Clear Scenario Pulses"
+              className="w-8 h-8 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)] flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              title="Reset GIS Camera View"
+              aria-label="Reset GIS Camera View"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />
-              <span className="hidden sm:inline">Reset View</span>
+              <RotateCcw className="w-3.5 h-3.5" />
             </button>
 
-            {/* Fast Map Area & Facility Search */}
-            <MapAreaSearch />
-
-            {/* Toggle Place & College Labels */}
+            {/* Toggle Place Labels */}
             <button
               onClick={togglePlaceLabels}
-              className={`px-3 py-1.5 rounded-lg backdrop-blur-md border text-[13px] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
                 showPlaceLabels
-                  ? "bg-[#2563EB]/15 border-[#2563EB]/50 text-[#2563EB] dark:text-[#3B82F6] font-semibold"
-                  : "bg-white/95 dark:bg-[#111318]/95 border-[#E5E7EB] dark:border-[#27272A] text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22]"
+                  ? "bg-[var(--accent-tint)] text-[var(--accent)] border border-[var(--accent)]"
+                  : "bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)]"
               }`}
               title={showPlaceLabels ? "Hide College & Place Labels on Globe" : "Show College & Place Labels on Globe"}
+              aria-label="Toggle College & Place Labels"
             >
-              <GraduationCap className={`w-3.5 h-3.5 ${showPlaceLabels ? "text-[#2563EB] dark:text-[#3B82F6]" : "text-[#94A3B8] dark:text-[#71717A]"}`} />
-              <span className="hidden lg:inline">Colleges &amp; Places</span>
+              <GraduationCap className="w-4 h-4" />
             </button>
 
             {/* Toggle Place Inspection Mode */}
             <button
               onClick={toggleInspectMode}
-              className={`px-3 py-1.5 rounded-lg backdrop-blur-md border text-[13px] flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer ${
+              className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0 ${
                 inspectMode
-                  ? "bg-[#2563EB]/15 border-[#2563EB]/50 text-[#2563EB] dark:text-[#3B82F6] font-semibold"
-                  : "bg-white/95 dark:bg-[#111318]/95 border-[#E5E7EB] dark:border-[#27272A] text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22]"
+                  ? "bg-[var(--accent-tint)] text-[var(--accent)] border border-[var(--accent)] ring-2 ring-[var(--accent-tint-hover)]"
+                  : "bg-[var(--surface-2)] hover:bg-[var(--surface)] text-[var(--text-secondary)] hover:text-[var(--text)]"
               }`}
-              title="Click any building, college, or location on the 3D globe to reveal full place information"
+              title={inspectMode ? "Inspect Mode Active (Click any building)" : "Enable Inspect Places Mode"}
+              aria-label="Toggle Inspect Places Mode"
             >
-              <span className={`w-2 h-2 rounded-full ${inspectMode ? "bg-[#2563EB] dark:bg-[#3B82F6] animate-pulse" : "bg-[#94A3B8]"}`} />
-              <span className="hidden lg:inline">Inspect Places</span>
+              <span className={`w-2 h-2 rounded-full ${inspectMode ? "bg-[var(--accent)] animate-pulse" : "bg-[var(--text-tertiary)]"}`} />
             </button>
-          </div>
 
-          {/* Map Compass & North Indicator */}
-          <div className="absolute top-3 right-3 z-10 bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] px-3 py-1 rounded-lg flex items-center gap-1.5 text-[12px] text-[#94A3B8] dark:text-[#71717A] shadow-xs">
-            <Compass className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
-            <span className="font-semibold text-[#111827] dark:text-[#FAFAFA]">NORTH ↑</span>
+            {/* 3D Tiles Style Selector (when in Cesium Mode) */}
+            {viewportMode === "cesium" && (
+              <div
+                className="flex items-center gap-1.5 bg-[var(--surface-2)] border border-[var(--border)] rounded-full px-2.5 py-1 shrink-0 text-xs text-[var(--text-secondary)]"
+                title="Cesium 3D Building Styling"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <select
+                  value={cesiumBuildingStyle}
+                  onChange={(e) =>
+                    setStore({
+                      cesiumBuildingStyle: e.target.value as "year" | "height" | "tall" | "none",
+                    })
+                  }
+                  className="bg-transparent text-xs text-[var(--text)] font-medium focus:outline-none cursor-pointer"
+                  aria-label="Cesium 3D Building Styling"
+                >
+                  <option value="year">Construction Year</option>
+                  <option value="height">Roof Height</option>
+                  <option value="tall">Tall Buildings</option>
+                  <option value="none">Monochrome Base</option>
+                </select>
+              </div>
+            )}
+
+            {/* Map Compass & North Indicator */}
+            <div
+              className="px-2.5 py-1 rounded-full bg-[var(--surface-2)] text-[11px] font-semibold text-[var(--text-secondary)] flex items-center gap-1 shrink-0"
+              title="Camera Orientation: North Up"
+            >
+              <Compass className="w-3.5 h-3.5 text-[var(--accent)]" />
+              <span>NORTH ↑</span>
+            </div>
           </div>
 
           {/* Map Legend Overlay */}

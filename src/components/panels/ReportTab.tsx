@@ -273,19 +273,19 @@ export const ReportTab: React.FC = () => {
   // 1. If no simulation result exists, show prompt
   if (!effectiveBaselineResult) {
     return (
-      <div className="h-full flex flex-col items-center justify-center p-8 text-center select-none bg-white font-sans">
-        <div className="w-12 h-12 rounded-full bg-[#F7F8F5] border border-[#E5E7EB] flex items-center justify-center mb-3 text-[#0078D4]">
+      <div className="h-full flex flex-col items-center justify-center p-8 text-center select-none bg-[var(--surface)] text-[var(--text)] font-sans">
+        <div className="w-12 h-12 rounded-full bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center mb-3 text-[var(--accent)]">
           <FileText className="w-6 h-6" />
         </div>
-        <h3 className="text-sm font-semibold text-[#111827] mb-1">
+        <h3 className="text-sm font-semibold text-[var(--text)] mb-1">
           No Simulation Result for {scenario?.name || "Selected Scenario"}
         </h3>
-        <p className="text-xs text-[#64748B] max-w-sm mb-4 leading-relaxed">
+        <p className="text-xs text-[var(--text-secondary)] max-w-sm mb-4 leading-relaxed">
           Run the cascade simulation first to generate empirical failure facts, impact statistics, and response plan assessments.
         </p>
         <button
           onClick={() => runSim()}
-          className="px-4 py-2 rounded-[6px] bg-[#0078D4] hover:bg-[#006CBD] text-white font-semibold text-xs flex items-center gap-2 shadow-xs transition-colors cursor-pointer"
+          className="apple-btn-primary shadow-xs"
         >
           <Play className="w-3.5 h-3.5 fill-current" />
           <span>Run Simulation First</span>
@@ -295,7 +295,7 @@ export const ReportTab: React.FC = () => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-white text-[#111827] select-none text-xs font-sans overflow-hidden">
+    <div className="h-full flex flex-col bg-[var(--surface)] text-[var(--text)] select-none text-xs font-sans overflow-hidden">
       {/* Print Stylesheet: prints ONLY #printable-report on pure white with dark text */}
       <style>{`
         @media print {
@@ -345,12 +345,12 @@ export const ReportTab: React.FC = () => {
       `}</style>
 
       {/* Control Header (no-print) */}
-      <div className="p-3 border-b border-[#E5E7EB] dark:border-[#27272A] bg-white dark:bg-[#111318] flex items-center justify-between gap-3 shrink-0 no-print flex-wrap font-sans">
+      <div className="p-3 border-b border-[var(--border)] bg-[var(--surface-2)] flex items-center justify-between gap-3 shrink-0 no-print flex-wrap font-sans">
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="flex items-center gap-1.5 font-semibold text-sm text-[#111827] dark:text-[#FAFAFA]">
-            <FileText className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />
+          <div className="flex items-center gap-1.5 font-semibold text-sm text-[var(--text)]">
+            <FileText className="w-4 h-4 text-[var(--accent)]" />
             <span>Incident Report</span>
-            <span className="text-xs text-[#94A3B8] dark:text-[#71717A] font-normal">({scenario?.name})</span>
+            <span className="text-xs text-[var(--text-tertiary)] font-normal">({scenario?.name})</span>
           </div>
 
           {/* Source Badge */}
@@ -358,8 +358,8 @@ export const ReportTab: React.FC = () => {
             <div className="flex items-center gap-1.5">
               {narrativeResult.source === "claude" ? (
                 narrativeResult.verified ? (
-                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/20 flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                  <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-emerald-500/10 text-[var(--status-success)] border-emerald-500/20 flex items-center gap-1">
+                    <CheckCircle2 className="w-3 h-3 text-[var(--status-success)]" />
                     <span>AI narrative · figures checked</span>
                   </span>
                 ) : (
@@ -370,8 +370,8 @@ export const ReportTab: React.FC = () => {
                         ...(narrativeResult.unverified_terms || []),
                       ];
                       return (
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20 flex items-center gap-1">
-                          <AlertTriangle className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-amber-500/10 text-[var(--status-warning)] border-amber-500/20 flex items-center gap-1">
+                          <AlertTriangle className="w-3 h-3 text-[var(--status-warning)]" />
                           <span>
                             AI narrative · unsupported: {unsupported.join(", ")}
                           </span>
@@ -380,7 +380,7 @@ export const ReportTab: React.FC = () => {
                     })()}
                     <button
                       onClick={handleUseTemplate}
-                      className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] text-[#2563EB] dark:text-[#3B82F6] border border-[#E5E7EB] dark:border-[#27272A] transition-colors cursor-pointer"
+                      className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[var(--surface)] hover:bg-[var(--surface-2)] text-[var(--accent)] border border-[var(--border)] transition-colors cursor-pointer"
                       title="Switch to deterministic template narrative"
                     >
                       Use template instead
@@ -388,8 +388,8 @@ export const ReportTab: React.FC = () => {
                   </div>
                 )
               ) : (
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-[#F7F8FA] dark:bg-[#181B22] text-[#94A3B8] dark:text-[#71717A] border-[#E5E7EB] dark:border-[#27272A] flex items-center gap-1">
-                  <Sparkles className="w-2.5 h-2.5 text-[#2563EB] dark:text-[#3B82F6]" />
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium border bg-[var(--surface)] text-[var(--text-tertiary)] border-[var(--border)] flex items-center gap-1">
+                  <Sparkles className="w-2.5 h-2.5 text-[var(--accent)]" />
                   <span>Template narrative</span>
                 </span>
               )}
@@ -397,48 +397,48 @@ export const ReportTab: React.FC = () => {
           )}
 
           {narrativeResult?.error && (
-            <span className="text-[11px] text-amber-600 dark:text-amber-400 italic truncate max-w-xs">
+            <span className="text-[11px] text-[var(--status-warning)] italic truncate max-w-xs">
               {narrativeResult.error}
             </span>
           )}
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => handleGenerateReport(true)}
             disabled={loading}
-            className="px-3 py-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-[0.98]"
+            className="apple-btn-secondary py-1.5 px-3 text-xs disabled:opacity-50"
             title="Re-run facts compilation and narrative synthesis"
           >
-            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[#2563EB] dark:text-[#3B82F6]" : ""}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-[var(--accent)]" : ""}`} />
             <span>{loading ? "Generating..." : "Regenerate"}</span>
           </button>
 
           <button
             onClick={handleCopy}
             disabled={!reportMarkdown}
-            className="px-3 py-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-[0.98]"
+            className="apple-btn-secondary py-1.5 px-3 text-xs disabled:opacity-50"
             title="Copy Report as Markdown"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3.5 h-3.5 text-[#94A3B8] dark:text-[#71717A]" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-[var(--status-success)]" /> : <Copy className="w-3.5 h-3.5 text-[var(--text-tertiary)]" />}
             <span>{copied ? "Copied" : "Copy Markdown"}</span>
           </button>
 
           <button
             onClick={handleDownload}
             disabled={!reportMarkdown}
-            className="px-3 py-1.5 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] text-xs font-semibold flex items-center gap-1.5 transition-colors disabled:opacity-50 cursor-pointer shadow-xs active:scale-[0.98]"
+            className="apple-btn-secondary py-1.5 px-3 text-xs disabled:opacity-50"
             title="Download .md file"
           >
-            <Download className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
+            <Download className="w-3.5 h-3.5 text-[var(--accent)]" />
             <span className="hidden sm:inline">Download .md</span>
           </button>
 
           <button
             onClick={handlePrint}
             disabled={!reportMarkdown}
-            className="px-3.5 py-1.5 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] active:bg-[#1E40AF] text-white text-xs font-semibold flex items-center gap-1.5 transition-all duration-180 disabled:opacity-50 cursor-pointer shadow-xs active:scale-[0.98]"
+            className="apple-btn-primary py-1.5 px-3.5 text-xs disabled:opacity-50"
             title="Print or Save as PDF"
           >
             <Printer className="w-3.5 h-3.5" />
@@ -450,14 +450,14 @@ export const ReportTab: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6 custom-scrollbar font-sans">
         {loading && !reportFacts ? (
-          <div className="h-64 flex flex-col items-center justify-center gap-3 text-center text-[#64748B]">
-            <RefreshCw className="w-6 h-6 animate-spin text-[#0078D4]" />
+          <div className="h-64 flex flex-col items-center justify-center gap-3 text-center text-[var(--text-tertiary)]">
+            <RefreshCw className="w-6 h-6 animate-spin text-[var(--accent)]" />
             <p className="text-xs">Compiling simulation facts and synthesizing incident narrative...</p>
           </div>
         ) : reportFacts && narrativeResult ? (
           <div
             id="printable-report"
-            className="max-w-4xl mx-auto bg-white dark:bg-[#161a20] border border-[#E5E7EB] dark:border-[#303941] rounded-[8px] p-6 sm:p-8 shadow-xs text-xs space-y-6"
+            className="max-w-4xl mx-auto bg-[var(--surface)] border border-[var(--border)] rounded-[20px] p-6 sm:p-8 shadow-xs text-xs space-y-6"
           >
             {/* Report Header */}
             <div className="border-b border-[#E5E7EB] dark:border-[#303941] pb-4">

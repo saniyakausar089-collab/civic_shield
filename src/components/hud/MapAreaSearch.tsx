@@ -444,10 +444,10 @@ export const MapAreaSearch: React.FC = () => {
   };
 
   return (
-    <div className="relative z-30 font-sans" ref={dropdownRef}>
-      {/* Search Input Box */}
+    <div className="relative font-sans" ref={dropdownRef}>
+      {/* Search Input Box (Google Style Pill) */}
       <div className="relative flex items-center">
-        <div className="absolute left-2.5 pointer-events-none text-[#64748B]">
+        <div className="absolute left-3 pointer-events-none text-[var(--text-tertiary)]">
           <Search className="w-3.5 h-3.5" />
         </div>
         <input
@@ -461,24 +461,24 @@ export const MapAreaSearch: React.FC = () => {
             setSelectedIndex(0);
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Fast search area or node... (/) "
-          className="w-52 sm:w-64 md:w-72 bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] hover:border-[#CBD5E1] dark:hover:border-[#3F3F46] focus:border-[#2563EB] dark:focus:border-[#3B82F6] focus:ring-1 focus:ring-[#2563EB] dark:focus:ring-[#3B82F6] rounded-lg pl-8 pr-16 py-1.5 text-xs text-[#111827] dark:text-[#FAFAFA] placeholder-[#94A3B8] dark:placeholder-[#71717A] transition-all shadow-xs outline-none"
+          placeholder="Search places or infrastructure... (/)"
+          className="w-48 sm:w-60 md:w-72 bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--text-tertiary)] focus:border-[var(--accent)] focus:ring-2 focus:ring-[var(--accent-tint)] rounded-full pl-9 pr-14 py-1.5 text-xs text-[var(--text)] placeholder-[var(--text-tertiary)] transition-all outline-none"
         />
 
         {/* Clear Button / Hotkey Badge */}
-        <div className="absolute right-2 flex items-center gap-1 text-[#94A3B8] dark:text-[#71717A]">
+        <div className="absolute right-2.5 flex items-center gap-1 text-[var(--text-tertiary)]">
           {query ? (
             <button
               onClick={() => {
                 setQuery("");
                 inputRef.current?.focus();
               }}
-              className="p-0.5 rounded hover:text-[#111827] dark:hover:text-[#FAFAFA] cursor-pointer"
+              className="p-0.5 rounded-full hover:text-[var(--text)] cursor-pointer"
             >
               <X className="w-3 h-3" />
             </button>
           ) : (
-            <div className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] text-[10px] font-mono text-[#94A3B8] dark:text-[#71717A]">
+            <div className="hidden sm:flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[10px] font-mono text-[var(--text-tertiary)]">
               <Command className="w-2.5 h-2.5" />
               <span>K</span>
             </div>
@@ -488,14 +488,14 @@ export const MapAreaSearch: React.FC = () => {
 
       {/* Autocomplete Results Dropdown */}
       {isOpen && (
-        <div className="absolute left-0 top-full mt-1.5 w-80 sm:w-96 bg-white dark:bg-[#111318] border border-[#E5E7EB] dark:border-[#27272A] rounded-lg shadow-xl p-2.5 text-xs text-[#111827] dark:text-[#FAFAFA] z-50 animate-in fade-in zoom-in-95 duration-100 max-h-[380px] overflow-y-auto">
+        <div className="absolute left-0 top-full mt-2 w-80 sm:w-96 bg-[var(--surface)] border border-[var(--border)] rounded-[20px] shadow-[var(--shadow-soft)] p-3 text-xs text-[var(--text)] z-50 animate-in fade-in zoom-in-95 duration-100 max-h-[380px] overflow-y-auto">
           {/* Quick Teleport Header Chips */}
-          <div className="pb-2.5 mb-2 border-b border-[#E5E7EB] dark:border-[#27272A]">
-            <div className="text-[10px] uppercase font-semibold text-[#94A3B8] dark:text-[#71717A] mb-1.5 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-[#2563EB] dark:text-[#3B82F6]" />
+          <div className="pb-2.5 mb-2 border-b border-[var(--border)]">
+            <div className="text-[10px] uppercase font-semibold text-[var(--text-tertiary)] mb-1.5 flex items-center gap-1">
+              <Sparkles className="w-3 h-3 text-[var(--accent)]" />
               <span>Quick Teleport</span>
             </div>
-            <div className="flex flex-wrap gap-1">
+            <div className="flex flex-wrap gap-1.5">
               {[
                 { name: "Charminar", id: "lm_charminar" },
                 { name: "Hitec City", id: "lm_cybertowers" },
@@ -516,7 +516,7 @@ export const MapAreaSearch: React.FC = () => {
                     );
                     if (match) handleSelect(match);
                   }}
-                  className="px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#2563EB]/10 dark:hover:bg-[#3B82F6]/15 text-[#2563EB] dark:text-[#3B82F6] border border-[#E5E7EB] dark:border-[#27272A] text-[10px] font-medium transition-colors cursor-pointer"
+                  className="px-2.5 py-0.5 rounded-full bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] text-[11px] text-[var(--text-secondary)] hover:text-[var(--text)] transition-colors cursor-pointer"
                 >
                   {pill.name}
                 </button>

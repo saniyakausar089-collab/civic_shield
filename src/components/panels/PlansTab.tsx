@@ -131,7 +131,7 @@ export const PlansTab: React.FC = () => {
       </div>
 
       {/* 1. Ranked Plan Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {evaluations.map((e) => {
           const isRank1 = e.rank === 1 && e.plan.id !== "no_action";
           const isCardSelected = activeEval?.plan.id === e.plan.id;
@@ -141,15 +141,15 @@ export const PlansTab: React.FC = () => {
             <div
               key={e.plan.id}
               onClick={() => setSelectedPlanId(e.plan.id)}
-              className={`relative flex flex-col justify-between p-3.5 rounded-xl border transition-all cursor-pointer ${
+              className={`relative flex flex-col justify-between p-4 rounded-[20px] border transition-all duration-200 cursor-pointer ${
                 isCardSelected
-                  ? "bg-white dark:bg-[#181B22] border-[#2563EB] dark:border-[#3B82F6] shadow-md ring-2 ring-[#2563EB]/20"
-                  : "bg-white dark:bg-[#111318] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] border-[#E5E7EB] dark:border-[#27272A] shadow-xs"
+                  ? "bg-[var(--surface)] border-[var(--accent)] shadow-[var(--shadow-soft)] ring-2 ring-[var(--accent-tint)]"
+                  : "bg-[var(--surface)] hover:bg-[var(--surface-2)] border-[var(--border)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-subtle)]"
               }`}
             >
               {/* RECOMMENDED badge on Rank 1 */}
               {isRank1 && (
-                <div className="absolute -top-2.5 right-3 bg-[#2563EB] dark:bg-[#3B82F6] text-white text-[10px] font-semibold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                <div className="absolute -top-2.5 right-4 bg-[var(--accent)] text-[var(--accent-foreground)] text-[10px] font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
                   <Award className="w-3 h-3" />
                   RECOMMENDED
                 </div>
@@ -157,39 +157,37 @@ export const PlansTab: React.FC = () => {
 
               <div>
                 {/* Rank & Title */}
-                <div className="flex items-start justify-between gap-2 mb-1.5">
-                  <div className="flex items-center gap-1.5">
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
                     <span
-                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-semibold ${
+                      className={`w-5 h-5 rounded-full flex items-center justify-center text-[10.5px] font-semibold ${
                         isRank1
-                          ? "bg-[#2563EB] text-white"
-                          : e.plan.id === "no_action"
-                          ? "bg-[#F7F8FA] dark:bg-[#181B22] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A]"
-                          : "bg-[#F7F8FA] dark:bg-[#181B22] text-[#111827] dark:text-[#FAFAFA] border border-[#E5E7EB] dark:border-[#27272A]"
+                          ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
+                          : "bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--border)]"
                       }`}
                     >
                       #{e.rank}
                     </span>
-                    <h4 className="font-semibold text-xs text-[#111827] dark:text-[#FAFAFA] line-clamp-1">
+                    <h4 className="font-semibold text-xs text-[var(--text)] line-clamp-1">
                       {e.plan.name}
                     </h4>
                   </div>
                 </div>
 
                 {/* Summary */}
-                <p className="text-[11px] text-[#94A3B8] dark:text-[#71717A] line-clamp-2 min-h-[32px] mb-3">
+                <p className="text-[11.5px] text-[var(--text-secondary)] line-clamp-2 min-h-[34px] mb-3 leading-normal">
                   {e.plan.summary}
                 </p>
 
                 {/* Metrics Grid */}
                 <div className="grid grid-cols-3 gap-1.5 text-[10px] mb-3">
-                  <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] flex flex-col">
-                    <span className="text-[#94A3B8] dark:text-[#71717A] text-[9px]">Saved Pop-Hrs</span>
+                  <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)] flex flex-col">
+                    <span className="text-[var(--text-tertiary)] text-[9px] uppercase font-semibold">Saved Pop-Hrs</span>
                     <span
                       className={`font-semibold text-xs mt-0.5 tabular-nums ${
                         e.affected_pop_hours_saved_pct > 0
-                          ? "text-[#2563EB] dark:text-[#3B82F6]"
-                          : "text-[#94A3B8] dark:text-[#71717A]"
+                          ? "text-[var(--accent)]"
+                          : "text-[var(--text-tertiary)]"
                       }`}
                     >
                       {e.affected_pop_hours_saved_pct > 0
@@ -198,20 +196,20 @@ export const PlansTab: React.FC = () => {
                     </span>
                   </div>
 
-                  <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] flex flex-col">
-                    <span className="text-[#94A3B8] dark:text-[#71717A] text-[9px]">Hosp. Avoided</span>
+                  <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)] flex flex-col">
+                    <span className="text-[var(--text-tertiary)] text-[9px] uppercase font-semibold">Hosp. Avoided</span>
                     <span
                       className={`font-semibold text-xs mt-0.5 tabular-nums ${
-                        e.hospital_hours_saved > 0 ? "text-[#2563EB] dark:text-[#3B82F6]" : "text-[#94A3B8] dark:text-[#71717A]"
+                        e.hospital_hours_saved > 0 ? "text-[var(--accent)]" : "text-[var(--text-tertiary)]"
                       }`}
                     >
                       {e.hospital_hours_saved > 0 ? `+${e.hospital_hours_saved}h` : "0h"}
                     </span>
                   </div>
 
-                  <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] flex flex-col">
-                    <span className="text-[#94A3B8] dark:text-[#71717A] text-[9px]">Resources</span>
-                    <span className="font-semibold text-xs mt-0.5 text-[#111827] dark:text-[#FAFAFA] tabular-nums">
+                  <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)] flex flex-col">
+                    <span className="text-[var(--text-tertiary)] text-[9px] uppercase font-semibold">Resources</span>
+                    <span className="font-semibold text-xs mt-0.5 text-[var(--text)] tabular-nums">
                       {e.resources}
                     </span>
                   </div>
@@ -221,7 +219,7 @@ export const PlansTab: React.FC = () => {
               {/* Action Buttons */}
               <div className="pt-1">
                 {e.plan.id === "no_action" ? (
-                  <div className="w-full py-1.5 text-center text-[11px] font-medium text-[#94A3B8] dark:text-[#71717A] bg-[#F7F8FA] dark:bg-[#181B22] rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+                  <div className="w-full py-1.5 text-center text-[11px] font-medium text-[var(--text-tertiary)] bg-[var(--surface-2)] rounded-full border border-[var(--border)]">
                     Baseline Comparison
                   </div>
                 ) : (
@@ -230,15 +228,15 @@ export const PlansTab: React.FC = () => {
                       evt.stopPropagation();
                       applyPlan(e);
                     }}
-                    className={`w-full py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                    className={`w-full py-1.5 px-3 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
                       isPlanApplied
-                        ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-400 cursor-default"
-                        : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-xs active:scale-[0.98]"
+                        ? "bg-emerald-500/10 border border-emerald-500/30 text-[var(--status-success)] cursor-default"
+                        : "apple-btn-primary shadow-xs active:scale-[0.98]"
                     }`}
                   >
                     {isPlanApplied ? (
                       <>
-                        <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                        <Check className="w-3.5 h-3.5" />
                         <span>Plan Applied</span>
                       </>
                     ) : (
@@ -257,7 +255,7 @@ export const PlansTab: React.FC = () => {
 
       {/* 2. Plan Comparison Chart (selected plan vs No action baseline) */}
       {activeEval && baselineEval && (
-        <div className="bg-white dark:bg-[#111318] p-4 rounded-xl border border-[#E5E7EB] dark:border-[#27272A] shadow-xs space-y-3">
+        <div className="apple-card p-5 space-y-3">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E5E7EB] dark:border-[#27272A] pb-2.5">
             <div>
               <h4 className="text-xs font-semibold text-[#111827] dark:text-[#FAFAFA] flex items-center gap-2">

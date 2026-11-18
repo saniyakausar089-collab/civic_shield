@@ -40,12 +40,12 @@ export const PlaceInspectorPopup: React.FC = () => {
     inspectedPlace.categoryLabel.toLowerCase().includes("heritage");
 
   const categoryColor = isCollege
-    ? "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+    ? "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/20"
     : isHospital
-      ? "bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800"
+      ? "bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/20"
       : isLandmark
-        ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800"
-        : "bg-blue-50 dark:bg-blue-950/40 text-[#2563EB] dark:text-[#3B82F6] border-blue-200 dark:border-blue-800";
+        ? "bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-500/20"
+        : "bg-[var(--accent-tint)] text-[var(--accent)] border-[var(--accent)]/20";
 
   const handleFlyTo = () => {
     if (civicShieldLayer) {
@@ -75,9 +75,9 @@ export const PlaceInspectorPopup: React.FC = () => {
   };
 
   return (
-    <div className="absolute bottom-14 left-4 z-30 w-88 sm:w-96 max-h-[calc(100%-64px)] overflow-y-auto bg-white/95 dark:bg-[#111318]/95 backdrop-blur-md border border-[#E5E7EB] dark:border-[#27272A] rounded-lg p-4 shadow-xl text-xs font-sans text-[#111827] dark:text-[#FAFAFA] animate-in fade-in slide-in-from-bottom-3 duration-200">
+    <div className="absolute bottom-14 left-4 z-30 w-88 sm:w-96 max-h-[calc(100%-64px)] overflow-y-auto bg-[var(--surface)]/95 backdrop-blur-xl border border-[var(--border)] rounded-[20px] p-4 shadow-[var(--shadow-elevated)] text-xs font-sans text-[var(--text)] animate-in fade-in slide-in-from-bottom-3 duration-200">
       {/* Top Banner / Header */}
-      <div className="flex items-start justify-between gap-2.5 pb-2.5 border-b border-[#E5E7EB] dark:border-[#27272A]">
+      <div className="flex items-start justify-between gap-2.5 pb-2.5 border-b border-[var(--border)]">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1.5 flex-wrap">
             <span
@@ -100,28 +100,28 @@ export const PlaceInspectorPopup: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <MapPin className="w-3 h-3 text-[#2563EB] dark:text-[#3B82F6]" />
+                  <MapPin className="w-3 h-3 text-[var(--accent)]" />
                   <span>{inspectedPlace.categoryLabel || "Urban Location"}</span>
                 </>
               )}
             </span>
 
             {inspectedPlace.isCurated && (
-              <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#181B22] text-[#2563EB] dark:text-[#3B82F6] border border-[#E5E7EB] dark:border-[#27272A] flex items-center gap-1 font-medium">
-                <Sparkles className="w-2.5 h-2.5 text-[#2563EB] dark:text-[#3B82F6]" />
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-[var(--surface-2)] text-[var(--accent)] border border-[var(--border)] flex items-center gap-1 font-medium">
+                <Sparkles className="w-2.5 h-2.5 text-[var(--accent)]" />
                 <span>Verified POI</span>
               </span>
             )}
           </div>
 
-          <h3 className="text-sm font-semibold text-[#111827] dark:text-[#FAFAFA] leading-snug truncate">
+          <h3 className="text-sm font-semibold text-[var(--text)] leading-snug truncate">
             {inspectedPlace.name}
           </h3>
         </div>
 
         <button
           onClick={() => setInspectedPlace(null)}
-          className="p-1 rounded-md text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] transition-colors cursor-pointer"
+          className="p-1 rounded-full text-[var(--text-tertiary)] hover:text-[var(--text)] hover:bg-[var(--surface-2)] transition-colors cursor-pointer"
           title="Close place inspector"
         >
           <X className="w-4 h-4" />
@@ -130,14 +130,14 @@ export const PlaceInspectorPopup: React.FC = () => {
 
       {/* Overview / Subtext */}
       {inspectedPlace.subtext && (
-        <p className="mt-2 text-[12px] text-[#475569] dark:text-[#A1A1AA] leading-relaxed line-clamp-2">
+        <p className="mt-2 text-[12px] text-[var(--text-secondary)] leading-relaxed line-clamp-2">
           {inspectedPlace.subtext}
         </p>
       )}
 
       {/* Address */}
-      <div className="mt-2.5 flex items-start gap-1.5 text-[12px] text-[#475569] dark:text-[#A1A1AA] bg-[#F7F8FA] dark:bg-[#181B22] p-2.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
-        <MapPin className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6] shrink-0 mt-0.5" />
+      <div className="mt-2.5 flex items-start gap-1.5 text-[12px] text-[var(--text-secondary)] bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)]">
+        <MapPin className="w-3.5 h-3.5 text-[var(--accent)] shrink-0 mt-0.5" />
         <span className="line-clamp-2">{inspectedPlace.address}</span>
       </div>
 
@@ -147,38 +147,38 @@ export const PlaceInspectorPopup: React.FC = () => {
           {Object.entries(inspectedPlace.details).map(([key, val]) => (
             <div
               key={key}
-              className="bg-[#F7F8FA] dark:bg-[#181B22] px-2.5 py-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] flex flex-col"
+              className="bg-[var(--surface-2)] px-2.5 py-1.5 rounded-[12px] border border-[var(--border)] flex flex-col"
             >
-              <span className="text-[#94A3B8] dark:text-[#71717A] uppercase text-[9px] font-medium">{key}</span>
-              <span className="text-[#111827] dark:text-[#FAFAFA] font-semibold truncate mt-0.5">{val}</span>
+              <span className="text-[var(--text-tertiary)] uppercase text-[9px] font-medium">{key}</span>
+              <span className="text-[var(--text)] font-semibold truncate mt-0.5">{val}</span>
             </div>
           ))}
         </div>
       )}
 
       {/* Coordinates Bar */}
-      <div className="mt-2.5 flex items-center justify-between bg-[#F7F8FA] dark:bg-[#181B22] px-2.5 py-1.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[11px] text-[#94A3B8] dark:text-[#71717A]">
+      <div className="mt-2.5 flex items-center justify-between bg-[var(--surface-2)] px-2.5 py-1.5 rounded-full border border-[var(--border)] text-[11px] text-[var(--text-tertiary)]">
         <div className="flex items-center gap-1.5">
-          <Compass className="w-3 h-3 text-[#2563EB] dark:text-[#3B82F6]" />
+          <Compass className="w-3 h-3 text-[var(--accent)]" />
           <span>
             {inspectedPlace.lat.toFixed(5)}° N, {inspectedPlace.lon.toFixed(5)}° E
           </span>
         </div>
         <button
           onClick={handleCopyCoords}
-          className="flex items-center gap-1 text-[11px] hover:text-[#111827] dark:hover:text-[#FAFAFA] transition-colors text-[#2563EB] dark:text-[#3B82F6] font-medium cursor-pointer"
+          className="flex items-center gap-1 text-[11px] hover:text-[var(--text)] transition-colors text-[var(--accent)] font-medium cursor-pointer"
           title="Copy exact coordinates"
         >
-          {copied ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+          {copied ? <Check className="w-3 h-3 text-[#30d158]" /> : <Copy className="w-3 h-3" />}
           <span>{copied ? "Copied" : "Copy"}</span>
         </button>
       </div>
 
       {/* Actions */}
-      <div className="mt-3 flex items-center gap-2 pt-2 border-t border-[#E5E7EB] dark:border-[#27272A]">
+      <div className="mt-3 flex items-center gap-2 pt-2.5 border-t border-[var(--border)]">
         <button
           onClick={handleFlyTo}
-          className="flex-1 py-1.5 px-3 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold flex items-center justify-center gap-1.5 transition-colors text-xs cursor-pointer shadow-2xs"
+          className="apple-btn-primary flex-1 py-2 px-3.5 rounded-full text-white font-semibold flex items-center justify-center gap-1.5 transition-all text-xs cursor-pointer shadow-xs"
         >
           <Navigation className="w-3.5 h-3.5" />
           <span>Fly Closer</span>
@@ -186,7 +186,7 @@ export const PlaceInspectorPopup: React.FC = () => {
 
         <button
           onClick={() => setInspectedPlace(null)}
-          className="py-1.5 px-3 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB] dark:hover:bg-[#20242D] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] border border-[#E5E7EB] dark:border-[#27272A] transition-colors text-xs font-medium cursor-pointer"
+          className="apple-btn-secondary py-2 px-3.5 rounded-full transition-all text-xs font-medium cursor-pointer"
         >
           Close
         </button>

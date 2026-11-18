@@ -3,7 +3,7 @@ import { PRESETS } from "@/engine/plans";
 import { BASE_CITY } from "@/engine/city";
 import { applyMods } from "@/engine/analysis";
 import { useAppStore } from "@/store/appStore";
-import { Flame, Droplets, Zap, Shield, Globe, Layers } from "lucide-react";
+import { Flame, Droplets, Zap, Shield, Globe, Layers, ArrowUpRight } from "lucide-react";
 import { AiRiskEstimateCard } from "./AiRiskEstimateCard";
 
 export const SimulateTab: React.FC = () => {
@@ -71,21 +71,21 @@ export const SimulateTab: React.FC = () => {
     switch (id) {
       case "pipeline":
       case "pipeline_burst":
-        return <Droplets className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />;
+        return <Droplets className="w-4 h-4 text-[var(--accent)]" />;
       case "monsoon":
       case "monsoon_flood":
-        return <Globe className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />;
+        return <Globe className="w-4 h-4 text-[var(--accent)]" />;
       case "heatwave":
       case "heatwave_overload":
-        return <Flame className="w-4 h-4 text-amber-600 dark:text-amber-500" />;
+        return <Flame className="w-4 h-4 text-[var(--status-warning)]" />;
       case "cyber":
       case "cyberattack":
-        return <Zap className="w-4 h-4 text-amber-600 dark:text-amber-500" />;
+        return <Zap className="w-4 h-4 text-[var(--status-warning)]" />;
       case "quake":
       case "earthquake":
-        return <Shield className="w-4 h-4 text-rose-600 dark:text-rose-500" />;
+        return <Shield className="w-4 h-4 text-[var(--status-danger)]" />;
       default:
-        return <Layers className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />;
+        return <Layers className="w-4 h-4 text-[var(--accent)]" />;
     }
   };
 
@@ -108,13 +108,13 @@ export const SimulateTab: React.FC = () => {
     (presetId === "quake" && s.id === "earthquake");
 
   return (
-    <div className="space-y-6 text-[#111827] dark:text-[#FAFAFA] font-sans">
-      {/* Disaster Presets */}
+    <div className="space-y-6 text-[var(--text)] font-sans">
+      {/* 1. Select Disaster Scenario (Apple Responsive 3-Column Grid) */}
       <div>
-        <h3 className="text-[12px] uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold mb-3">
+        <div className="apple-eyebrow mb-3">
           1. Select Disaster Scenario
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {scenariosList.map((s) => {
             const isActive = isScenarioActive(s);
             const triggerNodes = s.triggers.map((t: any) => t.node || t);
@@ -122,28 +122,35 @@ export const SimulateTab: React.FC = () => {
               <button
                 key={s.id}
                 onClick={() => selectScenario(s)}
-                className={`flex flex-col text-left p-3.5 rounded-lg transition-all cursor-pointer ${
+                className={`flex flex-col text-left p-4 rounded-[20px] transition-all duration-200 cursor-pointer ${
                   isActive
-                    ? "bg-[#2563EB]/10 dark:bg-[#3B82F6]/15 border border-[#2563EB] dark:border-[#3B82F6] shadow-xs"
-                    : "bg-white dark:bg-[#181B22] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] hover:border-[#CBD5E1] dark:hover:border-[#3F3F46] shadow-2xs"
+                    ? "bg-[var(--accent-tint)] border border-[var(--accent)] shadow-xs"
+                    : "bg-[var(--surface)] hover:bg-[var(--surface-2)] border border-[var(--border)] hover:-translate-y-0.5 hover:shadow-[var(--shadow-subtle)]"
                 }`}
               >
-                <div className="flex items-center justify-between gap-2 mb-1.5">
-                  <div className="flex items-center gap-2">
-                    {getPresetIcon(s.id)}
-                    <span className="font-semibold text-[14px] text-[#111827] dark:text-[#FAFAFA]">
+                <div className="flex items-center justify-between gap-3 mb-2.5">
+                  <div className="flex items-center gap-2.5">
+                    {/* Soft Tinted Circle for Icon */}
+                    <div className="w-8 h-8 rounded-full bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center shrink-0">
+                      {getPresetIcon(s.id)}
+                    </div>
+                    <span className="font-semibold text-[15px] text-[var(--text)] tracking-tight">
                       {s.name || s.label}
                     </span>
                   </div>
-                  <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#F7F8FA] dark:bg-[#111318] border border-[#E5E7EB] dark:border-[#27272A] text-[#94A3B8] dark:text-[#71717A] font-medium">
+                  <span className="text-[10.5px] px-2.5 py-0.5 rounded-full bg-[var(--surface-2)] border border-[var(--border)] text-[var(--text-tertiary)] font-medium">
                     {triggerNodes.length} {triggerNodes.length === 1 ? "trigger" : "triggers"}
                   </span>
                 </div>
-                <p className="text-[12px] text-[#475569] dark:text-[#A1A1AA] line-clamp-2 leading-relaxed">
+                <p className="text-[13px] text-[var(--text-secondary)] line-clamp-1 leading-normal mb-2.5">
                   {s.summary || s.blurb}
                 </p>
-                <div className="mt-2.5 text-[11px] font-medium text-[#2563EB] dark:text-[#3B82F6] truncate">
-                  Triggers: {triggerNodes.map((id: string) => getAssetName(id)).join(", ")}
+                {/* Blue link-style text with arrow ↗ */}
+                <div className="mt-auto pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                  <span className="apple-link text-[12px] truncate max-w-[240px]">
+                    Triggers: {triggerNodes.map((id: string) => getAssetName(id)).join(", ")}
+                  </span>
+                  <ArrowUpRight className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />
                 </div>
               </button>
             );
@@ -154,24 +161,24 @@ export const SimulateTab: React.FC = () => {
       {/* AI Risk Estimate Card (Surrogate Model) */}
       <AiRiskEstimateCard />
 
-      {/* Manual Triggers Picker */}
+      {/* 2. Manual Triggers Picker */}
       <div>
         <div className="flex items-center justify-between mb-2.5">
-          <h3 className="text-[12px] uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold">
+          <div className="apple-eyebrow">
             2. Or Break Any Individual Node ({triggers.length} currently failed at T+0)
-          </h3>
+          </div>
         </div>
-        <div className="flex flex-wrap gap-1.5 max-h-36 overflow-y-auto p-2.5 bg-[#F7F8FA] dark:bg-[#111318] rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+        <div className="flex flex-wrap gap-2 max-h-36 overflow-y-auto p-3 bg-[var(--surface-2)] rounded-[20px] border border-[var(--border)]">
           {city.nodes.map((n) => {
             const isTrig = triggers.includes(n.id);
             return (
               <button
                 key={n.id}
                 onClick={() => toggleTrigger(n.id)}
-                className={`text-[12px] px-2.5 py-1 rounded-md border transition-colors cursor-pointer ${
+                className={`text-xs px-3 py-1 rounded-full border transition-all cursor-pointer font-medium ${
                   isTrig
-                    ? "bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300 font-semibold"
-                    : "bg-white dark:bg-[#181B22] border-[#E5E7EB] dark:border-[#27272A] text-[#475569] dark:text-[#A1A1AA] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-[#F7F8FA] dark:hover:bg-[#20242D]"
+                    ? "bg-rose-500/10 border-rose-500/30 text-[var(--status-danger)] font-semibold"
+                    : "bg-[var(--surface)] border-[var(--border)] text-[var(--text-secondary)] hover:text-[var(--text)] hover:bg-[var(--surface-2)]"
                 }`}
               >
                 {n.name}
@@ -181,41 +188,41 @@ export const SimulateTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Cascade Event Log (T+0 to T+{t}, newest first) */}
+      {/* 3. Cascade Event Log (T+0 to T+{t}, newest first) */}
       {result && Array.isArray(result.events) && (
         <div>
           <div className="flex items-center justify-between mb-2.5">
-            <h3 className="text-[12px] uppercase tracking-wider text-[#94A3B8] dark:text-[#71717A] font-semibold">
+            <div className="apple-eyebrow">
               3. Cascade Event Log (T+0 to T+{t}h — {result.events.filter((e) => e.t <= t).length} events)
-            </h3>
-            <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A]">Newest first</span>
+            </div>
+            <span className="text-[11px] text-[var(--text-tertiary)] font-medium">Newest first</span>
           </div>
-          <div className="max-h-48 overflow-y-auto space-y-1.5 bg-[#F7F8FA] dark:bg-[#111318] p-3 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
+          <div className="max-h-48 overflow-y-auto space-y-1.5 bg-[var(--surface-2)] p-3 rounded-[20px] border border-[var(--border)]">
             {result.events.filter((e) => e.t <= t).length === 0 ? (
-              <div className="text-[12px] text-[#94A3B8] dark:text-[#71717A] text-center py-2">
+              <div className="text-xs text-[var(--text-tertiary)] text-center py-3">
                 No events recorded up to T+{t}h
               </div>
             ) : (
               [...result.events.filter((e) => e.t <= t)].reverse().map((e, idx) => (
                 <div
                   key={idx}
-                  className="flex items-start gap-2.5 text-[12px] py-1 px-2 rounded-md bg-white dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A] hover:border-[#CBD5E1] dark:hover:border-[#3F3F46] transition-colors"
+                  className="flex items-start gap-2.5 text-xs py-1.5 px-3 rounded-full bg-[var(--surface)] border border-[var(--border)] transition-colors"
                 >
-                  <span className="text-[#2563EB] dark:text-[#3B82F6] shrink-0 font-semibold tabular-nums">
+                  <span className="text-[var(--accent)] shrink-0 font-semibold tabular-nums">
                     T+{String(e.t).padStart(2, "0")}h
                   </span>
                   <span
-                    className={`text-[10px] uppercase px-1.5 py-0.2 rounded font-semibold shrink-0 ${
+                    className={`text-[10px] uppercase px-2 py-0.5 rounded-full font-semibold shrink-0 ${
                       e.kind === "trigger"
-                        ? "bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800"
+                        ? "bg-rose-500/10 text-[var(--status-danger)]"
                         : e.kind === "cascade"
-                        ? "bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800"
-                        : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
+                        ? "bg-amber-500/10 text-[var(--status-warning)]"
+                        : "bg-emerald-500/10 text-[var(--status-success)]"
                     }`}
                   >
                     {e.kind}
                   </span>
-                  <span className="text-[#475569] dark:text-[#A1A1AA]">{e.text}</span>
+                  <span className="text-[var(--text-secondary)]">{e.text}</span>
                 </div>
               ))
             )}

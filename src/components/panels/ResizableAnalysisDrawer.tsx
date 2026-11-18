@@ -5,15 +5,7 @@ import { PlansTab } from "./PlansTab";
 import { WeakLinksTab } from "./WeakLinksTab";
 import { CommandTab } from "./CommandTab";
 import { ReportTab } from "./ReportTab";
-import {
-  Activity,
-  Layers,
-  SlidersHorizontal,
-  Zap,
-  FileSpreadsheet,
-  ChevronUp,
-  Minimize2,
-} from "lucide-react";
+import { ChevronUp, Minimize2, ChevronDown } from "lucide-react";
 
 export const ResizableAnalysisDrawer: React.FC = () => {
   const activeTab = useAppStore((s) => s.activeTab);
@@ -23,29 +15,28 @@ export const ResizableAnalysisDrawer: React.FC = () => {
   const tabs: {
     id: "simulate" | "plans" | "weaklinks" | "command" | "report";
     label: string;
-    icon: React.ReactNode;
   }[] = [
-    { id: "simulate", label: "Simulate", icon: <Layers className="w-3.5 h-3.5" /> },
-    { id: "plans", label: "Plans", icon: <SlidersHorizontal className="w-3.5 h-3.5" /> },
-    { id: "weaklinks", label: "Weak Links", icon: <Activity className="w-3.5 h-3.5" /> },
-    { id: "command", label: "Command", icon: <Zap className="w-3.5 h-3.5" /> },
-    { id: "report", label: "Report", icon: <FileSpreadsheet className="w-3.5 h-3.5" /> },
+    { id: "simulate", label: "Simulate" },
+    { id: "plans", label: "Plans" },
+    { id: "weaklinks", label: "Weak Links" },
+    { id: "command", label: "Command" },
+    { id: "report", label: "Report" },
   ];
 
   const heightClass = {
-    collapsed: "h-10",
+    collapsed: "h-11",
     compact: "h-64 sm:h-72",
     expanded: "h-[55vh]",
   }[drawerState];
 
   return (
     <div
-      className={`w-full bg-white dark:bg-[#111318] border-t border-[#E5E7EB] dark:border-[#27272A] text-[#111827] dark:text-[#FAFAFA] transition-all duration-200 ease-in-out flex flex-col z-20 shrink-0 font-sans shadow-sm ${heightClass}`}
+      className={`w-full bg-[var(--surface)] border-t border-[var(--border)] text-[var(--text)] transition-all duration-200 ease-in-out flex flex-col z-20 shrink-0 font-sans shadow-sm ${heightClass}`}
     >
-      {/* Drawer Control & Tab Bar */}
-      <div className="h-10 px-4 flex items-center justify-between border-b border-[#E5E7EB] dark:border-[#27272A] bg-[#F7F8FA] dark:bg-[#181B22] shrink-0">
-        {/* Tab Buttons */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+      {/* Drawer Control & Apple Underline Tab Bar */}
+      <div className="h-11 px-4 sm:px-6 flex items-center justify-between border-b border-[var(--border)] bg-[var(--surface-2)] shrink-0">
+        {/* Apple Underline Tab Buttons (Text Only) */}
+        <div className="flex items-center gap-1 sm:gap-4 overflow-x-auto no-scrollbar">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -55,36 +46,38 @@ export const ResizableAnalysisDrawer: React.FC = () => {
                   setActiveTab(tab.id);
                   if (drawerState === "collapsed") setDrawerState("compact");
                 }}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[13px] transition-all duration-180 cursor-pointer ${
+                className={`relative px-3 py-2.5 text-xs sm:text-[13.5px] font-medium transition-colors cursor-pointer ${
                   isActive
-                    ? "bg-white dark:bg-[#111318] text-[#2563EB] dark:text-[#3B82F6] font-semibold border border-[#E5E7EB] dark:border-[#27272A] shadow-2xs"
-                    : "text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-white/70 dark:hover:bg-[#111318]/60 font-medium"
+                    ? "text-[var(--text)] font-semibold"
+                    : "text-[var(--text-secondary)] hover:text-[var(--text)]"
                 }`}
               >
-                {tab.icon}
                 <span>{tab.label}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 left-3 right-3 h-[2px] bg-[var(--accent)] rounded-full animate-in fade-in duration-150" />
+                )}
               </button>
             );
           })}
         </div>
 
         {/* Resizer & Collapse Toggle */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           {drawerState !== "collapsed" && (
             <button
               onClick={() => setDrawerState(drawerState === "expanded" ? "compact" : "expanded")}
-              className="px-2 py-1 rounded-md text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-white dark:hover:bg-[#111318] transition-colors text-[11px] flex items-center gap-1 border border-transparent hover:border-[#E5E7EB] dark:hover:border-[#27272A] cursor-pointer"
+              className="px-2.5 py-1 rounded-full text-[var(--text-tertiary)] hover:text-[var(--text)] hover:bg-[var(--surface)] text-[11px] font-medium flex items-center gap-1 border border-transparent hover:border-[var(--border)] transition-colors cursor-pointer"
               title={drawerState === "expanded" ? "Restore drawer height" : "Expand drawer"}
             >
               {drawerState === "expanded" ? (
                 <>
                   <Minimize2 className="w-3 h-3" />
-                  <span className="hidden sm:inline font-medium">Compact</span>
+                  <span className="hidden sm:inline">Compact</span>
                 </>
               ) : (
                 <>
                   <ChevronUp className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline font-medium">Expand</span>
+                  <span className="hidden sm:inline">Expand</span>
                 </>
               )}
             </button>
@@ -94,17 +87,27 @@ export const ResizableAnalysisDrawer: React.FC = () => {
             onClick={() =>
               setDrawerState(drawerState === "collapsed" ? "compact" : "collapsed")
             }
-            className="px-2 py-1 rounded-md text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] hover:bg-white dark:hover:bg-[#111318] transition-colors text-[11px] font-medium border border-transparent hover:border-[#E5E7EB] dark:hover:border-[#27272A] cursor-pointer"
+            className="px-2.5 py-1 rounded-full text-[var(--text-tertiary)] hover:text-[var(--text)] hover:bg-[var(--surface)] text-[11px] font-medium flex items-center gap-1 border border-transparent hover:border-[var(--border)] transition-colors cursor-pointer"
             title={drawerState === "collapsed" ? "Open drawer" : "Collapse drawer"}
           >
-            {drawerState === "collapsed" ? "EXPAND ↑" : "COLLAPSE ↓"}
+            {drawerState === "collapsed" ? (
+              <>
+                <ChevronUp className="w-3.5 h-3.5" />
+                <span>EXPAND</span>
+              </>
+            ) : (
+              <>
+                <ChevronDown className="w-3.5 h-3.5" />
+                <span>COLLAPSE</span>
+              </>
+            )}
           </button>
         </div>
       </div>
 
-      {/* Tab Content Panel */}
+      {/* Drawer Content Body */}
       {drawerState !== "collapsed" && (
-        <div className="flex-1 overflow-y-auto p-4 bg-white dark:bg-[#111318] text-[#111827] dark:text-[#FAFAFA]">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-[var(--surface)]">
           {activeTab === "simulate" && <SimulateTab />}
           {activeTab === "plans" && <PlansTab />}
           {activeTab === "weaklinks" && <WeakLinksTab />}

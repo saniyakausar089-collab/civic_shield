@@ -2,31 +2,31 @@ import * as Cesium from "cesium";
 import { HYDERABAD_COLLEGES_AND_PLACES } from "../data/hyderabadPlaces";
 
 export const STATUS_COLOR = {
-  normal: "#8a9a7b",
-  degraded: "#f59e0b",
-  failed: "#ef4444",
+  normal: "#30d158",
+  degraded: "#ff9f0a",
+  failed: "#ff453a",
 };
 
 export const NETWORK_COLOR = {
-  water: "#4fb3e8",
-  power: "#f5b942",
-  telecom: "#9aa7b8",
-  road: "#e5e7eb",
-  hazard: "#ef4444",
+  water: "#0071e3",
+  power: "#f59e0b",
+  telecom: "#8b5cf6",
+  road: "#94a3b8",
+  hazard: "#ff453a",
 };
 
 const NODE_SIZE = {
-  hospital: 17,
-  power_plant: 15,
-  water_plant: 14,
-  telecom_core: 14,
-  pipeline: 12,
-  substation: 12,
-  pump_station: 11,
-  reservoir: 11,
-  junction: 10,
-  underpass: 10,
-  telecom_tower: 9,
+  hospital: 10,
+  power_plant: 9,
+  water_plant: 9,
+  telecom_core: 8,
+  pipeline: 8,
+  substation: 8,
+  pump_station: 8,
+  reservoir: 8,
+  junction: 8,
+  underpass: 8,
+  telecom_tower: 7,
 };
 
 const NODE_HEIGHT_M = 25;
@@ -107,7 +107,7 @@ export class CivicShieldLayer {
           positions: Cesium.Cartesian3.fromDegreesArrayHeights([
             a.lon, a.lat, NODE_HEIGHT_M, b.lon, b.lat, NODE_HEIGHT_M,
           ]),
-          width: edge.type === "hazard" ? 3 : 2,
+          width: edge.type === "hazard" ? 2 : 1.5,
           material: this._edgeMaterial(edge, "normal"),
         },
       });
@@ -123,19 +123,20 @@ export class CivicShieldLayer {
         position: Cesium.Cartesian3.fromDegrees(n.lon, n.lat, NODE_HEIGHT_M),
         properties: new Cesium.PropertyBag({ nodeId: n.id }),
         point: {
-          pixelSize: NODE_SIZE[n.type] ?? 10,
+          pixelSize: NODE_SIZE[n.type] ?? 8,
           color: css(STATUS_COLOR.normal),
           outlineColor: css(NETWORK_COLOR[n.network] ?? "#ffffff"),
-          outlineWidth: 2,
+          outlineWidth: 1,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
         label: {
           text: n.id,
-          font: '11px "JetBrains Mono", monospace',
+          font: '11px Inter, -apple-system, sans-serif',
           fillColor: Cesium.Color.WHITE,
           showBackground: true,
-          backgroundColor: Cesium.Color.BLACK.withAlpha(0.6),
-          pixelOffset: new Cesium.Cartesian2(0, -18),
+          backgroundColor: Cesium.Color.fromCssColorString("#1d1d1f").withAlpha(0.7),
+          backgroundPadding: new Cesium.Cartesian2(6, 3),
+          pixelOffset: new Cesium.Cartesian2(0, -16),
           distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 25000),
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
         },
@@ -173,20 +174,20 @@ export class CivicShieldLayer {
           },
         }),
         point: {
-          pixelSize: 10,
+          pixelSize: 8,
           color: Cesium.Color.fromCssColorString(pinColor),
           outlineColor: Cesium.Color.WHITE,
-          outlineWidth: 2,
+          outlineWidth: 1,
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
           distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 45000),
         },
         label: {
           text: `${icon}${p.shortName || p.name}`,
-          font: '11px "JetBrains Mono", sans-serif',
+          font: '11px Inter, -apple-system, sans-serif',
           style: Cesium.LabelStyle.FILL_AND_OUTLINE,
           fillColor: Cesium.Color.WHITE,
-          outlineColor: Cesium.Color.fromCssColorString("#0f172a"),
-          outlineWidth: 3,
+          outlineColor: Cesium.Color.fromCssColorString("#1d1d1f"),
+          outlineWidth: 2,
           verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
           pixelOffset: new Cesium.Cartesian2(0, -12),
           disableDepthTestDistance: Number.POSITIVE_INFINITY,
@@ -245,13 +246,13 @@ export class CivicShieldLayer {
 
   // ---------- styling helpers ----------
   _edgeMaterial(edge, sourceStatus) {
-    if (sourceStatus === "failed") return css(STATUS_COLOR.failed, 0.95);
-    if (sourceStatus === "degraded") return css(STATUS_COLOR.degraded, 0.9);
-    const base = NETWORK_COLOR[edge.type];
+    if (sourceStatus === "failed") return css(STATUS_COLOR.failed, 0.85);
+    if (sourceStatus === "degraded") return css(STATUS_COLOR.degraded, 0.8);
+    const base = NETWORK_COLOR[edge.type] ?? "#94a3b8";
     if (edge.type === "telecom") {
-      return new Cesium.PolylineDashMaterialProperty({ color: css(base, 0.7), dashLength: 12 });
+      return new Cesium.PolylineDashMaterialProperty({ color: css(base, 0.45), dashLength: 12 });
     }
-    return css(base, 0.6);
+    return css(base, 0.5);
   }
 
   _impactColor(v) {

@@ -505,6 +505,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       if (typeof document !== "undefined") {
         document.documentElement.classList.toggle("dark", theme === "dark");
         document.documentElement.classList.toggle("light", theme === "light");
+        document.documentElement.setAttribute("data-theme", theme);
       }
       return { theme, dayNight };
     }),
@@ -514,6 +515,7 @@ if (typeof document !== "undefined") {
   const initialTheme = useAppStore.getState().theme || "dark";
   document.documentElement.classList.toggle("dark", initialTheme === "dark");
   document.documentElement.classList.toggle("light", initialTheme === "light");
+  document.documentElement.setAttribute("data-theme", initialTheme);
 }
 
 if (typeof window !== "undefined") {

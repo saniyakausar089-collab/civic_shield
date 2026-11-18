@@ -193,54 +193,53 @@ export const LiveEnvironmentClock: React.FC = () => {
         data-testid="live-clock-trigger"
         onClick={(e) => {
           e.stopPropagation();
-          console.log('[LiveClock] Trigger clicked, toggling from:', isOpen);
           setIsOpen((prev) => !prev);
         }}
-        className="flex items-center gap-2 bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-[#E5E7EB]/80 dark:hover:bg-[#20242D] px-2.5 py-1 rounded-lg border border-[#E5E7EB] dark:border-[#27272A] text-[#111827] dark:text-[#FAFAFA] transition-colors group cursor-pointer"
+        className="flex items-center gap-2 bg-[var(--surface-2)] hover:bg-[var(--surface)] px-3 py-1 rounded-full border border-[var(--border)] text-[var(--text)] transition-colors group cursor-pointer"
         title="Live Real-Time Clock & Hyderabad Environmental Telemetry (Click for details)"
       >
         {/* Real-Time Live Clock */}
         <div className="flex items-center gap-1.5 text-[11px]">
-          <Clock className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6] transition-colors" />
-          <span className="font-semibold text-[#111827] dark:text-[#FAFAFA] tracking-tight tabular-nums">
+          <Clock className="w-3.5 h-3.5 text-[var(--text-tertiary)] group-hover:text-[var(--accent)] transition-colors" />
+          <span className="font-semibold text-[var(--text)] tracking-tight tabular-nums">
             {hours}:{minutes}
-            <span className="text-[#2563EB] dark:text-[#3B82F6] animate-pulse">:{seconds}</span>
+            <span className="text-[var(--accent)] animate-pulse">:{seconds}</span>
           </span>
-          <span className="text-[10px] uppercase px-1.5 py-0.2 rounded bg-white dark:bg-[#111318] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A]">
+          <span className="text-[10.5px] uppercase font-medium text-[var(--text-tertiary)]">
             IST
           </span>
         </div>
 
-        <div className="h-3 w-px bg-[#E5E7EB] dark:bg-[#27272A] hidden sm:block" />
+        <div className="h-3 w-px bg-[var(--border)] hidden sm:block" />
 
         {/* Temperature Factor */}
-        <div className="hidden sm:flex items-center gap-1 text-[11px] text-[#111827] dark:text-[#FAFAFA]">
-          <Thermometer className="w-3.5 h-3.5 text-amber-500" />
-          <span className="tabular-nums font-semibold">{weather.temp}°C</span>
+        <div className="hidden sm:flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
+          <Thermometer className="w-3.5 h-3.5 text-[var(--status-warning)]" />
+          <span className="tabular-nums font-medium text-[var(--text)]">{weather.temp}°C</span>
         </div>
 
         {/* Humidity Factor */}
-        <div className="hidden md:flex items-center gap-1 text-[11px] text-[#111827] dark:text-[#FAFAFA]">
-          <Droplets className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
-          <span className="tabular-nums font-semibold">{weather.humidity}%</span>
+        <div className="hidden md:flex items-center gap-1 text-[11px] text-[var(--text-secondary)]">
+          <Droplets className="w-3.5 h-3.5 text-[var(--accent)]" />
+          <span className="tabular-nums font-medium text-[var(--text)]">{weather.humidity}%</span>
         </div>
 
         {/* Wind Factor */}
-        <div className="hidden lg:flex items-center gap-1 text-[11px] text-[#94A3B8] dark:text-[#71717A]">
-          <Wind className="w-3 h-3 text-[#94A3B8] dark:text-[#71717A]" />
+        <div className="hidden lg:flex items-center gap-1 text-[11px] text-[var(--text-tertiary)]">
+          <Wind className="w-3 h-3 text-[var(--text-tertiary)]" />
           <span className="tabular-nums font-medium">{weather.windSpeed} km/h</span>
         </div>
 
         {/* Live Pulse Dot */}
         <span
           className={`w-1.5 h-1.5 rounded-full ${
-            weather.isLive ? "bg-emerald-500 animate-pulse" : "bg-[#2563EB] dark:bg-[#3B82F6]"
+            weather.isLive ? "bg-[var(--status-success)] animate-pulse" : "bg-[var(--accent)]"
           }`}
           title={weather.isLive ? "Live API Feed Connected" : "Local Telemetry Synced"}
         />
 
         <ChevronDown
-          className={`w-3 h-3 text-[#94A3B8] dark:text-[#71717A] transition-transform duration-200 ${
+          className={`w-3 h-3 text-[var(--text-tertiary)] transition-transform duration-200 ${
             isOpen ? "rotate-180" : ""
           }`}
         />
@@ -250,15 +249,15 @@ export const LiveEnvironmentClock: React.FC = () => {
       {isOpen && (
         <div
           data-testid="live-clock-dropdown"
-          className="absolute right-0 top-full mt-2 w-72 bg-white dark:bg-[#111318] border border-[#E5E7EB] dark:border-[#27272A] rounded-lg shadow-xl p-3.5 text-xs text-[#111827] dark:text-[#FAFAFA] z-50 animate-in fade-in zoom-in-95 duration-150"
+          className="absolute right-0 top-full mt-2 w-72 bg-[var(--surface)] border border-[var(--border)] rounded-[20px] shadow-[var(--shadow-soft)] p-4 text-xs text-[var(--text)] z-50 animate-in fade-in zoom-in-95 duration-150"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-2 mb-2 border-b border-[#E5E7EB] dark:border-[#27272A]">
+          <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <MapPin className="w-3.5 h-3.5 text-[#2563EB] dark:text-[#3B82F6]" />
+              <MapPin className="w-4 h-4 text-[var(--accent)]" />
               <div>
-                <div className="font-semibold text-sm text-[#111827] dark:text-[#FAFAFA] leading-tight">Hyderabad Metro</div>
-                <div className="text-[11px] text-[#94A3B8] dark:text-[#71717A]">17.3850° N, 78.4867° E</div>
+                <div className="font-semibold text-sm text-[var(--text)] leading-tight">Hyderabad Metro</div>
+                <div className="text-[11px] text-[var(--text-tertiary)]">17.3850° N, 78.4867° E</div>
               </div>
             </div>
             <button
@@ -266,106 +265,106 @@ export const LiveEnvironmentClock: React.FC = () => {
                 e.stopPropagation();
                 fetchWeather();
               }}
-              className="p-1 rounded-md hover:bg-[#F7F8FA] dark:hover:bg-[#181B22] text-[#94A3B8] dark:text-[#71717A] hover:text-[#111827] dark:hover:text-[#FAFAFA] transition-colors cursor-pointer"
+              className="w-7 h-7 rounded-full flex items-center justify-center hover:bg-[var(--surface-2)] text-[var(--text-tertiary)] hover:text-[var(--text)] transition-colors cursor-pointer"
               title="Refresh environmental sensors"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[#2563EB] dark:text-[#3B82F6]" : ""}`} />
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-[var(--accent)]" : ""}`} />
             </button>
           </div>
 
           {/* Real Time Clock Details */}
-          <div className="bg-[#F7F8FA] dark:bg-[#181B22] rounded-lg p-2.5 mb-2.5 border border-[#E5E7EB] dark:border-[#27272A] flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-[#2563EB] dark:text-[#3B82F6]" />
+          <div className="bg-[var(--surface-2)] rounded-[14px] p-3 mb-2.5 border border-[var(--border)] flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <Clock className="w-4 h-4 text-[var(--accent)]" />
               <div>
-                <div className="text-[10px] uppercase text-[#94A3B8] dark:text-[#71717A] font-medium">Local Real Time</div>
-                <div className="text-sm font-semibold text-[#111827] dark:text-[#FAFAFA] tabular-nums">
-                  {hours}:{minutes}:{seconds} <span className="text-[11px] font-medium text-[#2563EB] dark:text-[#3B82F6]">IST</span>
+                <div className="text-[10px] uppercase text-[var(--text-tertiary)] font-semibold tracking-wider">Local Real Time</div>
+                <div className="text-sm font-semibold text-[var(--text)] tabular-nums">
+                  {hours}:{minutes}:{seconds} <span className="text-[11px] font-medium text-[var(--accent)]">IST</span>
                 </div>
               </div>
             </div>
             <div className="text-right">
-              <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A] uppercase font-medium">Date</div>
-              <div className="text-xs font-semibold text-[#111827] dark:text-[#FAFAFA]">{dateStr}</div>
+              <div className="text-[10px] text-[var(--text-tertiary)] uppercase font-semibold tracking-wider">Date</div>
+              <div className="text-xs font-semibold text-[var(--text)]">{dateStr}</div>
             </div>
           </div>
 
           {/* Current Weather Overview */}
           <div className="flex items-center justify-between mb-3 px-1">
             <div className="flex items-center gap-2.5">
-              <div className="p-2 rounded-lg bg-[#F7F8FA] dark:bg-[#181B22] border border-[#E5E7EB] dark:border-[#27272A]">
-                {renderWeatherIcon("w-6 h-6")}
+              <div className="p-2 rounded-[12px] bg-[var(--surface-2)] border border-[var(--border)]">
+                {renderWeatherIcon("w-5 h-5")}
               </div>
               <div>
-                <div className="text-lg font-semibold text-[#111827] dark:text-[#FAFAFA] leading-none">
+                <div className="text-base font-semibold text-[var(--text)] leading-none">
                   {weather.temp}°C
                 </div>
-                <div className="text-[11px] text-[#94A3B8] dark:text-[#71717A] mt-1">{weather.weatherDesc}</div>
+                <div className="text-[11px] text-[var(--text-secondary)] mt-1">{weather.weatherDesc}</div>
               </div>
             </div>
             <div className="text-right text-[11px]">
-              <span className="text-[#94A3B8] dark:text-[#71717A]">Feels like </span>
-              <span className="font-semibold text-[#111827] dark:text-[#FAFAFA]">{weather.feelsLike}°C</span>
+              <span className="text-[var(--text-tertiary)]">Feels like </span>
+              <span className="font-semibold text-[var(--text)]">{weather.feelsLike}°C</span>
             </div>
           </div>
 
           {/* Environmental Sensor Matrix */}
           <div className="grid grid-cols-2 gap-2 text-[11px] mb-2.5">
             {/* Humidity */}
-            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
-              <div className="flex items-center gap-1.5 text-[#94A3B8] dark:text-[#71717A] text-[10px] uppercase font-medium">
-                <Droplets className="w-3 h-3 text-[#2563EB] dark:text-[#3B82F6]" />
+            <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)]">
+              <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-[10px] uppercase font-semibold">
+                <Droplets className="w-3 h-3 text-[var(--accent)]" />
                 <span>Relative Humidity</span>
               </div>
-              <div className="font-semibold text-sm text-[#111827] dark:text-[#FAFAFA] mt-0.5 tabular-nums">
+              <div className="font-semibold text-sm text-[var(--text)] mt-0.5 tabular-nums">
                 {weather.humidity}%
               </div>
               <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A]">Dew Point: {weather.dewPoint}°C</div>
             </div>
 
             {/* Wind */}
-            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
-              <div className="flex items-center gap-1.5 text-[#94A3B8] dark:text-[#71717A] text-[10px] uppercase font-medium">
-                <Wind className="w-3 h-3 text-[#94A3B8] dark:text-[#71717A]" />
+            <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)]">
+              <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-[10px] uppercase font-semibold">
+                <Wind className="w-3 h-3 text-[var(--text-tertiary)]" />
                 <span>Wind Velocity</span>
               </div>
-              <div className="font-semibold text-sm text-[#111827] dark:text-[#FAFAFA] mt-0.5 tabular-nums">
-                {weather.windSpeed} <span className="text-[10px] font-normal text-[#94A3B8] dark:text-[#71717A]">km/h</span>
+              <div className="font-semibold text-sm text-[var(--text)] mt-0.5 tabular-nums">
+                {weather.windSpeed} <span className="text-[10px] font-normal text-[var(--text-tertiary)]">km/h</span>
               </div>
-              <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A]">Heading: {weather.windDirection}</div>
+              <div className="text-[10px] text-[var(--text-tertiary)]">Heading: {weather.windDirection}</div>
             </div>
 
             {/* Pressure */}
-            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
-              <div className="flex items-center gap-1.5 text-[#94A3B8] dark:text-[#71717A] text-[10px] uppercase font-medium">
-                <Gauge className="w-3 h-3 text-[#94A3B8] dark:text-[#71717A]" />
+            <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)]">
+              <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-[10px] uppercase font-semibold">
+                <Gauge className="w-3 h-3 text-[var(--text-tertiary)]" />
                 <span>Pressure</span>
               </div>
-              <div className="font-semibold text-sm text-[#111827] dark:text-[#FAFAFA] mt-0.5 tabular-nums">
-                {weather.pressure} <span className="text-[10px] font-normal text-[#94A3B8] dark:text-[#71717A]">hPa</span>
+              <div className="font-semibold text-sm text-[var(--text)] mt-0.5 tabular-nums">
+                {weather.pressure} <span className="text-[10px] font-normal text-[var(--text-tertiary)]">hPa</span>
               </div>
-              <div className="text-[10px] text-[#94A3B8] dark:text-[#71717A]">Barometric: Normal</div>
+              <div className="text-[10px] text-[var(--text-tertiary)]">Barometric: Normal</div>
             </div>
 
             {/* Air Quality */}
-            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-2.5 rounded-lg border border-[#E5E7EB] dark:border-[#27272A]">
-              <div className="flex items-center gap-1.5 text-[#94A3B8] dark:text-[#71717A] text-[10px] uppercase font-medium">
-                <Activity className="w-3 h-3 text-emerald-500" />
+            <div className="bg-[var(--surface-2)] p-2.5 rounded-[12px] border border-[var(--border)]">
+              <div className="flex items-center gap-1.5 text-[var(--text-tertiary)] text-[10px] uppercase font-semibold">
+                <Activity className="w-3 h-3 text-[var(--status-success)]" />
                 <span>Air Quality</span>
               </div>
-              <div className="font-semibold text-sm text-emerald-600 dark:text-emerald-400 mt-0.5 tabular-nums">
+              <div className="font-semibold text-sm text-[var(--status-success)] mt-0.5 tabular-nums">
                 AQI {weather.aqi}
               </div>
-              <div className="text-[10px] text-emerald-600 dark:text-emerald-400">Moderate / Fair</div>
+              <div className="text-[10px] text-[var(--text-secondary)]">Moderate / Fair</div>
             </div>
           </div>
 
           {/* Footer Metadata */}
-          <div className="pt-2 border-t border-[#E5E7EB] dark:border-[#27272A] flex items-center justify-between text-[10px] text-[#94A3B8] dark:text-[#71717A]">
+          <div className="pt-2 border-t border-[var(--border)] flex items-center justify-between text-[10px] text-[var(--text-tertiary)]">
             <div className="flex items-center gap-1.5">
               <span
                 className={`w-1.5 h-1.5 rounded-full ${
-                  weather.isLive ? "bg-emerald-500" : "bg-[#2563EB] dark:bg-[#3B82F6]"
+                  weather.isLive ? "bg-[var(--status-success)]" : "bg-[var(--accent)]"
                 }`}
               />
               <span>{weather.isLive ? "Live Open-Meteo Feed" : "Diurnal Testbed Model"}</span>

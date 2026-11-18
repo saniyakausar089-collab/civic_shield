@@ -295,22 +295,22 @@ export const AiRiskEstimateCard: React.FC = () => {
   return (
     <div
       data-testid="ai-risk-estimate-card"
-      className="bg-white dark:bg-[#111318] border border-[#E5E7EB] dark:border-[#27272A] rounded-xl p-4 space-y-4 text-[#111827] dark:text-[#FAFAFA] select-none font-sans shadow-xs"
+      className="apple-card p-5 space-y-4 text-[var(--text)] select-none font-sans shadow-xs"
     >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E5E7EB] dark:border-[#27272A] pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[var(--border)] pb-3.5">
         <div className="flex items-start sm:items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-[#2563EB] dark:bg-[#3B82F6] flex items-center justify-center text-white shrink-0 shadow-xs">
+          <div className="w-8 h-8 rounded-full bg-[var(--surface-2)] border border-[var(--border)] flex items-center justify-center text-[var(--accent)] shrink-0">
             <Cpu className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="text-[13px] font-semibold text-[#111827] dark:text-[#FAFAFA] flex items-center gap-1.5">
+            <h4 className="text-[14px] font-semibold text-[var(--text)] flex items-center gap-1.5">
               <span>AI Risk Estimate</span>
-              <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A] font-normal">
+              <span className="text-[11.5px] text-[var(--text-tertiary)] font-normal">
                 ({activeScenario?.name || "Scenario"})
               </span>
             </h4>
-            <div className="text-[11px] text-[#2563EB] dark:text-[#3B82F6] font-medium mt-0.5 truncate max-w-xl">
+            <div className="text-[11.5px] text-[var(--accent)] font-medium mt-0.5 truncate max-w-xl">
               Triggers:{" "}
               {triggerIds.map((id) => `${getAssetName(id)} (${id})`).join(" + ")}
             </div>
@@ -318,8 +318,8 @@ export const AiRiskEstimateCard: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-1.5 self-start sm:self-center">
-          <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[#F7F8FA] dark:bg-[#181B22] text-[#2563EB] dark:text-[#3B82F6] border border-[#E5E7EB] dark:border-[#27272A] flex items-center gap-1.5">
-            <Cpu className="w-3 h-3" />
+          <span className="text-[11px] font-medium px-2.5 py-0.5 rounded-full bg-[var(--surface-2)] text-[var(--text-secondary)] border border-[var(--border)] flex items-center gap-1.5">
+            <Cpu className="w-3 h-3 text-[var(--accent)]" />
             <span>Surrogate ML</span>
           </span>
         </div>
@@ -327,11 +327,11 @@ export const AiRiskEstimateCard: React.FC = () => {
 
       {/* Out of Distribution Notice OR Metric Tiles */}
       {!prediction.in_distribution ? (
-        <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center space-y-1">
-          <div className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">
+        <div className="p-4 rounded-[16px] bg-amber-500/10 border border-amber-500/20 text-center space-y-1">
+          <div className="text-xs font-semibold text-[var(--status-warning)] uppercase tracking-wide">
             outside training range
           </div>
-          <div className="text-[12px] text-amber-800 dark:text-amber-300">
+          <div className="text-[12px] text-[var(--text-secondary)]">
             Model was trained on 1 to 5 simultaneous failures. The current selection has{" "}
             {triggerIds.length} trigger nodes.
           </div>
@@ -341,16 +341,16 @@ export const AiRiskEstimateCard: React.FC = () => {
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {/* 1. Estimated affected population-hours */}
-            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-3 rounded-xl border border-[#E5E7EB] dark:border-[#27272A] flex flex-col justify-between">
-              <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A] font-medium leading-tight mb-1">
+            <div className="bg-[var(--surface-2)] p-3.5 rounded-[16px] border border-[var(--border)] flex flex-col justify-between">
+              <span className="text-[11.5px] text-[var(--text-tertiary)] font-medium leading-tight mb-1">
                 Estimated affected population-hours
               </span>
               <div>
-                <div className="text-base font-semibold text-[#111827] dark:text-[#FAFAFA]">
+                <div className="text-base font-semibold text-[var(--text)] tabular-nums">
                   {fmt(prediction.affected_pop_hours)}
                 </div>
                 {engineActual && (
-                  <div className="text-[11px] mt-1 text-[#94A3B8] dark:text-[#71717A] pt-1.5 border-t border-[#E5E7EB] dark:border-[#27272A] flex items-center justify-between">
+                  <div className="text-[11px] mt-1 text-[var(--text-tertiary)] pt-1.5 border-t border-[var(--border)] flex items-center justify-between tabular-nums">
                     <span>Engine: {fmt(engineActual.affected_pop_hours)}</span>
                     {renderDiff(prediction.affected_pop_hours, engineActual.affected_pop_hours)}
                   </div>
@@ -359,21 +359,21 @@ export const AiRiskEstimateCard: React.FC = () => {
             </div>
 
             {/* 2. Estimated hospital downtime */}
-            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-3 rounded-xl border border-[#E5E7EB] dark:border-[#27272A] flex flex-col justify-between">
+            <div className="bg-[var(--surface-2)] p-3.5 rounded-[16px] border border-[var(--border)] flex flex-col justify-between">
               <div className="flex flex-col mb-1">
-                <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A] font-medium leading-tight">
+                <span className="text-[11.5px] text-[var(--text-tertiary)] font-medium leading-tight">
                   Estimated hospital downtime
                 </span>
-                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                <span className="text-[10px] text-[var(--status-warning)] font-medium">
                   low confidence (R2 0.72)
                 </span>
               </div>
               <div>
-                <div className="text-base font-semibold text-[#111827] dark:text-[#FAFAFA]">
+                <div className="text-base font-semibold text-[var(--text)] tabular-nums">
                   {prediction.hospital_downtime_h}h
                 </div>
                 {engineActual && (
-                  <div className="text-[11px] mt-1 text-[#94A3B8] dark:text-[#71717A] pt-1.5 border-t border-[#E5E7EB] dark:border-[#27272A] flex items-center justify-between">
+                  <div className="text-[11px] mt-1 text-[var(--text-tertiary)] pt-1.5 border-t border-[var(--border)] flex items-center justify-between tabular-nums">
                     <span>Engine: {engineActual.hospital_downtime_h}h</span>
                     {renderDiff(prediction.hospital_downtime_h, engineActual.hospital_downtime_h)}
                   </div>
@@ -382,17 +382,17 @@ export const AiRiskEstimateCard: React.FC = () => {
             </div>
 
             {/* 3. Estimated failed assets */}
-            <div className="bg-[#F7F8FA] dark:bg-[#181B22] p-3 rounded-xl border border-[#E5E7EB] dark:border-[#27272A] flex flex-col justify-between">
-              <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A] font-medium leading-tight mb-1">
+            <div className="bg-[var(--surface-2)] p-3.5 rounded-[16px] border border-[var(--border)] flex flex-col justify-between">
+              <span className="text-[11.5px] text-[var(--text-tertiary)] font-medium leading-tight mb-1">
                 Estimated failed assets
               </span>
               <div>
-                <div className="text-base font-semibold text-[#111827] dark:text-[#FAFAFA]">
+                <div className="text-base font-semibold text-[var(--text)] tabular-nums">
                   {prediction.final_failed}{" "}
-                  <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A] font-normal">of 26</span>
+                  <span className="text-[11px] text-[var(--text-tertiary)] font-normal">of 26</span>
                 </div>
                 {engineActual && (
-                  <div className="text-[11px] mt-1 text-[#94A3B8] dark:text-[#71717A] pt-1.5 border-t border-[#E5E7EB] dark:border-[#27272A] flex items-center justify-between">
+                  <div className="text-[11px] mt-1 text-[var(--text-tertiary)] pt-1.5 border-t border-[var(--border)] flex items-center justify-between tabular-nums">
                     <span>Engine: {engineActual.final_failed}</span>
                     {renderDiff(prediction.final_failed, engineActual.final_failed)}
                   </div>
@@ -402,17 +402,17 @@ export const AiRiskEstimateCard: React.FC = () => {
           </div>
 
           {/* Section A: Likely to fail (probability >= 0.5) */}
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <h5 className="text-[12px] font-semibold text-[#111827] dark:text-[#FAFAFA] uppercase tracking-wider flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#2563EB] dark:bg-[#3B82F6]" />
+              <h5 className="apple-eyebrow flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
                 <span>Likely to fail (≥ 50% probability)</span>
               </h5>
-              <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A]">Click to locate</span>
+              <span className="text-[11px] text-[var(--text-tertiary)]">Click to locate</span>
             </div>
 
             {likelyToFail.length === 0 ? (
-              <div className="text-[12px] text-[#94A3B8] dark:text-[#71717A] bg-[#F7F8FA] dark:bg-[#181B22] p-3 rounded-xl border border-[#E5E7EB] dark:border-[#27272A] italic">
+              <div className="text-xs text-[var(--text-tertiary)] bg-[var(--surface-2)] p-3 rounded-[16px] border border-[var(--border)] italic">
                 No non-trigger assets reach the 50% failure threshold.
               </div>
             ) : (
@@ -421,26 +421,26 @@ export const AiRiskEstimateCard: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={() => handleSelectNode(item.id)}
-                    className="p-2.5 rounded-xl bg-[#F7F8FA] dark:bg-[#181B22] hover:bg-white dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] hover:border-[#2563EB] dark:hover:border-[#3B82F6] text-left transition-all group flex flex-col justify-between cursor-pointer"
+                    className="p-3 rounded-[16px] bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--accent)] text-left transition-all group flex flex-col justify-between cursor-pointer"
                     title={`Locate ${item.name} (${item.id}) on map`}
                   >
-                    <div className="flex items-center justify-between gap-1 w-full mb-1.5">
+                    <div className="flex items-center justify-between gap-1 w-full mb-2">
                       <div className="flex items-center gap-1.5 truncate">
-                        <span className="text-xs font-semibold text-[#111827] dark:text-[#FAFAFA] group-hover:text-[#2563EB] dark:group-hover:text-[#3B82F6] transition-colors truncate">
+                        <span className="text-xs font-semibold text-[var(--text)] group-hover:text-[var(--accent)] transition-colors truncate">
                           {item.name}
                         </span>
-                        <span className="text-[10px] px-1 py-0.2 rounded bg-white dark:bg-[#111318] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A] shrink-0 font-medium">
+                        <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[var(--surface)] text-[var(--text-tertiary)] border border-[var(--border)] shrink-0 font-medium">
                           {item.id}
                         </span>
                       </div>
-                      <span className="text-xs font-semibold text-[#2563EB] dark:text-[#3B82F6] shrink-0">
+                      <span className="text-xs font-semibold text-[var(--accent)] shrink-0 tabular-nums">
                         {item.pct}%
                       </span>
                     </div>
 
-                    <div className="w-full h-1.5 bg-[#E5E7EB] dark:bg-[#27272A] rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#2563EB] dark:bg-[#3B82F6] transition-all duration-300 rounded-full"
+                        className="h-full bg-[var(--accent)] transition-all duration-300 rounded-full"
                         style={{ width: `${Math.max(item.pct, 3)}%` }}
                       />
                     </div>
@@ -452,13 +452,13 @@ export const AiRiskEstimateCard: React.FC = () => {
 
           {/* Section B: At risk (0.2 <= probability < 0.5) */}
           {atRisk.length > 0 && (
-            <div className="space-y-2 pt-1">
+            <div className="space-y-2.5 pt-1">
               <div className="flex items-center justify-between">
-                <h5 className="text-[12px] font-semibold text-[#475569] dark:text-[#A1A1AA] uppercase tracking-wider flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500" />
+                <h5 className="apple-eyebrow flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-[var(--status-warning)]" />
                   <span>At risk (20% – 50% probability)</span>
                 </h5>
-                <span className="text-[11px] text-[#94A3B8] dark:text-[#71717A]">Click to locate</span>
+                <span className="text-[11px] text-[var(--text-tertiary)]">Click to locate</span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -466,26 +466,26 @@ export const AiRiskEstimateCard: React.FC = () => {
                   <button
                     key={item.id}
                     onClick={() => handleSelectNode(item.id)}
-                    className="p-2.5 rounded-xl bg-[#F7F8FA]/80 dark:bg-[#181B22]/80 hover:bg-white dark:hover:bg-[#20242D] border border-[#E5E7EB] dark:border-[#27272A] hover:border-[#CBD5E1] dark:hover:border-[#3F3F46] text-left transition-all group flex flex-col justify-between cursor-pointer"
+                    className="p-3 rounded-[16px] bg-[var(--surface-2)] hover:bg-[var(--surface)] border border-[var(--border)] hover:border-[var(--border)] text-left transition-all group flex flex-col justify-between cursor-pointer"
                     title={`Locate ${item.name} (${item.id}) on map`}
                   >
-                    <div className="flex items-center justify-between gap-1 w-full mb-1.5">
+                    <div className="flex items-center justify-between gap-1 w-full mb-2">
                       <div className="flex items-center gap-1.5 truncate">
-                        <span className="text-xs font-medium text-[#475569] dark:text-[#A1A1AA] group-hover:text-[#111827] dark:group-hover:text-[#FAFAFA] transition-colors truncate">
+                        <span className="text-xs font-medium text-[var(--text-secondary)] group-hover:text-[var(--text)] transition-colors truncate">
                           {item.name}
                         </span>
-                        <span className="text-[10px] px-1 py-0.2 rounded bg-white dark:bg-[#111318] text-[#94A3B8] dark:text-[#71717A] border border-[#E5E7EB] dark:border-[#27272A] shrink-0 font-medium">
+                        <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-[var(--surface)] text-[var(--text-tertiary)] border border-[var(--border)] shrink-0 font-medium">
                           {item.id}
                         </span>
                       </div>
-                      <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 shrink-0">
+                      <span className="text-xs font-semibold text-[var(--status-warning)] shrink-0 tabular-nums">
                         {item.pct}%
                       </span>
                     </div>
 
-                    <div className="w-full h-1.5 bg-[#E5E7EB] dark:bg-[#27272A] rounded-full overflow-hidden">
+                    <div className="w-full h-1.5 bg-[var(--border)] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-amber-500/80 transition-all duration-300 rounded-full"
+                        className="h-full bg-[var(--status-warning)] transition-all duration-300 rounded-full"
                         style={{ width: `${Math.max(item.pct, 3)}%` }}
                       />
                     </div>
@@ -498,7 +498,7 @@ export const AiRiskEstimateCard: React.FC = () => {
       )}
 
       {/* Footer */}
-      <div className="pt-2.5 border-t border-[#E5E7EB] dark:border-[#27272A] text-[11px] text-[#94A3B8] dark:text-[#71717A] leading-relaxed">
+      <div className="pt-2.5 border-t border-[var(--border)] text-[11px] text-[var(--text-tertiary)] leading-relaxed">
         Surrogate ML model trained on {model.trained_on} simulated cascades; held-out R2{" "}
         {r2PopHours} on population impact. Synthetic data. The simulator is the source of truth.
       </div>
