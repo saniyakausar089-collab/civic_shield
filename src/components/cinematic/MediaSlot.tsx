@@ -6,15 +6,15 @@ interface MediaSlotProps {
   opacity?: number;
 }
 
-export const MediaSlot: React.FC<MediaSlotProps> = ({ mediaKey, active, opacity = 0.25 }) => {
+export const MediaSlot: React.FC<MediaSlotProps> = ({ mediaKey, active, opacity = 0.22 }) => {
   const [videoFailed, setVideoFailed] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
 
-  // Gradient themes matching context (deep violet-black & hot crimson/amber accents)
+  // Gradient themes matching dark bioluminescent jungle aesthetic
   const fallbackGradients = {
-    flood: "radial-gradient(circle at 60% 50%, rgba(192, 38, 211, 0.22) 0%, rgba(10, 6, 18, 0.9) 75%)",
-    blackout: "radial-gradient(circle at 40% 60%, rgba(255, 45, 85, 0.25) 0%, rgba(10, 6, 18, 0.95) 75%)",
-    ambulance: "radial-gradient(circle at 50% 50%, rgba(255, 176, 32, 0.22) 0%, rgba(10, 6, 18, 0.9) 70%)",
+    flood: "radial-gradient(circle at 60% 50%, rgba(0, 209, 160, 0.18) 0%, rgba(6, 11, 9, 0.92) 75%)",
+    blackout: "radial-gradient(circle at 40% 60%, rgba(255, 45, 85, 0.22) 0%, rgba(6, 11, 9, 0.95) 75%)",
+    ambulance: "radial-gradient(circle at 50% 50%, rgba(255, 176, 32, 0.18) 0%, rgba(6, 11, 9, 0.92) 70%)",
   };
 
   if (!active) return null;
@@ -47,12 +47,14 @@ export const MediaSlot: React.FC<MediaSlotProps> = ({ mediaKey, active, opacity 
         />
       ) : null}
 
-      {/* 3. Deep violet-black color wash */}
+      {/* 3. Deep green-teal color wash overlay */}
       <div
-        className="absolute inset-0 mix-blend-screen"
-        style={{ background: fallbackGradients[mediaKey] }}
+        className="absolute inset-0"
+        style={{
+          background: fallbackGradients[mediaKey],
+          mixBlendMode: "screen",
+        }}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0a0612] via-transparent to-[#0a0612]/80" />
     </div>
   );
 };

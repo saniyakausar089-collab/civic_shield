@@ -75,7 +75,6 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
           facts = null;
         }
 
-        // Call /api/report safely
         if (facts) {
           try {
             const res = await fetch("/api/report", {
@@ -101,10 +100,9 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
               }
             }
           } catch {
-            // Server endpoint unreachable; continue to template fallback
+            // Continue to template fallback
           }
 
-          // Safe template narrative fallback
           try {
             if (facts && facts.headline && Array.isArray(facts.timeline) && Array.isArray(facts.most_affected_neighborhoods)) {
               const template = templateNarrative(facts);
@@ -133,7 +131,6 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
     fetchReport();
   }, []);
 
-  // Progressive scroll-driven reveal
   const displayedText = React.useMemo(() => {
     if (!reportMarkdown) return "";
     const revealFraction = Math.min(1, Math.max(0.4, progress * 1.3));
@@ -149,19 +146,19 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
   };
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl bg-[#0a0612]/90 backdrop-blur-2xl border border-fuchsia-500/40 p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85),0_0_25px_rgba(192,38,211,0.2)] transition-all duration-300 hover:border-fuchsia-500/60 hover:-translate-y-1">
-      {/* Shimmer light sweep */}
-      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+    <div className="group relative overflow-hidden rounded-2xl bg-[#060b09]/90 backdrop-blur-2xl border border-[#00d1a0]/40 p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85),0_0_25px_rgba(0,209,160,0.15)] transition-all duration-300 hover:border-[#00d1a0]/60 hover:-translate-y-1">
+      {/* 300ms light sweep */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-300 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {/* Category tag */}
         <div className="flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 text-[10px] font-mono tracking-wider">
-            <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#00d1a0]/10 border border-[#00d1a0]/30 text-[#00d1a0] text-[10px] font-mono tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-[#00d1a0]" />
             <span>AI DIRECTIVE // REPORT</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-[#00d1a0]/15 border border-[#00d1a0]/30 text-[#2dffb3]">
               {reportSource === "claude" ? "Gemini Verified" : "Rule Engine"}
             </span>
             <button
@@ -169,7 +166,7 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
               className="p-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
               title="Copy Briefing"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-[#00d1a0]" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
           </div>
         </div>
@@ -177,36 +174,36 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
         {/* Headline */}
         <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display leading-tight">
           Get the{" "}
-          <span className="bg-gradient-to-r from-fuchsia-400 to-purple-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#00d1a0] to-[#2dffb3] bg-clip-text text-transparent">
             report.
           </span>
         </h2>
 
-        {/* Streamlined Narrative Copy */}
+        {/* Short copy: two short lines */}
         <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
-          Instant executive briefing synthesizing hydraulic, grid, and ICU telemetry into actionable orders.
+          Instant executive briefing synthesizing hydraulic, power grid, and ICU telemetry into operational orders.
         </p>
 
         {/* Terminal Text Box */}
         <div className="p-3.5 rounded-xl bg-black/70 border border-white/10 font-mono text-[11px] leading-relaxed select-text">
           <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2 text-slate-500 text-[9px]">
-            <span className="flex items-center gap-1 text-fuchsia-400">
+            <span className="flex items-center gap-1 text-[#00d1a0]">
               <Terminal className="w-3 h-3" />
               <span>INCIDENT_DEBRIEF.MD</span>
             </span>
-            {copied && <span className="text-emerald-400 font-bold">COPIED TO CLIPBOARD</span>}
+            {copied && <span className="text-[#00d1a0] font-bold">COPIED TO CLIPBOARD</span>}
           </div>
 
           {loading ? (
             <div className="py-4 text-center text-slate-400 flex items-center justify-center gap-2">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-fuchsia-400" />
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#00d1a0]" />
               <span>Synthesizing incident briefing...</span>
             </div>
           ) : (
             <div className="max-h-[160px] overflow-y-auto pr-1 text-slate-200 whitespace-pre-wrap">
               {displayedText}
               {displayedText.length < reportMarkdown.length && (
-                <span className="inline-block w-1.5 h-3 bg-fuchsia-400 animate-pulse ml-0.5 align-middle" />
+                <span className="inline-block w-1.5 h-3 bg-[#00d1a0] animate-pulse ml-0.5 align-middle" />
               )}
             </div>
           )}

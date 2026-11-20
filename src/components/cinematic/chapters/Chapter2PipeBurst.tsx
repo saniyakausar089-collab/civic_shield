@@ -1,14 +1,14 @@
 import React from "react";
-import { AlertTriangle, Droplets, Gauge, AlertCircle } from "lucide-react";
+import { Gauge, Droplets, AlertCircle } from "lucide-react";
 import { CINEMATIC_THEME } from "../theme";
 
 export const Chapter2PipeBurst: React.FC = () => {
   return (
-    <div className="group relative overflow-hidden rounded-2xl bg-[#0a0612]/90 backdrop-blur-2xl border border-red-500/40 p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85),0_0_25px_rgba(255,45,85,0.2)] transition-all duration-300 hover:border-red-500/60 hover:-translate-y-1">
-      {/* Shimmer light sweep */}
-      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-red-500/10 to-transparent" />
+    <div className="group relative overflow-hidden rounded-2xl bg-[#060b09]/90 backdrop-blur-2xl border border-red-500/40 p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85),0_0_25px_rgba(255,45,85,0.2)] transition-all duration-300 hover:border-red-500/60 hover:-translate-y-1">
+      {/* 300ms light sweep */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-300 bg-gradient-to-r from-transparent via-red-500/10 to-transparent" />
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {/* Category tag */}
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-red-500/15 border border-red-500/40 text-red-300 text-[10px] font-mono tracking-wider">
@@ -28,9 +28,9 @@ export const Chapter2PipeBurst: React.FC = () => {
           </span>
         </h2>
 
-        {/* Streamlined Narrative Copy */}
+        {/* Short copy: two short lines */}
         <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
-          At 04:00, 92-year-old cast-iron trunk <span className="text-white font-mono font-semibold">PIPE1</span> ruptures. 220 ML/d inundates the eastern arterial underpass.
+          At 04:00, 92-year-old trunk <span className="text-white font-mono font-semibold">PIPE1</span> ruptures. 220 ML/d floods into the eastern arterial underpass.
         </p>
 
         {/* Slim Critical Telemetry Chips */}
@@ -56,17 +56,17 @@ export const Chapter2PipeBurst: React.FC = () => {
           <div className="p-2.5 rounded-xl bg-black/40 border border-red-500/20">
             <div className="flex items-center gap-1 text-red-400 mb-0.5">
               <AlertCircle className="w-3.5 h-3.5" />
-              <span className="text-[9px] text-slate-400 uppercase">Submerged</span>
+              <span className="text-[9px] text-slate-400 uppercase">Blocked</span>
             </div>
             <div className="text-xs font-bold text-red-300 truncate">East Underpass</div>
-            <span className="text-[9px] text-red-400 font-semibold">BLOCKED</span>
+            <span className="text-[9px] text-red-400 font-semibold">SEVERED</span>
           </div>
         </div>
 
         {/* Impact footer */}
         <div className="pt-1 flex items-center justify-between text-[10px] font-mono text-slate-400 border-t border-white/5">
-          <span className="text-red-300">EMS route severed</span>
-          <span className="text-slate-500">Scroll to trace cascade</span>
+          <span className="text-red-300">Ambulance route submerged</span>
+          <span className="text-slate-500">Trace cascade below</span>
         </div>
       </div>
     </div>

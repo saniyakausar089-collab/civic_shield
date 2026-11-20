@@ -3,25 +3,21 @@ import { Clock, Users, Building2, AlertOctagon } from "lucide-react";
 import { CINEMATIC_THEME } from "../theme";
 
 interface Chapter3Props {
-  progress: number; // 0.0 to 1.0 within chapter 3
+  progress: number;
 }
 
 export const Chapter3ChainReaction: React.FC<Chapter3Props> = ({ progress }) => {
-  // Compute T+ hour from 0 to 14
   const hour = useMemo(() => {
     return Math.min(14, Math.floor(progress * 14));
   }, [progress]);
 
-  // Compute residents affected counting smoothly up to 4,28,000
   const targetResidents = useMemo(() => {
     return Math.floor(Math.min(1, progress * 1.08) * 428000);
   }, [progress]);
 
-  // Glitch effect on numbers when progress updates
   const [glitchText, setGlitchText] = useState<string>("");
 
   useEffect(() => {
-    // Brief scramble during rapid scrub
     const chars = "0123456789";
     const raw = targetResidents.toLocaleString("en-IN");
     if (progress > 0.05 && progress < 0.95 && Math.random() > 0.4) {
@@ -37,26 +33,25 @@ export const Chapter3ChainReaction: React.FC<Chapter3Props> = ({ progress }) => 
     }
   }, [targetResidents, progress]);
 
-  // Hospital status based on hour
   const hospitalStatus = useMemo(() => {
-    if (hour < 2) return { text: "GRID POWER (STRESSED)", status: "WARNING", color: "text-amber-400", bg: "bg-amber-500/15", border: "border-amber-500/40" };
-    if (hour < 11) return { text: "DIESEL BACKUP (GENERATORS)", status: "WARNING", color: "text-amber-400", bg: "bg-amber-500/15", border: "border-amber-500/40" };
-    return { text: "OFFLINE // 850 AT RISK", status: "CRITICAL OFFLINE", color: "text-[#ff2d55]", bg: "bg-red-500/20", border: "border-red-500/50" };
+    if (hour < 2) return { text: "GRID (STRESSED)", color: "text-[#ffb020]", bg: "bg-amber-500/15", border: "border-amber-500/40" };
+    if (hour < 11) return { text: "DIESEL BACKUP", color: "text-[#ffb020]", bg: "bg-amber-500/15", border: "border-amber-500/40" };
+    return { text: "OFFLINE // 850 AT RISK", color: "text-[#ff2d55]", bg: "bg-red-500/20", border: "border-red-500/50" };
   }, [hour]);
 
   return (
-    <div className="group relative overflow-hidden rounded-2xl bg-[#0a0612]/90 backdrop-blur-2xl border border-red-500/40 p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85),0_0_25px_rgba(255,45,85,0.2)] transition-all duration-300 hover:border-red-500/60 hover:-translate-y-1">
-      {/* Shimmer light sweep */}
-      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-red-500/10 to-transparent" />
+    <div className="group relative overflow-hidden rounded-2xl bg-[#060b09]/90 backdrop-blur-2xl border border-red-500/40 p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85),0_0_25px_rgba(255,45,85,0.2)] transition-all duration-300 hover:border-red-500/60 hover:-translate-y-1">
+      {/* 300ms light sweep */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-300 bg-gradient-to-r from-transparent via-red-500/10 to-transparent" />
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {/* Category tag */}
         <div className="flex items-center justify-between">
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-red-500/15 border border-red-500/40 text-red-300 text-[10px] font-mono tracking-wider">
             <AlertOctagon className="w-3.5 h-3.5 text-[#ff2d55] animate-pulse" />
             <span>CASCADE DYNAMICS</span>
           </div>
-          <span className="text-[10px] font-mono text-amber-400 font-bold">
+          <span className="text-[10px] font-mono text-[#ffb020] font-bold">
             SPREADING
           </span>
         </div>
@@ -69,24 +64,24 @@ export const Chapter3ChainReaction: React.FC<Chapter3Props> = ({ progress }) => 
           </span>
         </h2>
 
-        {/* Streamlined Narrative Copy */}
+        {/* Short copy: two short lines */}
         <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
           Floods drown roads; pumps stall; substations overheat; hospitals lose life-support reserves.
         </p>
 
-        {/* Scrubbing Ticker Metric Chips */}
+        {/* Metric Chips */}
         <div className="grid grid-cols-2 gap-2 font-mono">
           <div className="p-2.5 rounded-xl bg-black/40 border border-white/10">
             <span className="text-[9px] text-slate-400 uppercase tracking-widest block mb-0.5">TIMELINE</span>
             <div className="text-lg font-extrabold text-white flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-amber-400" />
+              <Clock className="w-4 h-4 text-[#ffb020]" />
               <span>T+{String(hour).padStart(2, "0")}:00h</span>
             </div>
             <span className="text-[9px] text-slate-500">24h Horizon</span>
           </div>
 
           <div className="p-2.5 rounded-xl bg-black/40 border border-red-500/20">
-            <span className="text-[9px] text-slate-400 uppercase tracking-widest block mb-0.5">RESIDENTS CUT OFF</span>
+            <span className="text-[9px] text-slate-400 uppercase tracking-widest block mb-0.5">POPULATION CUT OFF</span>
             <div className="text-lg font-extrabold text-[#ff2d55] flex items-center gap-1.5">
               <Users className="w-4 h-4 text-[#ff2d55]" />
               <span className="font-mono tracking-tight">{glitchText || targetResidents.toLocaleString("en-IN")}</span>
@@ -108,7 +103,7 @@ export const Chapter3ChainReaction: React.FC<Chapter3Props> = ({ progress }) => 
           </div>
           <p className="text-[10px] font-mono text-slate-300 leading-tight">
             {hour < 11
-              ? "Underpass flood severed ambulance artery. Backup generators supplying trauma ICU."
+              ? "Ambulance artery severed. Backup generators supplying trauma ICU."
               : "City General Hospital: diesel generators tripped at T+11h, 850 patients at risk."}
           </p>
         </div>

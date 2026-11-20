@@ -50,7 +50,7 @@ export const Chapter4PlanTriage: React.FC = () => {
     return {
       baseline: {
         name: "No action",
-        summary: "Unmitigated cascade: flood drowns underpass, substation trips.",
+        summary: "Unmitigated cascade: underpass floods, substation overheats.",
         affectedPopHours: baselineResult.summary.affected_pop_hours,
         hospitalDowntimeH: baselineHospDown,
       },
@@ -69,23 +69,23 @@ export const Chapter4PlanTriage: React.FC = () => {
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-2xl bg-[#0a0612]/90 backdrop-blur-2xl border p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85)] transition-all duration-300 ${
+      className={`group relative overflow-hidden rounded-2xl bg-[#060b09]/90 backdrop-blur-2xl border p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85)] transition-all duration-300 ${
         isBest
-          ? "border-fuchsia-500/40 shadow-[0_0_25px_rgba(192,38,211,0.2)]"
+          ? "border-[#00d1a0]/40 shadow-[0_0_25px_rgba(0,209,160,0.15)]"
           : "border-red-500/40 shadow-[0_0_25px_rgba(255,45,85,0.2)]"
       }`}
     >
-      {/* Shimmer light sweep */}
-      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+      {/* 300ms light sweep */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-300 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-      <div className="space-y-4">
+      <div className="space-y-3.5">
         {/* Category tag */}
         <div className="flex items-center justify-between">
-          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 text-[10px] font-mono tracking-wider">
-            <ShieldCheck className="w-3.5 h-3.5 text-fuchsia-400" />
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#00d1a0]/10 border border-[#00d1a0]/30 text-[#00d1a0] text-[10px] font-mono tracking-wider">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#00d1a0]" />
             <span>ALGORITHMIC TRIAGE</span>
           </div>
-          <span className="text-[10px] font-mono text-emerald-400 font-semibold">
+          <span className="text-[10px] font-mono text-[#00d1a0] font-semibold">
             MATH VERIFIED
           </span>
         </div>
@@ -93,14 +93,14 @@ export const Chapter4PlanTriage: React.FC = () => {
         {/* Headline */}
         <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display leading-tight">
           Test the fix{" "}
-          <span className="bg-gradient-to-r from-fuchsia-400 to-purple-400 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-[#00d1a0] to-[#2dffb3] bg-clip-text text-transparent">
             first.
           </span>
         </h2>
 
-        {/* Streamlined Narrative Copy */}
+        {/* Short copy: two short lines */}
         <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
-          Simulate emergency interventions in milliseconds before dispatching field crews.
+          Simulate emergency interventions in milliseconds before dispatching crews into flooded sectors.
         </p>
 
         {/* Plan Mode Toggle Pill */}
@@ -120,11 +120,11 @@ export const Chapter4PlanTriage: React.FC = () => {
             onClick={() => setSelectedPlanMode("best")}
             className={`py-1.5 px-2 rounded-lg text-[11px] font-mono font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
               isBest
-                ? "bg-gradient-to-r from-fuchsia-600/30 to-purple-600/30 text-fuchsia-100 border border-fuchsia-500/50 shadow-md"
+                ? "bg-gradient-to-r from-[#00d1a0]/25 to-[#2dffb3]/25 text-[#2dffb3] border border-[#00d1a0]/50 shadow-md"
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <CheckCircle2 className="w-3.5 h-3.5 text-[#00d1a0]" />
             <span>Best Plan (Valves)</span>
           </button>
         </div>
@@ -132,7 +132,7 @@ export const Chapter4PlanTriage: React.FC = () => {
         {/* Dynamic Telemetry Comparison Card */}
         {loading ? (
           <div className="py-4 font-mono text-xs text-slate-400 flex items-center justify-center gap-2">
-            <RefreshCw className="w-3.5 h-3.5 animate-spin text-fuchsia-400" />
+            <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#00d1a0]" />
             <span>Evaluating engine graph...</span>
           </div>
         ) : calculation ? (
@@ -147,7 +147,7 @@ export const Chapter4PlanTriage: React.FC = () => {
                   {activeStats?.affectedPopHours.toLocaleString()}
                 </div>
                 {isBest ? (
-                  <span className="text-[9px] font-bold text-emerald-400 block">
+                  <span className="text-[9px] font-bold text-[#00d1a0] block">
                     ↓ {calculation.best.popHoursSavedPct}% SAVED
                   </span>
                 ) : (
@@ -160,11 +160,11 @@ export const Chapter4PlanTriage: React.FC = () => {
                 <span className="text-[9px] text-slate-400 uppercase tracking-wider block">
                   HOSPITAL BLACKOUT
                 </span>
-                <div className={`text-base font-extrabold ${isBest ? "text-emerald-400" : "text-red-400"}`}>
+                <div className={`text-base font-extrabold ${isBest ? "text-[#00d1a0]" : "text-red-400"}`}>
                   {activeStats?.hospitalDowntimeH} h
                 </div>
                 {isBest ? (
-                  <span className="text-[9px] font-bold text-emerald-400 block">
+                  <span className="text-[9px] font-bold text-[#00d1a0] block">
                     11 h → 0 h (SAVED)
                   </span>
                 ) : (
