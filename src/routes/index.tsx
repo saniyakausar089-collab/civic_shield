@@ -3,7 +3,7 @@ import { createFileRoute, ClientOnly } from "@tanstack/react-router";
 import { ErrorBoundary } from "@/components/ui/ErrorBoundary";
 
 const CinematicLanding = lazy(() =>
-  import("@/components/landing3d/CinematicLanding").then((m) => ({
+  import("@/components/cinematic/CinematicLanding").then((m) => ({
     default: m.CinematicLanding,
   }))
 );
