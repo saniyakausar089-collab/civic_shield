@@ -28,59 +28,104 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
     requestedRef.current = true;
 
     async function fetchReport() {
+      const staticFallback =
+        "## SITUATION REPORT // PIPELINE RUPTURE & SYSTEMIC CASCADE\n\n" +
+        "**Immediate Hazard**: Main Pipeline (PIPE1) catastrophic pressure loss at T+0h.\n" +
+        "**Secondary Impact**: 428,000 residents without potable water; flood hazard at East Underpass cuts arterial EMS routes.\n" +
+        "**Critical Facility**: City General Hospital generator fuel and water buffer exhausted at T+11h.\n" +
+        "**Recommended Action**: Execute Plan 1 (Valves & Rapid Repair). Isolate link PIPE1>UJ1 to halt flooding; deploy water tankers to H1 by T+2h.";
+
       try {
         const data = await loadCivicShieldData();
-        const network = data.network as NetworkData;
-        const hoods = data.neighborhoods as NeighborhoodsData;
-        const scenario = (data.scenarios.find((s: any) => s.id === "pipeline_burst") || data.scenarios[0]) as Scenario;
+        const network = data?.network as NetworkData;
+        const hoods = data?.neighborhoods as NeighborhoodsData;
+        const rawScenarios = Array.isArray(data?.scenarios) ? data.scenarios : [];
+        const rawScenario = rawScenarios.find((s: any) => s?.id === "pipeline_burst") || rawScenarios[0];
+
+        // Safe scenario fallback with guaranteed triggers array
+        const scenario: Scenario = {
+          id: rawScenario?.id || "pipeline_burst",
+          name: rawScenario?.name || "Pipeline burst",
+          triggers: Array.isArray(rawScenario?.triggers) && rawScenario.triggers.length > 0
+            ? rawScenario.triggers
+            : [{ node: "PIPE1", t_hours: 0, severity: 1.0, event: "Main Pipeline ruptured" }],
+        };
+
+        if (!network?.nodes || !hoods?.features) {
+          setReportMarkdown(staticFallback);
+          setReportSource("template");
+          setLoading(false);
+          return;
+        }
 
         const baselineResult = simulate(network, hoods, scenario, {});
         const planEvals = evaluatePlans(simulate, network, hoods, scenario);
-        const weakLinks = analyzeWeakLinks(network, hoods);
+        const weakLinks = analyzeWeakLinks(network, hoods) || [];
 
-        const facts: ReportFacts = buildReportFacts({
-          network,
-          hoods,
-          scenario,
-          result: baselineResult,
-          plans: planEvals,
-          weakLinks,
-        });
-
-        // Call /api/report (same request shape as ReportTab)
+        let facts: ReportFacts | null = null;
         try {
-          const res = await fetch("/api/report", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ facts }),
+          facts = buildReportFacts({
+            network,
+            hoods,
+            scenario,
+            result: baselineResult,
+            plans: planEvals,
+            weakLinks,
           });
-
-          if (res.ok) {
-            const resultData = (await res.json()) as NarrativeResult;
-            if (resultData.narrative) {
-              setReportMarkdown(resultData.narrative);
-              setReportSource(resultData.source === "claude" ? "claude" : "template");
-              setLoading(false);
-              return;
-            }
-          }
         } catch {
-          // Graceful fallback to local template narrative
+          facts = null;
         }
 
-        const template = templateNarrative(facts);
-        setReportMarkdown(template);
+        // Call /api/report (safe shape inspection)
+        if (facts) {
+          try {
+            const res = await fetch("/api/report", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ facts }),
+            });
+
+            if (res.ok) {
+              const resultData: any = await res.json();
+              const narrativeText =
+                typeof resultData?.narrative === "string"
+                  ? resultData.narrative
+                  : typeof resultData?.body?.narrative === "string"
+                    ? resultData.body.narrative
+                    : null;
+
+              if (narrativeText && narrativeText.trim().length > 0) {
+                setReportMarkdown(narrativeText);
+                setReportSource(resultData.source === "claude" ? "claude" : "template");
+                setLoading(false);
+                return;
+              }
+            }
+          } catch {
+            // Server endpoint unreachable; continue to template fallback
+          }
+
+          // Safe template narrative fallback
+          try {
+            if (facts && facts.headline && Array.isArray(facts.timeline) && Array.isArray(facts.most_affected_neighborhoods)) {
+              const template = templateNarrative(facts);
+              if (template && typeof template === "string" && template.trim().length > 0) {
+                setReportMarkdown(template);
+                setReportSource("template");
+                setLoading(false);
+                return;
+              }
+            }
+          } catch {
+            // Continue to static fallback
+          }
+        }
+
+        setReportMarkdown(staticFallback);
         setReportSource("template");
         setLoading(false);
-      } catch (err) {
-        console.warn("[CIVICSHIELD] Fallback incident report applied:", err);
-        setReportMarkdown(
-          "## SITUATION REPORT // PIPELINE RUPTURE & SYSTEMIC CASCADE\n\n" +
-          "**Immediate Hazard**: Main Pipeline (PIPE1) catastrophic pressure loss at T+0h.\n" +
-          "**Secondary Impact**: 428,000 residents without potable water; flood hazard at East Underpass cuts arterial EMS routes.\n" +
-          "**Critical Facility**: City General Hospital generator fuel and water buffer exhausted at T+11h.\n" +
-          "**Recommended Action**: Execute Plan 1 (Valves & Rapid Repair). Isolate link PIPE1>UJ1 to halt flooding; deploy water tankers to H1 by T+2h."
-        );
+      } catch {
+        setReportMarkdown(staticFallback);
         setReportSource("template");
         setLoading(false);
       }

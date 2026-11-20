@@ -82,20 +82,35 @@ export const CesiumGlobe: React.FC<CesiumGlobeProps> = ({
         selectionIndicator: false,
         fullscreenButton: false,
         shouldAnimate: true,
+        skyBox: false,
+        skyAtmosphere: false,
       });
 
-      // Suppress standard error modal
+      // Suppress standard error modal and catch render failures
       if (viewer.cesiumWidget) {
-        viewer.cesiumWidget.showErrorPanel = () => {};
+        viewer.cesiumWidget.showErrorPanel = (_title: string, message: any, error: any) => {
+          console.warn("[CIVICSHIELD] Cesium render error suppressed:", message, error);
+          setInitError(`Cesium render notice: ${message || "Viewport issue"}`);
+        };
       }
 
-      viewer.scene.globe.depthTestAgainstTerrain = false;
-      viewer.scene.globe.enableLighting = true;
-      viewer.scene.fog.enabled = true;
-      viewer.scene.fog.density = 0.00018;
+      viewer.scene.renderError.addEventListener((_scene: Cesium.Scene, error: any) => {
+        console.warn("[CIVICSHIELD] Cesium scene render warning caught:", error);
+        setInitError(`Cesium scene error: ${error.message || error}`);
+      });
 
-      // Dark atmospheric color
-      viewer.scene.backgroundColor = Cesium.Color.fromCssColorString("#0a0f16");
+      // Explicitly disable moon and sun asset dependencies
+      if (viewer.scene.moon) {
+        viewer.scene.moon.show = false;
+      }
+      if (viewer.scene.sun) {
+        viewer.scene.sun.show = false;
+      }
+
+      const scene = viewer.scene;
+      scene.globe.show = true;
+      scene.globe.depthTestAgainstTerrain = false;
+      scene.globe.enableLighting = false; // Keep fully illuminated 24/7 matching /simulator
 
       // Set initial wide view over Hyderabad
       viewer.camera.setView({

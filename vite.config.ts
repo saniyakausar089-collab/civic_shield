@@ -170,10 +170,57 @@ function safeCesiumPlugin(): Plugin {
   return plugin;
 }
 
+function cesiumStaticAssetsPlugin(): Plugin {
+  const syncFolders = () => {
+    const src = path.resolve("node_modules/cesium/Build/Cesium");
+    if (!fs.existsSync(src)) return;
+
+    // 1. public/cesium (gitignored, automatically copied by Nitro to .output/public)
+    const publicCesium = path.resolve("public/cesium");
+    for (const folder of ["Assets", "ThirdParty", "Widgets", "Workers"]) {
+      const s = path.join(src, folder);
+      const d = path.join(publicCesium, folder);
+      if (fs.existsSync(s) && !fs.existsSync(d)) {
+        fs.mkdirSync(path.dirname(d), { recursive: true });
+        fs.cpSync(s, d, { recursive: true });
+      }
+    }
+
+    // 2. Direct sync to production web outputs
+    const outputDirs = [
+      path.resolve(".output/public/cesium"),
+      path.resolve(".vercel/output/static/cesium"),
+    ];
+    for (const outRoot of outputDirs) {
+      if (fs.existsSync(path.dirname(outRoot))) {
+        for (const folder of ["Assets", "ThirdParty", "Widgets", "Workers"]) {
+          const s = path.join(src, folder);
+          const d = path.join(outRoot, folder);
+          if (fs.existsSync(s) && !fs.existsSync(d)) {
+            fs.mkdirSync(path.dirname(d), { recursive: true });
+            fs.cpSync(s, d, { recursive: true });
+          }
+        }
+      }
+    }
+  };
+
+  return {
+    name: "vite-plugin-cesium-static-sync",
+    buildStart() {
+      syncFolders();
+    },
+    closeBundle() {
+      syncFolders();
+    },
+  };
+}
+
 export default defineConfig({
   plugins: [
     cppCascadePlugin(),
     safeCesiumPlugin(),
+    cesiumStaticAssetsPlugin(),
   ],
   define: {
     // Tell Cesium where static build assets reside
