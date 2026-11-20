@@ -1,58 +1,72 @@
 import React from "react";
-import { AlertTriangle, Droplets, Gauge, Clock } from "lucide-react";
+import { AlertTriangle, Droplets, Gauge, AlertCircle } from "lucide-react";
+import { CINEMATIC_THEME } from "../theme";
 
 export const Chapter2PipeBurst: React.FC = () => {
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col justify-center min-h-[75vh] px-4 sm:px-6 pointer-events-none">
-      <div className="pointer-events-auto space-y-6 max-w-2xl">
+    <div className="group relative overflow-hidden rounded-2xl bg-[#0a0612]/90 backdrop-blur-2xl border border-red-500/40 p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85),0_0_25px_rgba(255,45,85,0.2)] transition-all duration-300 hover:border-red-500/60 hover:-translate-y-1">
+      {/* Shimmer light sweep */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-red-500/10 to-transparent" />
+
+      <div className="space-y-4">
         {/* Category tag */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-300 text-xs font-mono backdrop-blur-md">
-          <AlertTriangle className="w-3.5 h-3.5 text-red-400 animate-pulse" />
-          <span>INCIDENT TRIGGER // T+00:00</span>
+        <div className="flex items-center justify-between">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-red-500/15 border border-red-500/40 text-red-300 text-[10px] font-mono tracking-wider">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#ff2d55] shadow-[0_0_6px_#ff2d55] animate-ping" />
+            <span>TRIGGER // T+00:00h</span>
+          </div>
+          <span className="px-2 py-0.5 rounded bg-red-500/20 text-red-300 font-mono text-[9px] font-bold border border-red-500/40">
+            OFFLINE
+          </span>
         </div>
 
         {/* Headline */}
-        <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white font-display leading-[1.08]">
-          One pipe <br />
-          <span className="text-red-400">bursts.</span>
+        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display leading-tight">
+          One pipe{" "}
+          <span className="text-[#ff2d55] drop-shadow-[0_0_12px_rgba(255,45,85,0.4)]">
+            bursts.
+          </span>
         </h2>
 
-        {/* Narrative Copy */}
-        <p className="text-base sm:text-lg text-slate-300 font-sans leading-relaxed max-w-xl">
-          At 04:00, the 92-year-old cast-iron Main Pipeline (<span className="text-white font-mono font-semibold">PIPE1</span>) suffers an immediate structural rupture. 220 million liters of pressurized water begins inundating the eastern arterial corridor.
+        {/* Streamlined Narrative Copy */}
+        <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
+          At 04:00, 92-year-old cast-iron trunk <span className="text-white font-mono font-semibold">PIPE1</span> ruptures. 220 ML/d inundates the eastern arterial underpass.
         </p>
 
-        {/* Glass Asset Telemetry Card */}
-        <div className="p-5 rounded-2xl bg-[#101418]/85 backdrop-blur-xl border border-red-500/30 shadow-2xl space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-red-500/20 border border-red-500/40 flex items-center justify-center text-red-400">
-                <Droplets className="w-4 h-4" />
-              </div>
-              <div>
-                <h4 className="text-sm font-bold font-mono text-white">PIPE1 // MAIN PIPELINE</h4>
-                <p className="text-[11px] font-mono text-slate-400">17.370° N, 78.480° E • Built 1934 (Age: 92 yrs)</p>
-              </div>
+        {/* Slim Critical Telemetry Chips */}
+        <div className="grid grid-cols-3 gap-2 pt-1 font-mono">
+          <div className="p-2.5 rounded-xl bg-black/40 border border-red-500/20">
+            <div className="flex items-center gap-1 text-red-400 mb-0.5">
+              <Gauge className="w-3.5 h-3.5" />
+              <span className="text-[9px] text-slate-400 uppercase">Pressure</span>
             </div>
-            <span className="px-2.5 py-1 rounded-full bg-red-500/20 text-red-400 font-mono text-[11px] font-bold border border-red-500/40 animate-pulse">
-              RUPTURED
-            </span>
+            <div className="text-xs font-bold text-red-400">0.0 BAR</div>
+            <span className="text-[9px] text-red-400 font-semibold">OFFLINE</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 font-mono text-xs">
-            <div className="p-2.5 rounded-xl bg-black/30 border border-white/5">
-              <span className="text-[10px] text-slate-500 block mb-0.5">LINE PRESSURE</span>
-              <span className="text-red-400 font-bold text-sm">0.0 BAR</span>
+          <div className="p-2.5 rounded-xl bg-black/40 border border-red-500/20">
+            <div className="flex items-center gap-1 text-amber-400 mb-0.5">
+              <Droplets className="w-3.5 h-3.5" />
+              <span className="text-[9px] text-slate-400 uppercase">Lost</span>
             </div>
-            <div className="p-2.5 rounded-xl bg-black/30 border border-white/5">
-              <span className="text-[10px] text-slate-500 block mb-0.5">CAPACITY LOST</span>
-              <span className="text-white font-bold text-sm">220 ML/d</span>
-            </div>
-            <div className="p-2.5 rounded-xl bg-black/30 border border-white/5">
-              <span className="text-[10px] text-slate-500 block mb-0.5">SPILL HAZARD</span>
-              <span className="text-amber-400 font-bold text-sm">East Underpass</span>
-            </div>
+            <div className="text-xs font-bold text-white">220 ML/d</div>
+            <span className="text-[9px] text-amber-400 font-semibold">SURGE</span>
           </div>
+
+          <div className="p-2.5 rounded-xl bg-black/40 border border-red-500/20">
+            <div className="flex items-center gap-1 text-red-400 mb-0.5">
+              <AlertCircle className="w-3.5 h-3.5" />
+              <span className="text-[9px] text-slate-400 uppercase">Submerged</span>
+            </div>
+            <div className="text-xs font-bold text-red-300 truncate">East Underpass</div>
+            <span className="text-[9px] text-red-400 font-semibold">BLOCKED</span>
+          </div>
+        </div>
+
+        {/* Impact footer */}
+        <div className="pt-1 flex items-center justify-between text-[10px] font-mono text-slate-400 border-t border-white/5">
+          <span className="text-red-300">EMS route severed</span>
+          <span className="text-slate-500">Scroll to trace cascade</span>
         </div>
       </div>
     </div>

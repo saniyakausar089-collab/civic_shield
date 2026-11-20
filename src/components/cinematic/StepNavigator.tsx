@@ -1,5 +1,6 @@
 import React from "react";
 import { CHAPTERS } from "./types";
+import { CINEMATIC_THEME } from "./theme";
 
 interface StepNavigatorProps {
   currentChapter: number;
@@ -13,7 +14,7 @@ export const StepNavigator: React.FC<StepNavigatorProps> = ({
   return (
     <nav
       aria-label="Story Chapters Navigator"
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-[92vw] px-2 py-1.5 sm:px-3 sm:py-2 rounded-full bg-[#101418]/85 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/80 flex items-center gap-1.5 sm:gap-2 select-none"
+      className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-40 max-w-[94vw] px-2 py-1.5 sm:px-3 sm:py-2 rounded-full bg-[#0a0612]/90 backdrop-blur-2xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(192,38,211,0.15)] flex items-center gap-1 sm:gap-2 select-none"
     >
       {CHAPTERS.map((ch, idx) => {
         const isActive = currentChapter === idx;
@@ -23,22 +24,25 @@ export const StepNavigator: React.FC<StepNavigatorProps> = ({
           <button
             key={ch.id}
             onClick={() => onSelectChapter(idx)}
-            className={`group relative flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-xs font-mono cursor-pointer ${
+            className={`group relative overflow-hidden flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-full transition-all duration-300 text-xs font-mono cursor-pointer active:scale-95 ${
               isActive
-                ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.25)]"
+                ? "bg-gradient-to-r from-fuchsia-600/30 to-purple-600/30 text-fuchsia-200 border border-fuchsia-500/60 shadow-[0_0_15px_rgba(192,38,211,0.35)] -translate-y-0.5"
                 : isPast
-                  ? "text-slate-400 hover:text-white hover:bg-white/5"
-                  : "text-slate-600 hover:text-slate-300 hover:bg-white/5"
+                  ? "text-slate-400 hover:text-white hover:bg-white/5 border border-transparent hover:border-white/10 hover:-translate-y-0.5"
+                  : "text-slate-500 hover:text-slate-300 hover:bg-white/5 border border-transparent hover:border-white/10 hover:-translate-y-0.5"
             }`}
             title={`${ch.shortLabel}: ${ch.title}`}
           >
+            {/* Shimmer sweep on hover */}
+            <span className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
             {/* Step indicator dot */}
             <span
               className={`w-2 h-2 rounded-full transition-all duration-300 ${
                 isActive
-                  ? "bg-cyan-400 scale-125 shadow-[0_0_8px_#22d3ee]"
+                  ? "bg-fuchsia-400 scale-125 shadow-[0_0_10px_#e879f9]"
                   : isPast
-                    ? "bg-slate-400"
+                    ? "bg-emerald-400/80 shadow-[0_0_6px_rgba(52,245,165,0.4)]"
                     : "bg-slate-700 group-hover:bg-slate-500"
               }`}
             />
@@ -47,7 +51,7 @@ export const StepNavigator: React.FC<StepNavigatorProps> = ({
             <span
               className={`text-[11px] font-medium tracking-tight whitespace-nowrap transition-all ${
                 isActive
-                  ? "inline-block text-cyan-200 font-semibold"
+                  ? "inline-block text-fuchsia-100 font-semibold"
                   : "hidden md:inline-block"
               }`}
             >

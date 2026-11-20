@@ -5,12 +5,11 @@ import { analyzeWeakLinks } from "@/engine/weaklinks";
 import {
   buildReportFacts,
   templateNarrative,
-  renderMarkdown,
   type ReportFacts,
-  type NarrativeResult,
 } from "@/engine/report";
 import { loadCivicShieldData } from "@/gis/civicshieldLayer";
-import { Sparkles, FileText, CheckCircle2, RefreshCw, Copy, Check, Terminal } from "lucide-react";
+import { Sparkles, Terminal, Copy, Check, RefreshCw } from "lucide-react";
+import { CINEMATIC_THEME } from "../theme";
 
 interface Chapter5Props {
   progress: number;
@@ -29,11 +28,11 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
 
     async function fetchReport() {
       const staticFallback =
-        "## SITUATION REPORT // PIPELINE RUPTURE & SYSTEMIC CASCADE\n\n" +
-        "**Immediate Hazard**: Main Pipeline (PIPE1) catastrophic pressure loss at T+0h.\n" +
-        "**Secondary Impact**: 428,000 residents without potable water; flood hazard at East Underpass cuts arterial EMS routes.\n" +
-        "**Critical Facility**: City General Hospital generator fuel and water buffer exhausted at T+11h.\n" +
-        "**Recommended Action**: Execute Plan 1 (Valves & Rapid Repair). Isolate link PIPE1>UJ1 to halt flooding; deploy water tankers to H1 by T+2h.";
+        "## SITUATION REPORT // PIPELINE RUPTURE\n\n" +
+        "• Immediate Hazard: Main Pipeline (PIPE1) rupture at T+0h.\n" +
+        "• Secondary: 428,000 without water; East Underpass flooded.\n" +
+        "• Critical: City General Hospital generator buffer exhausted at T+11h.\n" +
+        "• Action Order: Isolate valves PIPE1>UJ1; route tankers to H1 by T+2h.";
 
       try {
         const data = await loadCivicShieldData();
@@ -76,7 +75,7 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
           facts = null;
         }
 
-        // Call /api/report (safe shape inspection)
+        // Call /api/report safely
         if (facts) {
           try {
             const res = await fetch("/api/report", {
@@ -134,11 +133,10 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
     fetchReport();
   }, []);
 
-  // Scroll-driven progressive reveal of report text
+  // Progressive scroll-driven reveal
   const displayedText = React.useMemo(() => {
     if (!reportMarkdown) return "";
-    // Reveal between 35% and 100% of characters based on chapter scroll progress
-    const revealFraction = Math.min(1, Math.max(0.35, progress * 1.2));
+    const revealFraction = Math.min(1, Math.max(0.4, progress * 1.3));
     const charCount = Math.floor(reportMarkdown.length * revealFraction);
     return reportMarkdown.slice(0, charCount);
   }, [reportMarkdown, progress]);
@@ -151,69 +149,67 @@ export const Chapter5AiReport: React.FC<Chapter5Props> = ({ progress }) => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col justify-center min-h-[85vh] px-4 sm:px-6 pointer-events-none">
-      <div className="pointer-events-auto space-y-5 max-w-2xl">
+    <div className="group relative overflow-hidden rounded-2xl bg-[#0a0612]/90 backdrop-blur-2xl border border-fuchsia-500/40 p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85),0_0_25px_rgba(192,38,211,0.2)] transition-all duration-300 hover:border-fuchsia-500/60 hover:-translate-y-1">
+      {/* Shimmer light sweep */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+      <div className="space-y-4">
         {/* Category tag */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono backdrop-blur-md">
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          <span>INCIDENT DEBRIEF // GEMINI INTELLIGENCE</span>
+        <div className="flex items-center justify-between">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 text-[10px] font-mono tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
+            <span>AI DIRECTIVE // REPORT</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <span className="text-[9px] font-mono px-2 py-0.5 rounded bg-emerald-500/15 border border-emerald-500/30 text-emerald-300">
+              {reportSource === "claude" ? "Gemini Verified" : "Rule Engine"}
+            </span>
+            <button
+              onClick={handleCopy}
+              className="p-1 rounded-md bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors cursor-pointer"
+              title="Copy Briefing"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            </button>
+          </div>
         </div>
 
         {/* Headline */}
-        <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white font-display leading-[1.08]">
-          Get the <br />
-          <span className="text-cyan-400">report.</span>
+        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display leading-tight">
+          Get the{" "}
+          <span className="bg-gradient-to-r from-fuchsia-400 to-purple-400 bg-clip-text text-transparent">
+            report.
+          </span>
         </h2>
 
-        {/* Narrative Copy */}
-        <p className="text-base sm:text-lg text-slate-300 font-sans leading-relaxed max-w-xl">
-          Instantly synthesizes hydraulic, electrical, and demographic simulation telemetry into an executive incident briefing ready for city leadership and dispatch.
+        {/* Streamlined Narrative Copy */}
+        <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
+          Instant executive briefing synthesizing hydraulic, grid, and ICU telemetry into actionable orders.
         </p>
 
-        {/* Incident Document Glass Container */}
-        <div className="p-5 sm:p-6 rounded-2xl bg-[#101418]/90 backdrop-blur-2xl border border-white/10 shadow-2xl space-y-4">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <div className="flex items-center gap-2.5">
-              <Terminal className="w-4 h-4 text-cyan-400" />
-              <span className="text-xs font-mono font-bold text-white tracking-wider">
-                TACTICAL INCIDENT DIRECTIVE // SEC-HYD-04
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 border border-cyan-500/30 text-cyan-300">
-                {reportSource === "claude" ? "Gemini 2.5 Flash Verified" : "Rule Engine Template"}
-              </span>
-              <button
-                onClick={handleCopy}
-                className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors cursor-pointer"
-                title="Copy Full Incident Report"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              </button>
-            </div>
+        {/* Terminal Text Box */}
+        <div className="p-3.5 rounded-xl bg-black/70 border border-white/10 font-mono text-[11px] leading-relaxed select-text">
+          <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-2 text-slate-500 text-[9px]">
+            <span className="flex items-center gap-1 text-fuchsia-400">
+              <Terminal className="w-3 h-3" />
+              <span>INCIDENT_DEBRIEF.MD</span>
+            </span>
+            {copied && <span className="text-emerald-400 font-bold">COPIED TO CLIPBOARD</span>}
           </div>
 
-          {/* Typewriter Stream Body */}
           {loading ? (
-            <div className="py-8 font-mono text-xs text-slate-400 flex items-center justify-center gap-3">
-              <RefreshCw className="w-4 h-4 animate-spin text-cyan-400" />
-              <span>Generating AI Executive Incident Brief...</span>
+            <div className="py-4 text-center text-slate-400 flex items-center justify-center gap-2">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-fuchsia-400" />
+              <span>Synthesizing incident briefing...</span>
             </div>
           ) : (
-            <div className="max-h-[360px] overflow-y-auto pr-2 font-mono text-xs text-slate-200 leading-relaxed whitespace-pre-wrap select-text selection:bg-cyan-500/30">
+            <div className="max-h-[160px] overflow-y-auto pr-1 text-slate-200 whitespace-pre-wrap">
               {displayedText}
               {displayedText.length < reportMarkdown.length && (
-                <span className="inline-block w-2 h-4 bg-cyan-400 animate-pulse ml-0.5 align-middle" />
+                <span className="inline-block w-1.5 h-3 bg-fuchsia-400 animate-pulse ml-0.5 align-middle" />
               )}
             </div>
           )}
-
-          <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[11px] font-mono text-slate-500">
-            <span>Scroll reveals progressive tactical debrief</span>
-            <span className="text-emerald-400 flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3" /> Grounded in Simulation Math
-            </span>
-          </div>
         </div>
       </div>
     </div>

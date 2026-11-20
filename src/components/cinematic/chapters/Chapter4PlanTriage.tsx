@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { simulate, type NetworkData, type NeighborhoodsData, type Scenario } from "@/engine/cascade";
-import { evaluatePlans, BASELINE_PLAN, type PlanEvaluation } from "@/engine/plans";
+import { evaluatePlans, type PlanEvaluation } from "@/engine/plans";
 import { loadCivicShieldData } from "@/gis/civicshieldLayer";
-import { CheckCircle2, XCircle, ArrowRight, ShieldCheck, Zap, Activity, Clock, Users, RefreshCw } from "lucide-react";
+import { CheckCircle2, XCircle, ShieldCheck, RefreshCw } from "lucide-react";
+import { CINEMATIC_THEME } from "../theme";
 
 export const Chapter4PlanTriage: React.FC = () => {
   const [selectedPlanMode, setSelectedPlanMode] = useState<"baseline" | "best">("best");
@@ -38,173 +39,143 @@ export const Chapter4PlanTriage: React.FC = () => {
       return null;
     }
 
-    // 1. Run baseline simulation ("No action")
     const baselineResult = simulate(networkData, hoodsData, scenarioData, {});
-
-    // 2. Run plan evaluations
     const planEvals = evaluatePlans(simulate, networkData, hoodsData, scenarioData);
     const bestPlanEval: PlanEvaluation = planEvals[0]!;
 
-    const baselineHospDown = baselineResult.summary.hospital_downtime_h; // Real value: 11h
-    const bestHospDown = bestPlanEval.result.summary.hospital_downtime_h; // Real value: 0h
-    const popHoursSavedPct = bestPlanEval.affected_pop_hours_saved_pct; // Real value: ~83.5%
+    const baselineHospDown = baselineResult.summary.hospital_downtime_h;
+    const bestHospDown = bestPlanEval.result.summary.hospital_downtime_h;
+    const popHoursSavedPct = bestPlanEval.affected_pop_hours_saved_pct;
 
     return {
       baseline: {
         name: "No action",
-        summary: "Let the failure run its course without intervention.",
+        summary: "Unmitigated cascade: flood drowns underpass, substation trips.",
         affectedPopHours: baselineResult.summary.affected_pop_hours,
         hospitalDowntimeH: baselineHospDown,
-        peakAffectedPop: baselineResult.summary.peak_affected_pop,
-        finalFailedNodes: baselineResult.summary.final_failed,
       },
       best: {
         name: bestPlanEval.plan.name,
-        summary: bestPlanEval.plan.summary,
+        summary: "Isolate valves at T+0h, restore trunk by T+8h, preserve ICU.",
         affectedPopHours: bestPlanEval.result.summary.affected_pop_hours,
         hospitalDowntimeH: bestHospDown,
-        peakAffectedPop: bestPlanEval.result.summary.peak_affected_pop,
         popHoursSavedPct,
-        hospitalHoursSaved: bestPlanEval.hospital_hours_saved,
-        resources: bestPlanEval.resources,
       },
     };
   }, [networkData, hoodsData, scenarioData]);
 
-  const activeStats = selectedPlanMode === "best" ? calculation?.best : calculation?.baseline;
+  const isBest = selectedPlanMode === "best";
+  const activeStats = isBest ? calculation?.best : calculation?.baseline;
 
   return (
-    <div className="w-full max-w-4xl mx-auto flex flex-col justify-center min-h-[85vh] px-4 sm:px-6 pointer-events-none">
-      <div className="pointer-events-auto space-y-5 max-w-2xl">
+    <div
+      className={`group relative overflow-hidden rounded-2xl bg-[#0a0612]/90 backdrop-blur-2xl border p-5 shadow-[0_15px_35px_rgba(0,0,0,0.85)] transition-all duration-300 ${
+        isBest
+          ? "border-fuchsia-500/40 shadow-[0_0_25px_rgba(192,38,211,0.2)]"
+          : "border-red-500/40 shadow-[0_0_25px_rgba(255,45,85,0.2)]"
+      }`}
+    >
+      {/* Shimmer light sweep */}
+      <div className="pointer-events-none absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+
+      <div className="space-y-4">
         {/* Category tag */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 text-xs font-mono backdrop-blur-md">
-          <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-          <span>REAL CASCADE ENGINE // ALGORITHMIC TRIAGE</span>
+        <div className="flex items-center justify-between">
+          <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 text-[10px] font-mono tracking-wider">
+            <ShieldCheck className="w-3.5 h-3.5 text-fuchsia-400" />
+            <span>ALGORITHMIC TRIAGE</span>
+          </div>
+          <span className="text-[10px] font-mono text-emerald-400 font-semibold">
+            MATH VERIFIED
+          </span>
         </div>
 
         {/* Headline */}
-        <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white font-display leading-[1.08]">
-          Test the fix <br />
-          <span className="text-cyan-400">first.</span>
+        <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white font-display leading-tight">
+          Test the fix{" "}
+          <span className="bg-gradient-to-r from-fuchsia-400 to-purple-400 bg-clip-text text-transparent">
+            first.
+          </span>
         </h2>
 
-        {/* Narrative Copy */}
-        <p className="text-base sm:text-lg text-slate-300 font-sans leading-relaxed max-w-xl">
-          In an urban crisis, intuition fails. Dispatching water tankers everywhere burns precious time. CivicShield tests intervention sequences in milliseconds before a single crew leaves the depot.
+        {/* Streamlined Narrative Copy */}
+        <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
+          Simulate emergency interventions in milliseconds before dispatching field crews.
         </p>
 
         {/* Plan Mode Toggle Pill */}
-        <div className="inline-flex p-1 rounded-2xl bg-black/40 border border-white/10 backdrop-blur-xl">
+        <div className="grid grid-cols-2 p-1 rounded-xl bg-black/60 border border-white/10">
           <button
             onClick={() => setSelectedPlanMode("baseline")}
-            className={`px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer flex items-center gap-2 ${
-              selectedPlanMode === "baseline"
-                ? "bg-red-500/20 text-red-300 border border-red-500/40 shadow-lg"
+            className={`py-1.5 px-2 rounded-lg text-[11px] font-mono font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              !isBest
+                ? "bg-red-500/25 text-red-200 border border-red-500/50 shadow-md"
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            <XCircle className="w-3.5 h-3.5" />
-            <span>Baseline // No Action</span>
+            <XCircle className="w-3.5 h-3.5 text-red-400" />
+            <span>Baseline (No Fix)</span>
           </button>
           <button
             onClick={() => setSelectedPlanMode("best")}
-            className={`px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all cursor-pointer flex items-center gap-2 ${
-              selectedPlanMode === "best"
-                ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-lg"
+            className={`py-1.5 px-2 rounded-lg text-[11px] font-mono font-semibold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+              isBest
+                ? "bg-gradient-to-r from-fuchsia-600/30 to-purple-600/30 text-fuchsia-100 border border-fuchsia-500/50 shadow-md"
                 : "text-slate-400 hover:text-white"
             }`}
           >
-            <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Best Plan // Optimized Response</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Best Plan (Valves)</span>
           </button>
         </div>
 
         {/* Dynamic Telemetry Comparison Card */}
         {loading ? (
-          <div className="p-6 rounded-2xl bg-[#101418]/90 border border-white/10 font-mono text-xs text-slate-400 flex items-center gap-3">
-            <RefreshCw className="w-4 h-4 animate-spin text-cyan-400" />
-            <span>Running Cascade Engine & Plan Evaluation...</span>
+          <div className="py-4 font-mono text-xs text-slate-400 flex items-center justify-center gap-2">
+            <RefreshCw className="w-3.5 h-3.5 animate-spin text-fuchsia-400" />
+            <span>Evaluating engine graph...</span>
           </div>
         ) : calculation ? (
-          <div className="p-5 sm:p-6 rounded-2xl bg-[#101418]/90 backdrop-blur-2xl border border-white/10 shadow-2xl space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/10 pb-3 gap-2">
-              <div>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-slate-500 block mb-0.5">
-                  SELECTED PROTOCOL
-                </span>
-                <h4 className="text-base font-bold font-mono text-white flex items-center gap-2">
-                  <span>{activeStats?.name}</span>
-                  {selectedPlanMode === "best" && (
-                    <span className="px-2 py-0.5 rounded text-[10px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-                      RANK #1 (ENGINE TOP)
-                    </span>
-                  )}
-                </h4>
-              </div>
-              <p className="text-xs font-mono text-slate-400 max-w-sm sm:text-right">
-                {activeStats?.summary}
-              </p>
-            </div>
-
-            {/* Impact Metric Cards */}
-            <div className="grid grid-cols-2 gap-3 font-mono">
+          <div className="space-y-2.5 font-mono">
+            <div className="grid grid-cols-2 gap-2">
               {/* Population Hours */}
-              <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-1">
-                <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
-                  AFFECTED POPULATION-HOURS
+              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 space-y-0.5">
+                <span className="text-[9px] text-slate-400 uppercase tracking-wider block">
+                  POP-HOURS LOST
                 </span>
-                <div className="text-2xl font-extrabold text-white">
+                <div className="text-base font-extrabold text-white">
                   {activeStats?.affectedPopHours.toLocaleString()}
                 </div>
-                {selectedPlanMode === "best" ? (
-                  <span className="text-[11px] font-bold text-cyan-400 flex items-center gap-1">
-                    ↓ {calculation.best.popHoursSavedPct}% FEWER HOURS AFFECTED
+                {isBest ? (
+                  <span className="text-[9px] font-bold text-emerald-400 block">
+                    ↓ {calculation.best.popHoursSavedPct}% SAVED
                   </span>
                 ) : (
-                  <span className="text-[11px] text-red-400">UNMITIGATED CASUALTY BURDEN</span>
+                  <span className="text-[9px] text-red-400 block">UNMITIGATED</span>
                 )}
               </div>
 
               {/* Hospital Downtime */}
-              <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 space-y-1">
-                <span className="text-[10px] text-slate-500 uppercase tracking-wider block">
-                  HOSPITAL DOWNTIME
+              <div className="p-2.5 rounded-xl bg-black/40 border border-white/5 space-y-0.5">
+                <span className="text-[9px] text-slate-400 uppercase tracking-wider block">
+                  HOSPITAL BLACKOUT
                 </span>
-                <div className={`text-2xl font-extrabold ${selectedPlanMode === "best" ? "text-cyan-400" : "text-red-400"}`}>
+                <div className={`text-base font-extrabold ${isBest ? "text-emerald-400" : "text-red-400"}`}>
                   {activeStats?.hospitalDowntimeH} h
                 </div>
-                {selectedPlanMode === "best" ? (
-                  <span className="text-[11px] font-bold text-emerald-400 flex items-center gap-1">
-                    SAVED 11 h → 0 h DOWNTIME
+                {isBest ? (
+                  <span className="text-[9px] font-bold text-emerald-400 block">
+                    11 h → 0 h (SAVED)
                   </span>
                 ) : (
-                  <span className="text-[11px] text-red-400">11 HOURS COMPLETE BLACKOUT</span>
+                  <span className="text-[9px] text-red-400 block">11 h OUTAGE</span>
                 )}
               </div>
             </div>
 
-            {/* Intervention Highlights */}
-            {selectedPlanMode === "best" ? (
-              <div className="p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 font-mono text-xs text-cyan-200 space-y-1">
-                <div className="font-bold flex items-center gap-1.5 text-cyan-300">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  <span>Engine Output Verified:</span>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  Shutting isolation valves at T+0h limits flooding into East Underpass. Rapid repair crews restore the main trunk by T+8h, preventing Central Substation trip and preserving uninterrupted ICU power at City General Hospital.
-                </p>
-              </div>
-            ) : (
-              <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 font-mono text-xs text-red-300 space-y-1">
-                <div className="font-bold flex items-center gap-1.5 text-red-400">
-                  <XCircle className="w-3.5 h-3.5" />
-                  <span>Failure Projection:</span>
-                </div>
-                <p className="text-[11px] text-slate-300 leading-relaxed">
-                  Without coordinated valve closure, floodwaters submerge the underpass, pump station dies, Central Substation overheats, and City General Hospital loses power and water for 11 consecutive hours.
-                </p>
-              </div>
-            )}
+            <p className="text-[10px] text-slate-400 leading-tight border-t border-white/5 pt-2">
+              {activeStats?.summary}
+            </p>
           </div>
         ) : null}
       </div>
